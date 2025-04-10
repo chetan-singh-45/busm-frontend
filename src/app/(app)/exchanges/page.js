@@ -9,6 +9,8 @@ import { useAllExchanges } from '@/hooks/exchanges'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import axios from '@/lib/axios'
+import Link from 'next/link'
+import Button from '@/components/Button'
 
 
 const Exchanges = () => {
@@ -19,7 +21,6 @@ const Exchanges = () => {
   const { exchanges, isLoading, isError, mutate } = useAllExchanges()
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-
   const openModal = () => setIsOpen(true)
   const closeModal = () => {
     setIsOpen(false)
@@ -80,8 +81,13 @@ const Exchanges = () => {
                     key={exchange.id}
                     className="rounded-xl border border-gray-200 p-5 shadow hover:shadow-lg transition-all duration-300"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900">{exchange.name}</h3>
-                    <p className="text-gray-600 text-sm mt-1">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      <Link href={`/exchanges/${exchange.mic}`}>
+                        {exchange.name}
+                      </Link>
+                    </h3>
+                
+                    <p className="underline text-sm text-gray-600 hover:text-gray-900">
                       {exchange.description || 'No description available.'}
                     </p>
                   </div>

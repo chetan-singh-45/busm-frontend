@@ -13,6 +13,10 @@ export const useAllExchanges = () => {
     exchanges: data,
     isLoading: !error && !data,
     isError: error,
-    mutate, 
+    mutate
   }
+}
+
+export const getStocks = async (mic) => {
+  return fetch(`http://api.marketstack.com/v2/exchanges/${mic}/tickers?access_key=35f2fc6c10e80ec4d44a2045b602124b`)
 }
