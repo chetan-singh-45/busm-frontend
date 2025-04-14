@@ -1,22 +1,17 @@
 import useSWR from 'swr'
-import axios from '@/lib/axios'
+import { getAllExchanges, selectExchangeAPI } from '@/services/exchanges'
 
 export const useAllExchanges = () => {
-  const fetcher = async (url) => {
-    const { data } = await axios.get(url)
-    return data
-  }
-
-  const { data, error, mutate } = useSWR('/api/all-exchanges', fetcher)
+  const { data, error, mutate } = useSWR('/api/all-exchanges', getAllExchanges)
 
   return {
     exchanges: data,
     isLoading: !error && !data,
     isError: error,
-    mutate
+    mutate,
   }
 }
 
-export const getStocks = async (mic) => {
-  return fetch(`http://api.marketstack.com/v2/exchanges/${mic}/tickers?access_key=35f2fc6c10e80ec4d44a2045b602124b`)
+export const useSelectExchange = () => {
+  return selectExchangeAPI
 }

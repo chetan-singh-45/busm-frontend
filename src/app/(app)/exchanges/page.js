@@ -1,76 +1,69 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import Link from 'next/link'
+
 import Header from '@/app/(app)/Header'
 import Loading from '@/app/(app)/Loading'
+import { useAllExchanges, useSelectExchange } from '@/hooks/exchanges'
 import { useAuth } from '@/hooks/auth'
-import { useRouter, useParams } from 'next/navigation'
-import { useAllExchanges } from '@/hooks/exchanges'
-import { Dialog, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
-import { stocks } from '@/hooks/exchanges'
-import axios from '@/lib/axios'
-import Link from 'next/link'
-import Button from '@/components/Button'
-
 
 const Exchanges = () => {
-  const { user } = useAuth({ middleware: 'auth' })
-  const router = useRouter()
-  const params = useParams()
 
+  const { user } = useAuth()
   const { exchanges, isLoading, isError, mutate } = useAllExchanges()
+  const selectExchange = useSelectExchange()
+
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+
   const openModal = () => setIsOpen(true)
   const closeModal = () => {
     setIsOpen(false)
     setSearchQuery('')
   }
 
-  const handleSelect = (exchange) => {
-    const selectedExchanges = exchanges?.allExchanges?.filter((e) => e.is_selected === 1)
-    const isAlreadySelected = selectedExchanges?.some((e) => e.id === exchange.id)
-
-    if (isAlreadySelected) {
+  const handleSelect = async (exchange) => {
+    const selectedExchanges = exchanges?.allExchanges?.filter(e => e.is_selected === 1)
+    if (selectedExchanges?.some(e => e.id === exchange.id)) {
       alert('Exchange already selected')
       return
     }
 
-    axios
-      .post('/api/select-exchange', { exchange_id: exchange.id })
-      .then(() => {
-        mutate()
-        closeModal()
-      })
-      .catch((error) => {
-        console.error('Error selecting exchange:', error)
-      })
-
+    try {
+      await selectExchange(exchange.id)
+      mutate()
+      closeModal()
+    } catch (err) {
+      console.error('Error selecting exchange:', err)
+    }
   }
 
-  const filteredExchanges = exchanges?.allExchanges?.filter((exchange) =>
+  const filteredExchanges = exchanges?.allExchanges?.filter(exchange =>
     exchange.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const selectedExchanges = exchanges?.allExchanges?.filter((e) => e.is_selected === 1)
-
+  const selectedExchanges = exchanges?.allExchanges?.filter(e => e.is_selected === 1)
 
   return (
     <>
       <Header title="Exchanges" />
       <div className="py-12">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div className="bg-white shadow-sm sm:rounded-lg overflow-hidden">
             <div className="p-6 bg-white border-b border-gray-200">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="font-semibold text-2xl text-gray-800">Selected Exchanges</h2>
+                {
+                  user?.role == 1 && 
                 <button
                   onClick={openModal}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
                 >
                   + Add Exchange
                 </button>
+                }
               </div>
 
               {isLoading && <Loading />}
@@ -87,7 +80,6 @@ const Exchanges = () => {
                         {exchange.name}
                       </Link>
                     </h3>
-                
                     <p className="underline text-sm text-gray-600 hover:text-gray-900">
                       {exchange.description || 'No description available.'}
                     </p>
@@ -133,6 +125,7 @@ const Exchanges = () => {
                   <Dialog.Title className="text-lg font-medium text-gray-900 mb-4">
                     Add Exchange
                   </Dialog.Title>
+
                   <input
                     type="text"
                     placeholder="Search exchanges..."

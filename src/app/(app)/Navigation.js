@@ -42,11 +42,14 @@ const Navigation = ({ user }) => {
                                 Exchanges
                             </NavLink>
 
+                            {
+                                user?.role == 1 && 
                             <NavLink
                                 href="/users"
                                 active={usePathname() === '/users'}>
                                 Users
                             </NavLink>
+                            }   
                         </div>
                     </div>
 
