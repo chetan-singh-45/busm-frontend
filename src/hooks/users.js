@@ -37,7 +37,7 @@ export const useAllUser = () => {
   }
 
   return {
-    users: data?.alluser,
+    users: data?.data,
     isLoading: isLoading && !data,
     isError: error,
     handleCreateUser,

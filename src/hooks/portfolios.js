@@ -37,7 +37,7 @@ const handleDeletePortfolio = async (id) => {
 }
 
 return {
-    portfolios: data,
+    portfolios: data?.data,
     isLoading: isLoading && !data,
     isError: error,
     handleCreatePortfolio,

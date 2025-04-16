@@ -9,22 +9,15 @@ export const selectExchangeAPI = async (exchangeId) => {
   return await axios.post('/api/select-exchange', { exchange_id: exchangeId })
 }
 
-export const getStocks = async (mic, limit = 100, offset = 0) => {
+export const getStocks = async (mic) => {
     try {
-      const res = await fetch(
-        `http://api.marketstack.com/v2/exchanges/${mic}/tickers?access_key=${process.env.NEXT_PUBLIC_MARKETSTACK_API_KEY}&limit=${limit}&offset=${offset}`
-      )
-  
-      if (!res.ok) {
+      const res = await axios.get('/api/getStocks/'+mic)
+      if (res.success == 'false') { 
         throw new Error(`Error fetching stocks: ${res.statusText}`)
       }
-  
-      const data = await res.json()
-      return data
+      return res.data.data
     } catch (error) {
       console.error('Failed to fetch stocks:', error)
       return null
     }
   }
-  
-  
