@@ -78,7 +78,7 @@ const Portfolio = () => {
                           {stock.stock_has_intraday ? 'Yes' : 'No'}
                         </p>
                         {
-                            watchlist?.find((p) => p.portfolio.id === stock.id) ? (
+                            watchlist?.find((p) => p.id === stock.id) ? (
                                 <p className="text-green-500 mt-2">Already in watchlist</p>
                             ) : (
                                 <button
