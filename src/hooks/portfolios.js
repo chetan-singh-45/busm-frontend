@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { getPortfolio, createPortfolio } from '@/services/portfolio'
+import { getPortfolio, createPortfolio, deletePortfolio} from '@/services/portfolio'
 
 export const useAllPortfolio = () => {
   const fetcher = async () => {
@@ -30,7 +30,8 @@ const handleUpdatePortfolio = async (portfolio, id) => {
 const handleDeletePortfolio = async (id) => {
     try {
         await deletePortfolio(id)
-        mutate()
+        mutate('/api/portfolios')
+        mutate('/api/watchlist')
     } catch (err) {
         throw err.response?.data?.message || 'Delete failed'
     }

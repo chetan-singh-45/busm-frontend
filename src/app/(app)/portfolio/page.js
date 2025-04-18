@@ -9,7 +9,7 @@ import toast, { Toaster } from 'react-hot-toast'
 
 const Portfolio = () => {
   const { user } = useAuth()
-  const { portfolios, isLoading, isError } = useAllPortfolio()
+  const { portfolios, isLoading, isError, handleDeletePortfolio } = useAllPortfolio()
   const { watchlist, handleAddWatchlist } = useWatchlist()
   const [loadingId, setLoadingId] = useState(null)
   const onAddToWatchlist = async (stock) => {
@@ -79,7 +79,18 @@ const Portfolio = () => {
                         </p>
                         {
                             watchlist?.find((p) => p.id === stock.id) ? (
-                                <p className="text-green-500 mt-2">Already in watchlist</p>
+                              <>
+                              <p className="text-green-500 mt-2">Already in watchlist</p>
+                              <button
+                                onClick={() => handleDeletePortfolio(stock.id)
+                                  .then(() => toast.success(`${stock.stock_symbol} removed from Portfolio`))
+                                  .catch((err) => { toast.error(err)})
+                                }
+                                className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                              >
+                                Remove Portfolio
+                              </button>
+                            </>
                             ) : (
                                 <button
                                 onClick={() => onAddToWatchlist(stock)}
@@ -93,7 +104,9 @@ const Portfolio = () => {
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-500">No stocks in your portfolio.</p>
+                    <p className="text-gray-600 text-center col-span-full">
+                     {watchlist?.length === 0 ? 'No data available.' : 'Loading...'}
+                    </p>
                   )}
                 </div>
               )}

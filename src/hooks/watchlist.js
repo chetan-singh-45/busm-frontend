@@ -1,23 +1,9 @@
 import useSWR from 'swr'
-import {getWatchlist, createWatchlist} from '@/services/watchlist'
+import {getWatchlist, createWatchlist, deleteWatchlist} from '@/services/watchlist'
 
 export const useWatchlist = () => {
     const fetcher = async () => {
         const { data } = await getWatchlist()
-
-        console.log(data.data)
-
-        let wathclist = [
-            {
-                'stock' : {
-                    symbol : 'AAPL'
-                },
-                'eod' : {
-
-                }
-            }
-        ]
-
         return data
     }
 
@@ -32,10 +18,21 @@ const handleAddWatchlist = async (watchlist) => {
     }
 }
 
+const handleRemoveWatchlist = async (id) => {
+    try {
+        await deleteWatchlist(id)
+        mutate('/api/watchlist')
+    } catch (err) {
+        throw err.response?.data?.message || 'Deletion failed'
+    }
+}
+
+
   return {
       watchlist: data?.data,
       isLoading: isLoading && !data,
       isError: error,
-      handleAddWatchlist
+      handleAddWatchlist,
+      handleRemoveWatchlist
    }
 }

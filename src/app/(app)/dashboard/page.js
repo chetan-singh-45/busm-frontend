@@ -17,7 +17,7 @@ import { TrendingDown, TrendingUp } from 'lucide-react'
 
 const Dashboard = () => {
   const { user } = useAuth()
-  const { watchlist, isLoading, isError } = useWatchlist()
+  const { watchlist, isLoading, isError, handleRemoveWatchlist } = useWatchlist()
 
   useEffect(() => {
     if (isError) {
@@ -36,6 +36,7 @@ const Dashboard = () => {
       <div className="py-12 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div
@@ -46,10 +47,12 @@ const Dashboard = () => {
             ) : Array.isArray(watchlist) && watchlist.length > 0 ? (
               watchlist.map((stock) => {
                 const symbol = stock.stock_symbol?.toUpperCase()
+                const intradayData = stock.intraday || []
                 const eod = stock.eod?.[0]
-                const intraday = stock.intraday || []
+                const prevEod = stock.eod?.[1]
+                const intraday = stock.intraday?.[stock.intraday.length - 1] || []
 
-                const intradayFormatted = intraday.map((item) => ({
+                const intradayFormatted = intradayData.map((item) => ({
                   ...item,
                   time: new Date(item.date).toLocaleTimeString([], {
                     hour: '2-digit',
@@ -58,8 +61,8 @@ const Dashboard = () => {
                 }))
 
                 const priceChange =
-                  eod && eod.open ? ((eod.close - eod.open) / eod.open) * 100 : null
-
+                  eod && prevEod ? ((eod.close - prevEod.close) / eod.close) * 100 : null
+                        
                 const priceColor =
                   priceChange >= 0 ? 'text-green-600' : 'text-red-500'
 
@@ -85,27 +88,27 @@ const Dashboard = () => {
                       )}
                     </div>
 
-                    {eod && (
+                    {intraday && (
                       <>
                         <p className="text-3xl font-bold mb-2">
-                          ${formatNumber(eod.close)}
+                          ${formatNumber(intraday.close)}
                         </p>
                         <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
                           <p>
                             <span className="font-medium">Open:</span>{' '}
-                            ${formatNumber(eod.open)}
+                            ${formatNumber(intraday.open)}
                           </p>
                           <p>
                             <span className="font-medium">High:</span>{' '}
-                            ${formatNumber(eod.high)}
+                            ${formatNumber(intraday.high)}
                           </p>
                           <p>
                             <span className="font-medium">Low:</span>{' '}
-                            ${formatNumber(eod.low)}
+                            ${formatNumber(intraday.low)}
                           </p>
                           <p>
                             <span className="font-medium">Volume:</span>{' '}
-                            {formatNumber(eod.volume)}
+                            {formatNumber(intraday.volume)}
                           </p>
                         </div>
                       </>
@@ -113,7 +116,7 @@ const Dashboard = () => {
 
                     {intradayFormatted.length > 0 && (
                       <div className="mt-4 h-[120px]">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer  width="100%" height="100%">
                         <LineChart data={intradayFormatted}>
                           <XAxis dataKey="time" fontSize={10} hide />
                           <YAxis
@@ -143,11 +146,25 @@ const Dashboard = () => {
                     </div>
                     
                     )}
+                     <div className="mt-4">
+                      <button
+                        onClick={() =>
+                          handleRemoveWatchlist(stock.id)
+                            .then(() => toast.success(`${symbol} removed from Watchlist`))
+                            .catch((err) => toast.error(err))
+                        }
+                        className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                      >
+                        Remove from Watchlist
+                      </button>
+                    </div>
                   </div>
                 )
               })
             ) : (
-              <p className="text-gray-500">No stocks in your watchlist.</p>
+              <p className="text-gray-600 text-center col-span-full">
+              {watchlist?.length === 0 ? 'No data available.' : 'Loading...'}
+              </p>
             )}
           </div>
         </div>
