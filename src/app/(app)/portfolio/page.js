@@ -80,6 +80,7 @@ const Portfolio = () => {
                         {
                             watchlist?.find((p) => p.id === stock.id) ? (
                               <>
+                              <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
                               <p className="text-green-500 mt-2">Already in watchlist</p>
                               <button
                                 onClick={() => handleDeletePortfolio(stock.id)
@@ -90,15 +91,30 @@ const Portfolio = () => {
                               >
                                 Remove Portfolio
                               </button>
+                              </div>
                             </>
                             ) : (
+                            <>
+                            <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
+
                                 <button
-                                onClick={() => onAddToWatchlist(stock)}
-                                disabled={loadingId === stock.id}
-                                className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-                                >
-                          {loadingId === stock.id ? 'Adding...' : 'Add to Watchlist'}
-                        </button>
+                                  onClick={() => onAddToWatchlist(stock)}
+                                  disabled={loadingId === stock.id}
+                                  className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                                  >
+                                  {loadingId === stock.id ? 'Adding...' : 'Add to Watchlist'}
+                                </button>           
+                              <button
+                                onClick={() => handleDeletePortfolio(stock.id)
+                                  .then(() => toast.success(`${stock.stock_symbol} removed from Portfolio`))
+                                  .catch((err) => { toast.error(err)})
+                                }
+                                className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                              >
+                                Remove Portfolio
+                              </button>
+                            </div>  
+                            </>
                          )
                         }
                       </div>
