@@ -12,6 +12,7 @@ const Portfolio = () => {
   const { portfolios, isLoading, isError, handleDeletePortfolio } = useAllPortfolio()
   const { watchlist, handleAddWatchlist } = useWatchlist()
   const [loadingId, setLoadingId] = useState(null)
+  
   const onAddToWatchlist = async (stock) => {
     const watchlistData = {
       user_id: user.id,
