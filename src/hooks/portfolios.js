@@ -7,7 +7,7 @@ export const useAllPortfolio = () => {
     return data
   }
 
-  const { data, error, mutate, isLoading } = useSWR('/api/portfolios', fetcher)
+const { data, error, mutate, isLoading } = useSWR('/api/portfolios', fetcher)
 
 const handleCreatePortfolio = async (portfolio) => {
     try {
@@ -28,14 +28,21 @@ const handleUpdatePortfolio = async (portfolio, id) => {
 }
 
 const handleDeletePortfolio = async (id) => {
+    mutate('/api/portfolios', currentData => ({
+      ...currentData,
+      data: currentData.data.filter(portfolio => portfolio.id !== id)
+    }), false)
+  
     try {
-        await deletePortfolio(id)
-        mutate('/api/portfolios')
-        mutate('/api/watchlist')
+      await deletePortfolio(id)
+      mutate('/api/portfolios')
+      mutate('/api/watchlist')
     } catch (err) {
-        throw err.response?.data?.message || 'Delete failed'
+      mutate('/api/portfolios')
+      mutate('/api/watchlist')
+      throw err.response?.data?.message || 'Delete failed'
     }
-}
+  }
 
 return {
     portfolios: data?.data,

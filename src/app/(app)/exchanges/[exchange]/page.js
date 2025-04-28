@@ -5,11 +5,15 @@ import Header from '@/app/(app)/Header'
 import { useParams } from 'next/navigation'
 import { getStocks } from '@/services/exchanges'
 import { useAllPortfolio } from '@/hooks/portfolios'
+import { useStocks } from '@/hooks/stocks'
+import { useAuth } from '@/hooks/auth'
+
 import toast, { Toaster } from 'react-hot-toast'
 
 const LIMIT = 100
 
 const Exchange = () => {
+  const { user } = useAuth()
   const params = useParams()
   const [stockData, setStockData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -18,15 +22,38 @@ const Exchange = () => {
   const [loading, setLoading] = useState(false)
   const [loadingStock, setLoadingStock] = useState(null)
 
-  const {
-    portfolios,
-    isLoading,
-    isError,
-    handleCreatePortfolio,
-    handleUpdatePortfolio,
-    handleDeletePortfolio
+  const { portfolios, isLoading, isError, handleCreatePortfolio, handleUpdatePortfolio, handleDeletePortfolio
   } = useAllPortfolio()
 
+  const { stocks, handleAddStocks } = useStocks()
+
+  const addToMonitor = async (stock) => {
+
+    const stockDataToSave = {
+      exchange_id: params.exchange,
+      name: stock.name,
+      symbol: stock.symbol,
+    }
+    setLoadingStock(stock.symbol)
+    
+    try {
+      const alreadyMonitored = stocks?.find((s) => s.symbol === stock.symbol)
+  
+      if (alreadyMonitored) {
+        toast.error(`${stock.name} is already being monitored`)
+        return
+      }
+  
+      await handleAddStocks(stockDataToSave)
+      toast.success(`${stock.name} added to monitor`)
+    } catch (error) {
+      toast.error('Error adding stock to monitor')
+      console.error(error)
+    } finally {
+      setLoadingStock(null)
+    }
+  }  
+  
   const fetchStocks = async (currentOffset = 0, append = false) => {
     setLoading(true)
     try {
@@ -112,29 +139,43 @@ const Exchange = () => {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredStocks.length > 0 ? (
+            {user?.role == 1 && filteredStocks.length > 0 ? (
               filteredStocks.map((stock) => (
                 <div
-                  key={stock.symbol}
-                  className="bg-white shadow-md rounded-2xl p-4 border hover:shadow-lg transition"
-                >
-                  <p className="text-xl font-bold text-gray-800">
-                    {stock.name} ({stock.symbol})
-                  </p>
-                  {
-                    portfolios?.find((p) => p.stock_symbol === stock.symbol) ? (
-                      <p className="text-green-500 mt-2">Already in portfolio</p>
-                    ) : (
-                      <button
-                        onClick={() => handleAddToPortfolio(stock)}
-                        className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-60"
-                        disabled={loadingStock === stock.symbol || isLoading}
-                      >
-                        {loadingStock === stock.symbol ? 'Adding...' : 'Add to Portfolio'}
-                      </button>
-                    )
-                  }
-                </div>
+                key={stock.symbol}
+                className="bg-white shadow-md rounded-2xl p-4 border hover:shadow-lg transition"
+              >
+                <p className="text-xl font-bold text-gray-800">
+                  {stock.name} ({stock.symbol})
+                </p>
+              
+                {/* Portfolio Status */}
+                {portfolios?.find((p) => p.stock_symbol === stock.symbol) ? (
+                  <p className="text-green-500 mt-2 font-medium">Already in portfolio</p>
+                ) : (
+                  <button
+                    onClick={() => handleAddToPortfolio(stock)}
+                    className="mt-3 mr-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
+                    disabled={loadingStock === stock.symbol || isLoading}
+                  >
+                    {loadingStock === stock.symbol ? 'Adding...' : 'Add to Portfolio'}
+                  </button>
+                )}
+              
+                {/* Monitor Status */}
+                {stocks?.find((s) => s.symbol === stock.symbol) ? (user?.role == 1 && 
+                  <p className="text-green-500 mt-2 font-medium"> Already monitored</p>
+                ) : (user?.role == 1 && 
+                  <button
+                    onClick={() => addToMonitor(stock)}
+                    className="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-60"
+                    disabled={loadingStock === stock.symbol || isLoading}
+                  >
+                    {loadingStock === stock.symbol ? 'Adding...' : 'Add to Monitor'}
+                  </button>
+                )}
+              </div>
+              
               ))
             ) : (
               <p className="text-gray-600 text-center col-span-full">
@@ -144,7 +185,7 @@ const Exchange = () => {
           </div>
 
           {/* Load More */}
-          {filteredStocks.length < total && !loading && (
+          {user?.role == 1 && filteredStocks.length < total && !loading && (
             <div className="flex justify-center mt-8">
               <button
                 onClick={handleLoadMore}

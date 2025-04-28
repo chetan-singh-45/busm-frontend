@@ -12,7 +12,7 @@ const Portfolio = () => {
   const { portfolios, isLoading, isError, handleDeletePortfolio } = useAllPortfolio()
   const { watchlist, handleAddWatchlist } = useWatchlist()
   const [loadingId, setLoadingId] = useState(null)
-  
+
   const onAddToWatchlist = async (stock) => {
     const watchlistData = {
       user_id: user.id,
@@ -62,7 +62,7 @@ const Portfolio = () => {
                 Your selected stocks...
               </p>
 
-              {isLoading ? (
+              {isLoading || portfolios === undefined  ? (
                 <p className="text-gray-500">Loading your portfolio...</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -122,7 +122,7 @@ const Portfolio = () => {
                     ))
                   ) : (
                     <p className="text-gray-600 text-center col-span-full">
-                     {watchlist?.length === 0 ? 'No data available.' : 'Loading...'}
+                    No data available.
                     </p>
                   )}
                 </div>

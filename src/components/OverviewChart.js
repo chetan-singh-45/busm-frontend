@@ -26,13 +26,10 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        console.log('Fetching:', symbol, range)  //log this
         const res = await handleHistoricalData(symbol, range)
-        console.log('Historical Response:', res)
         setData(res.data.data)
       } catch (err) {
         toast.error('Failed to fetch history')
-        console.error('fetchData error:', err)  //full log
       } finally {
         setLoading(false)
       }
@@ -98,7 +95,9 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
 
         </div>
       ) : (
-        <p className="text-gray-400">No data available.</p>
+        <p className="text-gray-600 text-center col-span-full">
+        {loading ? 'Loading...' : 'No data available.'}
+      </p>
       )}
     </div>
   )

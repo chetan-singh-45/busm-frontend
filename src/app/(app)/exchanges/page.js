@@ -70,7 +70,7 @@ const Exchanges = () => {
               {isError && <div className="text-red-500">Error fetching exchanges</div>}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {selectedExchanges?.map((exchange) => (
+                { selectedExchanges?.map((exchange) => (
                   <div
                     key={exchange.id}
                     className="rounded-xl border border-gray-200 p-5 shadow hover:shadow-lg transition-all duration-300"

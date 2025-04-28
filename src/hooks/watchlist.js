@@ -19,15 +19,22 @@ const handleAddWatchlist = async (watchlist) => {
 }
 
 const handleRemoveWatchlist = async (id) => {
-    try {
-        await deleteWatchlist(id)
-        // mutate('/api/watchlist')
-    } catch (err) {
-        throw err.response?.data?.message || 'Deletion failed'
+   mutate(currentData => {
+    return {
+      ...currentData,
+      data: currentData.data.filter(stock => stock.id !== id)
     }
+  }, false) 
+
+  try {
+    await deleteWatchlist(id)
+    mutate()
+  } catch (err) {
+    mutate()
+    throw err.response?.data?.message || 'Deletion failed'
+  }
 }
 
-//working
 const handleHistoricalData = async (symbol,range) => {
     try {
         const res = await historyData(symbol, range)
@@ -44,6 +51,6 @@ const handleHistoricalData = async (symbol,range) => {
       isError: error,
       handleAddWatchlist,
       handleRemoveWatchlist,
-      handleHistoricalData
+      handleHistoricalData,
    }
 }

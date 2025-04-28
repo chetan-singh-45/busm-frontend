@@ -17,8 +17,11 @@ import {
 import { TrendingDown, TrendingUp } from 'lucide-react'
 
 const Dashboard = () => {
-  const { user } = useAuth()
+  const { user } = useAuth() // Get user from useAuth hook
   const { watchlist, isLoading, isError, handleRemoveWatchlist } = useWatchlist()
+
+  // Filter watchlist based on user ID
+  const userWatchlist = watchlist?.filter(stock => stock.user_id === user?.id)
 
   useEffect(() => {
     if (isError) {
@@ -45,29 +48,29 @@ const Dashboard = () => {
                   className="bg-white p-6 rounded-2xl shadow animate-pulse h-[250px]"
                 />
               ))
-            ) : Array.isArray(watchlist) && watchlist.length > 0 ? (
-                  watchlist.map((stock) => {
-                    const symbol = stock.stock_symbol?.toUpperCase()
-                    const intradayData = stock.intraday || []
-                    const eod = stock.eod?.[0]
-                    const prevEod = stock.eod?.[1]
-                    const intraday = stock.intraday?.[stock.intraday.length - 1] || []
+            ) : Array.isArray(userWatchlist) && userWatchlist.length > 0 ? (
+              userWatchlist.map((stock) => {
+                const symbol = stock.stock_symbol?.toUpperCase()
+                const intradayData = stock.intraday || []
+                const eod = stock.eod?.[0]
+                const prevEod = stock.eod?.[1]
+                const intraday = stock.intraday?.[stock.intraday.length - 1] || []
 
-                    const intradayFormatted = intradayData.map((item) => ({
-                      ...item,
-                      time: new Date(item.date).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }),
-                    }))
+                const intradayFormatted = intradayData.map((item) => ({
+                  ...item,
+                  time: new Date(item.date).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }),
+                }))
 
-                  const priceChange =
-                    eod && prevEod ? ((eod.close - prevEod.close) / eod.close) * 100 : null
-                          
-                  const priceColor =
-                    priceChange >= 0 ? 'text-green-600' : 'text-red-500'
+                const priceChange =
+                  eod && prevEod ? ((eod.close - prevEod.close) / eod.close) * 100 : null
 
-                  const PriceIcon = priceChange >= 0 ? TrendingUp : TrendingDown
+                const priceColor =
+                  priceChange >= 0 ? 'text-green-600' : 'text-red-500'
+
+                const PriceIcon = priceChange >= 0 ? TrendingUp : TrendingDown
 
                 return (
                   <div
@@ -169,7 +172,7 @@ const Dashboard = () => {
               })
             ) : (
               <p className="text-gray-600 text-center col-span-full">
-              {watchlist?.length === 0 ? 'No data available.' : 'Loading...'}
+                {userWatchlist?.length === 0 ? 'No data available.' : 'Loading...'}
               </p>
             )}
           </div>

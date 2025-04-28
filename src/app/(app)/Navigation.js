@@ -36,12 +36,22 @@ const Navigation = ({ user }) => {
                                 Dashboard
                             </NavLink>
 
+                            {
+                                user?.role == 1 && 
                             <NavLink
                                 href="/exchanges"
                                 active={usePathname() === '/exchanges'}>
                                 Exchanges
                             </NavLink>
-
+                            }
+                            {
+                             user?.role == 2 &&
+                            <NavLink
+                                href="/stocks"
+                                active={usePathname() === '/stocks'}>
+                                Stocks
+                            </NavLink>
+                            }
                             {
                                 user?.role == 1 && 
                             <NavLink
@@ -49,6 +59,7 @@ const Navigation = ({ user }) => {
                                 active={usePathname() === '/users'}>
                                 Users
                             </NavLink>
+                            
                             }   
 
                             <NavLink
@@ -56,6 +67,16 @@ const Navigation = ({ user }) => {
                                 active={usePathname() === '/portfolio'}>
                                 Portfolio
                             </NavLink>
+                            
+                            {
+                                user?.role == 1 && 
+                            <NavLink
+                                href="/monitor"
+                                active={usePathname() === '/monitor'}>
+                                Monitor
+                            </NavLink>
+                            } 
+
                         </div>
                     </div>
 
