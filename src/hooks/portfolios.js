@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { getPortfolio, createPortfolio, deletePortfolio} from '@/services/portfolio'
+import { getPortfolio, createPortfolio, deletePortfolio, } from '@/services/portfolio'
 
 export const useAllPortfolio = () => {
   const fetcher = async () => {
@@ -15,15 +15,6 @@ const handleCreatePortfolio = async (portfolio) => {
         mutate()
     } catch (err) {
         throw err.response?.data?.message || 'Create failed'
-    }
-}
-
-const handleUpdatePortfolio = async (portfolio, id) => {
-    try {
-        await updatePortfolio(portfolio, id)
-        mutate()
-    } catch (err) {
-        throw err.response?.data?.message || 'Update failed'
     }
 }
 
@@ -49,7 +40,6 @@ return {
     isLoading: isLoading && !data,
     isError: error,
     handleCreatePortfolio,
-    handleUpdatePortfolio,
     handleDeletePortfolio
 }
 }

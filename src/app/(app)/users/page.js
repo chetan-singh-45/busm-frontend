@@ -192,7 +192,7 @@ const Users = () => {
         </div>
       </Modal>
     </>
-  );
+  )
   
 }
 

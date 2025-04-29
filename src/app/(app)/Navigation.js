@@ -44,14 +44,11 @@ const Navigation = ({ user }) => {
                                 Exchanges
                             </NavLink>
                             }
-                            {
-                             user?.role == 2 &&
                             <NavLink
                                 href="/stocks"
                                 active={usePathname() === '/stocks'}>
                                 Stocks
                             </NavLink>
-                            }
                             {
                                 user?.role == 1 && 
                             <NavLink

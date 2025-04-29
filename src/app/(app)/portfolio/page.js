@@ -10,23 +10,21 @@ import toast, { Toaster } from 'react-hot-toast'
 const Portfolio = () => {
   const { user } = useAuth()
   const { portfolios, isLoading, isError, handleDeletePortfolio } = useAllPortfolio()
-  const { watchlist, handleAddWatchlist } = useWatchlist()
+  const { watchlist, handleAddWatchlist } = useWatchlist({
+    withoutPricing: true,
+  })
   const [loadingId, setLoadingId] = useState(null)
 
   const onAddToWatchlist = async (stock) => {
     const watchlistData = {
-      user_id: user.id,
-      portfolio_id: stock.id,
+      stock_id: stock.stock.id, 
     }
     setLoadingId(stock.id)
     try {
-        if (!Array.isArray(watchlist)) {
-            toast.error('Watchlist not loaded properly')
-            return
-        }
-        
+      
+        //  
         const exists = watchlist.find(
-            (w) => w.portfolio_id === stock.id && w.user_id === user.id
+            (w) => w.id === stock.id && w.user_id === user.id
         )
         
         if (!exists) {
@@ -72,20 +70,20 @@ const Portfolio = () => {
                         key={stock.id}
                         className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm"
                       >
-                        <h3 className="text-lg font-semibold">{stock.stock_name}</h3>
-                        <p className="text-sm text-gray-600">{stock.stock_symbol}</p>
+                        <h3 className="text-lg font-semibold">{stock.stock.name}</h3>
+                        <p className="text-sm text-gray-600">{stock.stock.symbol}</p>
                         <p className="text-xs text-gray-500 mt-1">
-                          EOD: {stock.stock_has_eod ? 'Yes' : 'No'} | Intraday:{' '}
-                          {stock.stock_has_intraday ? 'Yes' : 'No'}
+                          EOD: {stock.stock.has_eod ? 'Yes' : 'No'} | Intraday:{' '}
+                          {stock.stock.has_intraday ? 'Yes' : 'No'}
                         </p>
                         {
-                            watchlist?.find((p) => p.id === stock.id) ? (
+                            watchlist?.find((p) => p.stock_id === stock.stock.id) ? (
                               <>
                               <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
                               <p className="text-green-500 mt-2">Already in watchlist</p>
                               <button
                                 onClick={() => handleDeletePortfolio(stock.id)
-                                  .then(() => toast.success(`${stock.stock_symbol} removed from Portfolio`))
+                                  .then(() => toast.success(`${stock.stock.symbol} removed from Portfolio`))
                                   .catch((err) => { toast.error(err)})
                                 }
                                 className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
@@ -107,7 +105,7 @@ const Portfolio = () => {
                                 </button>           
                               <button
                                 onClick={() => handleDeletePortfolio(stock.id)
-                                  .then(() => toast.success(`${stock.stock_symbol} removed from Portfolio`))
+                                  .then(() => toast.success(`${stock.stock.symbol} removed from Portfolio`))
                                   .catch((err) => { toast.error(err)})
                                 }
                                 className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"

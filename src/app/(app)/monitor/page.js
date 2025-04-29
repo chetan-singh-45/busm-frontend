@@ -2,12 +2,10 @@
 
 import { useEffect } from 'react'
 import Header from '@/app/(app)/Header'
-import { useAuth } from '@/hooks/auth'
 import toast, { Toaster } from 'react-hot-toast'
 import { useStocks } from '@/hooks/stocks'
 
 const Monitor = () => {
-  const { user } = useAuth()
   const { stocks, isLoading, isError } = useStocks()
   
   useEffect(() => {

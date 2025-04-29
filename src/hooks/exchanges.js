@@ -17,5 +17,5 @@ export const useSelectExchange = () => {
 }
 
 export const useGetStocks = () =>{
-  return getStocks();
+  return getStocks()
 }

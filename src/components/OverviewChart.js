@@ -8,7 +8,6 @@ import {
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
@@ -63,10 +62,10 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
                 dataKey="datetime"
                 fontSize={10}
                 tickFormatter={(v) => {
-                    const date = new Date(v);
-                    const day = String(date.getDate()).padStart(2, '0');
-                    const month = date.toLocaleString('default', { month: 'short' });
-                    return `${month} ${day}`;
+                    const date = new Date(v)
+                    const day = String(date.getDate()).padStart(2, '0')
+                    const month = date.toLocaleString('default', { month: 'short' })
+                    return `${month} ${day}`
                   }}
                 />
                 <YAxis

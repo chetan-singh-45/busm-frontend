@@ -1,49 +1,39 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Header from '@/app/(app)/Header'
-import { useParams } from 'next/navigation'
 import { useAllPortfolio } from '@/hooks/portfolios'
 import { useStocks } from '@/hooks/stocks'
-import { useAuth } from '@/hooks/auth'
 import toast, { Toaster } from 'react-hot-toast'
 
-const LIMIT = 100
 
 const Stock = () => {
-  const { user } = useAuth()
-  const params = useParams()
-  const [stockData, setStockData] = useState([])
+
   const [searchQuery, setSearchQuery] = useState('')
-  const [offset, setOffset] = useState(0)
-  const [total, setTotal] = useState(null)
   const [loading, setLoading] = useState(false)
   const [loadingStock, setLoadingStock] = useState(null)
 
-  const { portfolios, isLoading, isError, handleCreatePortfolio, handleUpdatePortfolio, handleDeletePortfolio
-  } = useAllPortfolio()
+  const { portfolios, isLoading, handleCreatePortfolio } = useAllPortfolio()
 
-  const { stocks, handleAddStocks } = useStocks()
+  const { stocks } = useStocks()
 
   const handleAddToPortfolio = async (stock) => {
+
     // Protect against undefined portfolios
-    if (!Array.isArray(portfolios)) {
-      toast.error('Portfolios not loaded yet. Please wait.')
-      return
-    }
+    // if (!Array.isArray(portfolios)) {
+    //   toast.error('Portfolios not loaded yet. Please wait.')
+    //   return
+    // }
 
     setLoadingStock(stock.symbol)
 
     const portfolio = {
-      stock_name: stock.name,
-      stock_symbol: stock.symbol,
-      stock_exchange: '',
-      stock_has_eod: stock.has_eod ?? false,
-      stock_has_intraday: stock.has_intraday ?? false,
+      id: stock.id,
     }
 
+
     try {
-      const existingPortfolio = portfolios.find((p) => p.stock_symbol === stock.symbol)
+      const existingPortfolio = portfolios.find((p) => p.stock.symbol === stock.symbol)
       if (!existingPortfolio) {
         await handleCreatePortfolio(portfolio)
         toast.success(`${stock.name} added to portfolio`)
@@ -55,6 +45,7 @@ const Stock = () => {
       console.error('Error adding stock to portfolio:', error)
     } finally {
       setLoadingStock(null)
+      setLoading(false)
     }
   }
 
@@ -75,7 +66,6 @@ const Stock = () => {
             className="w-60 border border-gray-300 rounded-md p-2 text-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            disabled={loading}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -86,7 +76,7 @@ const Stock = () => {
                   <p className="text-xl font-bold text-gray-800">
                     {stock.name} ({stock.symbol})
                   </p>
-                  {portfolios?.find((p) => p.stock_symbol === stock.symbol) ? (
+                  {portfolios?.find((p) => p.stock.symbol === stock.symbol) ? (
                     <p className="text-green-500 mt-2 font-medium">Already in portfolio</p>
                   ) : (
                     <button
@@ -107,16 +97,13 @@ const Stock = () => {
             )
           }
           </div>
-          {user?.role == 1 && filteredStocks.length < total && !loading && (
-            <div className="flex justify-center mt-8">
+            {/* <div className="flex justify-center mt-8">
               <button
-                onClick={handleLoadMore}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Load More
               </button>
-            </div>
-          )}
+            </div> */}
         </div>
       </div>
     </>

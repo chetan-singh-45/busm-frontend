@@ -36,7 +36,7 @@ const Exchanges = () => {
       mutate()
       closeModal()
     } catch (err) {
-      console.error('Error selecting exchange:', err)
+      console.log('Error selecting exchange:', err)
     }
   }
 
