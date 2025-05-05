@@ -30,9 +30,13 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
   const { watchlist, handleHistoricalData } = useWatchlist()
 
   const stock = watchlist?.find((s) => s.stock_symbol.toUpperCase() === symbol.toUpperCase());
-  const closingPrice = stock?.intraday?.[stock.intraday.length - 1]?.close;
+  const intraday = stock?.intraday || [];
 
-  const closeModal = () => {
+  const closingPrice = stock?.intraday?.[stock.intraday.length - 1]?.close;
+  const dayHigh = intraday.length > 0 ? Math.max(...intraday.map(item => item.high)) : null;
+  const dayLow = intraday.length > 0 ? Math.min(...intraday.map(item => item.low)) : null;
+
+    const closeModal = () => {
     setIsOpen(false)
   }
   
@@ -82,6 +86,7 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
       try {
         const res = await handleHistoricalData(symbol, range)
         setData(res.data.data)
+        console.log(data)
       } catch (err) {
         toast.error('Failed to fetch history')
       } finally {
@@ -170,7 +175,14 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
                   >{indicator.indicator_name}
                   </button>
               )}
+
           </>
+          {data && (
+            <div className="border p-4 rounded shadow">
+              <p>High: ${dayHigh}</p>
+              <p>Low: ${dayLow}</p>
+            </div>
+          )}
         </div>
       ) : (
         <p className="text-gray-600 text-center col-span-full">
