@@ -27,8 +27,10 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
   const { indicators, smaFetcher, createIndicatorStock } = useAllIndicator(symbol)
   const [modalData, setModalData] = useState(null)
   const [selectedIndicator, setSelectedIndicator] = useState(null);  
+  const { watchlist, handleHistoricalData } = useWatchlist()
 
-  const { handleHistoricalData } = useWatchlist()
+  const stock = watchlist?.find((s) => s.stock_symbol.toUpperCase() === symbol.toUpperCase());
+  const closingPrice = stock?.intraday?.[stock.intraday.length - 1]?.close;
 
   const closeModal = () => {
     setIsOpen(false)
@@ -88,9 +90,23 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
     }
     fetchData()
   }, [symbol, range])
-  
+
+  const formatNumber = (num) =>
+    num ? Number(num).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-';
+
   return (
     <div className="bg-white shadow-md rounded-2xl p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">{symbol.toUpperCase()} Chart</h2>
+        {closingPrice ? (
+          <p className="text-lg font-bold text-gray-800">
+            ${formatNumber(closingPrice)}
+          </p>
+        ) : (
+          <p className="text-gray-600">...</p>
+        )}
+      </div>
+
       <div className="flex gap-2 mb-4 flex-wrap">
         {ranges.map((r) => (
           <button
