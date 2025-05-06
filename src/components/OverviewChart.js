@@ -35,6 +35,8 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
   const closingPrice = stock?.intraday?.[stock.intraday.length - 1]?.close;
   const dayHigh = intraday.length > 0 ? Math.max(...intraday.map(item => item.high)) : null;
   const dayLow = intraday.length > 0 ? Math.min(...intraday.map(item => item.low)) : null;
+  const week52high = data?.[0]?.["52high"] ?? null;
+  const week52low = data?.[0]?.["52low"] ?? null;
 
     const closeModal = () => {
     setIsOpen(false)
@@ -52,7 +54,7 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
     }
       setLoading(selectedIndicator.id)
       try {
-        await createIndicatorStock(indicator_stock)     
+        await createIndicatorStock(indicator_stock)   
         setIsOpen(false)
       } catch (error) {
         console.error('Error adding to indicator_stock:', error)
@@ -86,7 +88,6 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
       try {
         const res = await handleHistoricalData(symbol, range)
         setData(res.data.data)
-        console.log(data)
       } catch (err) {
         toast.error('Failed to fetch history')
       } finally {
@@ -152,7 +153,14 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
                     border: '1px solid #e5e7eb',
                     fontSize: 12,
                 }}
-                labelFormatter={(label) => `Time: ${new Date(label).toLocaleTimeString()}`}
+                labelFormatter={(label) => {
+                  const date = new Date(label);
+                  const day = String(date.getDate()).padStart(2, '0');
+                  const month = date.toLocaleString('default', { month: 'short' });
+                  const year = date.getFullYear();
+                  const time = date.toLocaleTimeString();
+                  return `${month} ${day}, ${year} ${time}`; 
+                }}
                 formatter={(value) => [`$${value.toFixed(2)}`, 'Close']}
                 />
                 <Line
@@ -166,23 +174,44 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
             </LineChart>
           </ResponsiveContainer>
           <>
-          <h3>Indicators</h3>
-              { indicators.map((indicator) => 
-                <button
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-3">Indicators</h3>
+              <div className="flex flex-wrap gap-3">
+                {indicators.map((indicator) => (
+                  <button
                     key={indicator.id}
                     onClick={() => handleIndicatorData(indicator)}
-                    className="mt-3 mx-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-red-600"
-                  >{indicator.indicator_name}
+                    className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+                  >
+                    {indicator.indicator_name}
                   </button>
-              )}
-
-          </>
-          {data && (
-            <div className="border p-4 rounded shadow">
-              <p>High: ${dayHigh}</p>
-              <p>Low: ${dayLow}</p>
+                ))}
+              </div>
             </div>
-          )}
+
+            <div className="mt-6 bg-white border rounded-lg shadow p-4">
+            <h4 className="text-md font-semibold mb-4">Market Summary</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="flex justify-between bg-gray-50 p-3 rounded">
+                    <p className="text-gray-500">Day High</p>
+                    <p className="text-green-600 font-semibold">${dayHigh.toFixed(2)}</p>
+                  </div>
+                  <div className="flex justify-between bg-gray-50 p-3 rounded">
+                    <p className="text-gray-500">Day Low</p>
+                    <p className="text-red-600 font-semibold">${dayLow.toFixed(2)}</p>
+                  </div>
+                  <div className="flex justify-between bg-gray-50 p-3 rounded">
+                    <p className="text-gray-500">52W High</p>
+                    <p className="text-green-700 font-semibold">${week52high.toFixed(2)}</p>
+                  </div>
+                  <div className="flex justify-between bg-gray-50 p-3 rounded">
+                    <p className="text-gray-500">52W Low</p>
+                    <p className="text-red-700 font-semibold">${week52low.toFixed(2)}</p>
+                  </div>
+                </div>
+            </div>
+          </>
+
         </div>
       ) : (
         <p className="text-gray-600 text-center col-span-full">
@@ -218,14 +247,16 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
                       <Dialog.Title className="text-lg font-medium text-gray-900 mb-4">
                          Indicator  
                       </Dialog.Title>
-                        <div className="space-y-3">
-                          <p className="text-gray-700">
-                            <strong>SMA data:</strong> {modalData?.sma.toFixed(2)}
-                          </p>
-                          <p className="text-gray-700">
-                            <strong>Last Price:</strong> {modalData?.lastPrice}
-                          </p>
+                      <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-4 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 font-medium">SMA</span>
+                          <span className="text-blue-600 font-semibold">{modalData?.sma.toFixed(2)}</span>
                         </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 font-medium">Last Price</span>
+                          <span className="text-green-600 font-semibold">{modalData?.lastPrice}</span>
+                        </div>
+                      </div>
                         <div className="mt-6 flex justify-center gap-6">
                           <button
                             onClick={() => handleCreateIndicatorStock("up")}
