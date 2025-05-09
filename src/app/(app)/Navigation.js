@@ -64,15 +64,6 @@ const Navigation = ({ user }) => {
                                 active={usePathname() === '/portfolio'}>
                                 Portfolio
                             </NavLink>
-                            
-                            {
-                                user?.role == 1 && 
-                            <NavLink
-                                href="/monitor"
-                                active={usePathname() === '/monitor'}>
-                                Monitor
-                            </NavLink>
-                            } 
 
                         </div>
                     </div>

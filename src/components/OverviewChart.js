@@ -14,8 +14,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import Modal from './Modal'
-
+import PriceLine from '@/components/PriceLine'
 const ranges = ['1d', '5d', '1m', '6m', 'YTD', '1y', '5y']
 
 const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
@@ -31,14 +30,15 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
 
   const stock = watchlist?.find((s) => s.stock_symbol.toUpperCase() === symbol.toUpperCase());
   const intraday = stock?.intraday || [];
-
-  const closingPrice = stock?.intraday?.[stock.intraday.length - 1]?.close;
+  const eod = stock?.eod?.[0].close.toFixed?.(2);   
+  const isMarketOpen = stock?.isMarketOpen;
+  const closingPrice = isMarketOpen ? stock?.intraday?.[stock.intraday.length - 1]?.marketstack_last.toFixed?.(2) : eod;
   const dayHigh = intraday.length > 0 ? Math.max(...intraday.map(item => item.high)) : null;
   const dayLow = intraday.length > 0 ? Math.min(...intraday.map(item => item.low)) : null;
   const week52high = data?.[0]?.["52high"] ?? null;
   const week52low = data?.[0]?.["52low"] ?? null;
-
-    const closeModal = () => {
+  const prevClosingPrice = stock?.eod?.[1]?.close;
+  const closeModal = () => {
     setIsOpen(false)
   }
   
@@ -107,6 +107,7 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
         {closingPrice ? (
           <p className="text-lg font-bold text-gray-800">
             ${formatNumber(closingPrice)}
+            {/* ${formatNumber(prevClosingPrice)} */}
           </p>
         ) : (
           <p className="text-gray-600">...</p>
@@ -193,22 +194,26 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
             <h4 className="text-md font-semibold mb-4">Market Summary</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex justify-between bg-gray-50 p-3 rounded">
-                    <p className="text-gray-500">Day High</p>
-                    <p className="text-green-600 font-semibold">${dayHigh.toFixed(2)}</p>
-                  </div>
-                  <div className="flex justify-between bg-gray-50 p-3 rounded">
                     <p className="text-gray-500">Day Low</p>
                     <p className="text-red-600 font-semibold">${dayLow.toFixed(2)}</p>
                   </div>
                   <div className="flex justify-between bg-gray-50 p-3 rounded">
-                    <p className="text-gray-500">52W High</p>
-                    <p className="text-green-700 font-semibold">${week52high.toFixed(2)}</p>
-                  </div>
-                  <div className="flex justify-between bg-gray-50 p-3 rounded">
-                    <p className="text-gray-500">52W Low</p>
-                    <p className="text-red-700 font-semibold">${week52low.toFixed(2)}</p>
+                    <p className="text-gray-500">Day High</p>
+                    <p className="text-green-600 font-semibold">${dayHigh.toFixed(2)}</p>
                   </div>
                 </div>
+                <div className="w-full relative mt-4">
+                  <div className="flex justify-between px-2 text-sm text-gray-500">
+                    <span>52W Low</span>
+                    <span>52W High</span>
+                  </div>
+                  <div className="flex justify-between px-2 text-sm font-semibold">
+                    <span className="text-red-700">${week52low.toFixed(2)}</span>
+                    <span className="text-green-700">${week52high.toFixed(2)}</span>
+                  </div>
+                  <PriceLine  week52High={week52high} week52Low={week52low} closingPrice={closingPrice}/>
+                </div>
+
             </div>
           </>
 

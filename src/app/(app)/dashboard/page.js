@@ -19,7 +19,6 @@ import { TrendingDown, TrendingUp } from 'lucide-react'
 const Dashboard = () => {
   const { user } = useAuth() // Get user from useAuth hook
   const { watchlist, isLoading, isError, handleRemoveWatchlist } = useWatchlist()
-
   // Filter watchlist based on user ID
   const userWatchlist = watchlist?.filter(stock => stock.user_id === user?.id)
 
@@ -54,8 +53,8 @@ const Dashboard = () => {
                 const intradayData = stock.intraday || []
                 const eod = stock.eod?.[0]
                 const prevEod = stock.eod?.[1]
-                const intraday = stock.intraday?.[stock.intraday.length - 1] || []
-
+                const isMarketOpen = stock.isMarketOpen
+                const intraday = isMarketOpen ? stock.intraday?.[stock.intraday.length - 1] : eod
                 const intradayFormatted = intradayData.map((item) => ({
                   ...item,
                   time: new Date(item.date).toLocaleTimeString([], {
@@ -63,6 +62,8 @@ const Dashboard = () => {
                     minute: '2-digit',
                   }),
                 }))
+
+                console.log(intradayFormatted)
 
                 const priceChange =
                   eod && prevEod ? ((eod.close - prevEod.close) / eod.close) * 100 : null
@@ -143,7 +144,7 @@ const Dashboard = () => {
                             />
                             <Line
                               type="monotone"
-                              dataKey="close"
+                              dataKey="low"
                               stroke="#3b82f6"
                               strokeWidth={2.5}
                               dot={false}

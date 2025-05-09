@@ -24,34 +24,7 @@ const Exchange = () => {
 
   const { portfolios, isLoading, handleCreatePortfolio  } = useAllPortfolio()
 
-  const { stocks, handleAddStocks } = useStocks()
-
-  const addToMonitor = async (stock) => {
-
-    // const stockDataToSave = {
-    //   exchange_id: params.exchange,
-    //   name: stock.name,
-    //   symbol: stock.symbol,
-    // }
-    setLoadingStock(stock.symbol)
-    
-    try {
-      const alreadyMonitored = stocks?.find((s) => s.symbol === stock.symbol)
-  
-      if (alreadyMonitored) {
-        toast.error(`${stock.name} is already being monitored`)
-        return
-      }
-  
-      await handleAddStocks(stock)
-      toast.success(`${stock.name} added to monitor`)
-    } catch (error) {
-      toast.error('Error adding stock to monitor')
-      console.error(error)
-    } finally {
-      setLoadingStock(null)
-    }
-  }  
+  const { stocks, handleAddStocks } = useStocks() 
   
   const fetchStocks = async (currentOffset = 0, append = false) => {
     setLoading(true)
@@ -148,25 +121,13 @@ const Exchange = () => {
                   {stock.name} ({stock.symbol})
                 </p>
               
-                {/* Portfolio Status */}
-                {portfolios?.find((p) => p.stock_symbol === stock.symbol) ? (
-                  <p className="text-green-500 mt-2 font-medium">Already in portfolio</p>
-                ) : (
-                  <button
-                    onClick={() => handleAddToPortfolio(stock)}
-                    className="mt-3 mr-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
-                    disabled={loadingStock === stock.symbol || isLoading}
-                  >
-                    {loadingStock === stock.symbol ? 'Adding...' : 'Add to Portfolio'}
-                  </button>
-                )}
-              
+                      
                 {/* Monitor Status */}
                 {stocks?.find((s) => s.symbol === stock.symbol) ? (user?.role == 1 && 
                   <p className="text-green-500 mt-2 font-medium"> Already in stock list</p>
                 ) : (user?.role == 1 && 
                   <button
-                    onClick={() => addToMonitor(stock)}
+                    onClick={() => handleAddStocks(stock)}
                     className="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-60"
                     disabled={loadingStock === stock.symbol || isLoading}
                   >

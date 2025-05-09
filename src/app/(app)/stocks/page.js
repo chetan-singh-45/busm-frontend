@@ -5,18 +5,17 @@ import Header from '@/app/(app)/Header'
 import { useAllPortfolio } from '@/hooks/portfolios'
 import { useStocks } from '@/hooks/stocks'
 import toast, { Toaster } from 'react-hot-toast'
-
+import { ConfirmDelete } from '@/components/ConfirmDelete'
+import { useAuth } from '@/hooks/auth'
 
 const Stock = () => {
 
+  const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [loadingStock, setLoadingStock] = useState(null)
-
   const { portfolios, isLoading, handleCreatePortfolio } = useAllPortfolio()
-
-  const { stocks } = useStocks()
-
+  const { stocks , handleDeleteStock} = useStocks()
   const handleAddToPortfolio = async (stock) => {
 
     // Protect against undefined portfolios
@@ -77,15 +76,36 @@ const Stock = () => {
                     {stock.name} ({stock.symbol})
                   </p>
                   {portfolios?.find((p) => p.stock.symbol === stock.symbol) ? (
+                  <>
                     <p className="text-green-500 mt-2 font-medium">Already in portfolio</p>
+                    { user?.role == 1 && <button
+                        onClick={() =>
+                          ConfirmDelete(() => handleDeleteStock(stock.id))
+                        }
+                        className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                        >
+                        Remove Stock
+                        </button>}
+                  </>
                   ) : (
-                    <button
-                      onClick={() => handleAddToPortfolio(stock)}
-                      className="mt-3 mr-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
-                      disabled={loadingStock === stock.symbol || isLoading}
+                    <>
+                      <button
+                        onClick={() => handleAddToPortfolio(stock)}
+                        className="mt-3 mr-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
+                        disabled={loadingStock === stock.symbol || isLoading}
+                      >
+                        {loadingStock === stock.symbol ? 'Adding...' : 'Add to Portfolio'}
+                      </button>
+                      { user?.role == 1 && <button
+
+                      onClick={() =>
+                        ConfirmDelete(() => handleDeleteStock(stock.id))
+                      }
+                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
                     >
-                      {loadingStock === stock.symbol ? 'Adding...' : 'Add to Portfolio'}
-                    </button>
+                      Remove Stock
+                    </button>}
+                    </>
                   )}
 
                 </div>
