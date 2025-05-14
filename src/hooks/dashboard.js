@@ -1,18 +1,19 @@
-// import useSWR from 'swr'
-// import { getNotificationCount } from '@/services/dashboard'
+import useSWR from 'swr'
+import { getAdminStats } from '@/services/dashboard'
 
-// export const useNotificationCount = () => {
-//     const fetcher = async () => {
-//         const { data } = await getNotificationCount()
-//         return data
-//     }
+export const useDashboard = () => {
+    const fetcher = async () => {
+        const { data } = await getAdminStats()
+        return data
+    }
+    
+    const { data, error, isLoading } = useSWR('/api/admin/dashboard', fetcher)
+    
+    return {
+        stats: data?.data,
+        isLoading: isLoading && !data,
+        isError: error,
+    }
+}
 
-//     const { data, error, mutate, isLoading } = useSWR('/api/getNotificationCount', fetcher)
 
-//     return {
-//         notificationCount: data?.data,
-//         isLoading: isLoading && !data,
-//         mutate,
-//         isError: error,
-//     }
-// }

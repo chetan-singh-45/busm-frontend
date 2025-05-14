@@ -15,38 +15,17 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { TrendingDown, TrendingUp, Bell, Building, CandlestickChart } from 'lucide-react'
-import { getNotificationCount, getStocksCount, getExchangesCount } from '@/services/dashboard'
+import { useDashboard } from '@/hooks/dashboard'
+
 const Dashboard = () => {
   const { user } = useAuth() // Get user from useAuth hook
   const { watchlist, isLoading, isError, handleRemoveWatchlist } = useWatchlist()
-  const [notificationCount, setNotificationCount] = useState(0)
-  const [stocksCount, setStocksCount] = useState(0)
-  const [exchangesCount, setExchangesCount] = useState(0)
+  const { stats, isLoading: loadingStats} = useDashboard()
+
+  console.log('user', stats)
 
   useEffect(() => {
-    getNotificationCount()
-      .then(response => {
-        setNotificationCount(response.data.data || 0)
-      })
-      .catch(error => {
-        console.error('Notification Error:', error)
-      })
-
-    getStocksCount()
-      .then(response => {
-        setStocksCount(response.data.data || 0)
-      })
-      .catch(error => {
-        console.error('Stocks Error:', error)
-      })
-
-    getExchangesCount()
-      .then(response => {
-        setExchangesCount(response.data.data || 0)
-      })
-      .catch(error => {
-        console.error('Exchanges Error:', error)
-      })
+    
   }, [])
 
   // Filter watchlist based on user ID
@@ -65,23 +44,63 @@ const Dashboard = () => {
     <>
       <Header title="Dashboard" />
       <Toaster position="top-right" />
-      {user?.role == 1 &&
-        <div className="bg-white px-6 py-4 rounded-xl shadow mb-2 mt-2 border-sky-500">
-          <div className="flex flex-wrap items-center justify-between text-sm sm:text-base font-medium text-gray-700 gap-6">
-            <div className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-sky-500" />
-              <span>Notification Sent: {notificationCount}</span>
+      {/* admin stats */}
+      <div className="bg-gray-50 py-4">
+
+      {user?.role == 1 && (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+      
+      {loadingStats ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          {/* Total Users */}
+          <div className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <Building className="w-6 h-6 text-blue-600" />
             </div>
-            <div className="flex items-center gap-2">
-              <CandlestickChart className="w-5 h-5 text-sky-500" />
-              <span>Supported Stocks: {stocksCount}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Building className="w-5 h-5 text-sky-500" />
-              <span>Supported Exchanges: {exchangesCount}</span>
+            <div>
+              <h3 className="text-gray-500 text-sm">Total Users</h3>
+              <p className="text-2xl font-semibold text-gray-800">{stats?.users_count}</p>
             </div>
           </div>
-        </div>}
+          <div className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <Building className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Total Users</h3>
+              <p className="text-2xl font-semibold text-gray-800">{stats?.users_count}</p>
+            </div>
+          </div>
+
+          {/* Total Alerts */}
+          <div className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <Bell className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Total Alerts</h3>
+              <p className="text-2xl font-semibold text-gray-800">{stats?.stock_events_count}</p>
+            </div>
+          </div>
+
+          {/* Total Stocks */}
+          <div className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <CandlestickChart className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-gray-500 text-sm">Total Stocks</h3>
+              <p className="text-2xl font-semibold text-gray-800">{stats?.stocks_count}</p>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+      )}
+      </div>
+
 
 
       <div className="py-4 bg-gray-50 min-h-screen">
