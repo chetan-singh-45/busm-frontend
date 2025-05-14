@@ -14,6 +14,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
+import Modal from './Modal'
 import PriceLine from '@/components/PriceLine'
 const ranges = ['1d', '5d', '1m', '6m', 'YTD', '1y', '5y']
 
@@ -32,12 +33,12 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
   const intraday = stock?.intraday || [];
   const eod = stock?.eod?.[0].close.toFixed?.(2);   
   const isMarketOpen = stock?.isMarketOpen;
-  const closingPrice = isMarketOpen ? stock?.intraday?.[stock.intraday.length - 1]?.marketstack_last.toFixed?.(2) : eod;
+  const closingPrice = isMarketOpen ? stock?.intraday?.[stock.intraday.length - 1]?.close.toFixed?.(2) : eod;
   const dayHigh = intraday.length > 0 ? Math.max(...intraday.map(item => item.high)) : null;
   const dayLow = intraday.length > 0 ? Math.min(...intraday.map(item => item.low)) : null;
   const week52high = data?.[0]?.["52high"] ?? null;
   const week52low = data?.[0]?.["52low"] ?? null;
-  const prevClosingPrice = stock?.eod?.[1]?.close;
+  // const prevClosingPrice = stock?.eod?.[1]?.close;
   const closeModal = () => {
     setIsOpen(false)
   }
@@ -100,6 +101,32 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
   const formatNumber = (num) =>
     num ? Number(num).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-';
 
+  const getXAxisTicks = (data, range) => {
+    const uniqueTicks = new Map();
+
+    data.forEach(item => {
+      const date = new Date(item.datetime);
+      let key;
+
+      if (range === '1d') {
+        key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
+      } else if (range === '5d' || range === '1m') {
+        key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      } else if (range === '6m' || range === 'YTD') {
+        key = `${date.getFullYear()}-${date.getMonth()}`;
+      }
+      else {
+        key = `${date.getFullYear()}`;
+      }
+
+      if (!uniqueTicks.has(key)) {
+        uniqueTicks.set(key, item.datetime);
+      }
+    });
+
+    return Array.from(uniqueTicks.values());
+  };
+
   return (
     <div className="bg-white shadow-md rounded-2xl p-6">
       <div className="flex justify-between items-center mb-4">
@@ -134,16 +161,25 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
         <div className="bg-gray-100 p-4 rounded">
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data}>
-                <XAxis
+            <XAxis
                 dataKey="datetime"
                 fontSize={10}
-                tickFormatter={(v) => {
-                    const date = new Date(v)
-                    const day = String(date.getDate()).padStart(2, '0')
-                    const month = date.toLocaleString('default', { month: 'short' })
-                    return `${month} ${day}`
-                  }}
-                />
+                tickFormatter={(dateStr) => {
+                  const date = new Date(dateStr);
+                  if (range === '1d') {
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  } else if (range === '5d' || range === '1m') {
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  } else if (range === '6m' || range === 'YTD') {
+                    console.log(range)
+                    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                  }
+                  else {
+                    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                  }
+                }}
+                ticks={getXAxisTicks(data, range)}
+              />
                 <YAxis
                 fontSize={10}
                 domain={['dataMin - 1', 'dataMax + 1']}
@@ -223,75 +259,43 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
         {loading ? 'Loading...' : 'No data available.'}
       </p>
       )}
-      <Transition appear show={isOpen} as={Fragment}>
-              <Dialog as="div" className="relative z-50" onClose={closeModal}>
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-200"
-                  enterFrom="opacity-0"
-                  enterTo="opacity-100"
-                  leave="ease-in duration-150"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <div className="fixed inset-0 bg-black bg-opacity-30" />
-                </Transition.Child>
-      
-                <div className="fixed inset-0 overflow-y-auto">
-                  <div className="flex min-h-full items-center justify-center p-4">
-                    <Transition.Child
-                      as={Fragment}
-                      enter="ease-out duration-200"
-                      enterFrom="opacity-0 scale-95"
-                      enterTo="opacity-100 scale-100"
-                      leave="ease-in duration-150"
-                      leaveFrom="opacity-100 scale-100"
-                      leaveTo="opacity-0 scale-95"
-                    >
-                      <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl transition-all">
-                      <Dialog.Title className="text-lg font-medium text-gray-900 mb-4">
-                         Indicator  
-                      </Dialog.Title>
-                      <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-4 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-500 font-medium">SMA</span>
-                          <span className="text-blue-600 font-semibold">{modalData?.sma.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500 font-medium">Last Price</span>
-                          <span className="text-green-600 font-semibold">{modalData?.lastPrice}</span>
-                        </div>
-                      </div>
-                        <div className="mt-6 flex justify-center gap-6">
-                          <button
-                            onClick={() => handleCreateIndicatorStock("up")}
-                            className="px-3 py-1 rounded border bg-white-600 text-black hover:bg-gray-300 transition-colors duration-200"
-                            >
-                             ↑ Up
-                          </button>
+     <Modal isOpen={isOpen} onClose={closeModal} title="Indicator">
+        <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-4 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-500 font-medium">SMA</span>
+            <span className="text-blue-600 font-semibold">{modalData?.sma.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500 font-medium">Last Price</span>
+            <span className="text-green-600 font-semibold">{modalData?.lastPrice}</span>
+          </div>
+        </div>
 
-                          <button
-                            onClick={() => handleCreateIndicatorStock("down")}
-                            className="px-3 py-1 rounded border bg-white-600 text-black hover:bg-gray-300 transition-colors duration-200"
-                          >
-                           ↓ Down
-                          </button>
-                        </div>
-                
-                        <div className="mt-4 text-right">
-                          <button
-                            onClick={closeModal}
-                            className="px-3 py-1 rounded border bg-white-600 text-black hover:bg-gray-300 transition-colors duration-200"
-                            >
-                            Cancel
-                          </button>
-                        </div>
-                      </Dialog.Panel>
-                    </Transition.Child>
-                  </div>
-                </div>
-              </Dialog>
-            </Transition>
+        <div className="mt-6 flex justify-center gap-6">
+          <button
+            onClick={() => handleCreateIndicatorStock("up")}
+            className="px-3 py-1 rounded border bg-white-600 text-black hover:bg-gray-300 transition-colors duration-200"
+          >
+            ↑ Cross Up
+          </button>
+
+          <button
+            onClick={() => handleCreateIndicatorStock("down")}
+            className="px-3 py-1 rounded border bg-white-600 text-black hover:bg-gray-300 transition-colors duration-200"
+          >
+            ↓ Cross Down
+          </button>
+        </div>
+
+        <div className="mt-4 text-right">
+          <button
+            onClick={closeModal}
+            className="px-3 py-1 rounded border bg-white-600 text-black hover:bg-gray-300 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }

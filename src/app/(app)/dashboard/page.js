@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/app/(app)/Header'
 import { useAuth } from '@/hooks/auth'
 import { useWatchlist } from '@/hooks/watchlist'
@@ -14,11 +14,41 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { TrendingDown, TrendingUp } from 'lucide-react'
-
+import { TrendingDown, TrendingUp, Bell, Building, CandlestickChart } from 'lucide-react'
+import { getNotificationCount, getStocksCount, getExchangesCount } from '@/services/dashboard'
 const Dashboard = () => {
   const { user } = useAuth() // Get user from useAuth hook
   const { watchlist, isLoading, isError, handleRemoveWatchlist } = useWatchlist()
+  const [notificationCount, setNotificationCount] = useState(0)
+  const [stocksCount, setStocksCount] = useState(0)
+  const [exchangesCount, setExchangesCount] = useState(0)
+
+  useEffect(() => {
+    getNotificationCount()
+      .then(response => {
+        setNotificationCount(response.data.data || 0)
+      })
+      .catch(error => {
+        console.error('Notification Error:', error)
+      })
+
+    getStocksCount()
+      .then(response => {
+        setStocksCount(response.data.data || 0)
+      })
+      .catch(error => {
+        console.error('Stocks Error:', error)
+      })
+
+    getExchangesCount()
+      .then(response => {
+        setExchangesCount(response.data.data || 0)
+      })
+      .catch(error => {
+        console.error('Exchanges Error:', error)
+      })
+  }, [])
+
   // Filter watchlist based on user ID
   const userWatchlist = watchlist?.filter(stock => stock.user_id === user?.id)
 
@@ -35,11 +65,29 @@ const Dashboard = () => {
     <>
       <Header title="Dashboard" />
       <Toaster position="top-right" />
+      {user?.role == 1 &&
+        <div className="bg-white px-6 py-4 rounded-xl shadow mb-2 mt-2 border-sky-500">
+          <div className="flex flex-wrap items-center justify-between text-sm sm:text-base font-medium text-gray-700 gap-6">
+            <div className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-sky-500" />
+              <span>Notification Sent: {notificationCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CandlestickChart className="w-5 h-5 text-sky-500" />
+              <span>Supported Stocks: {stocksCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Building className="w-5 h-5 text-sky-500" />
+              <span>Supported Exchanges: {exchangesCount}</span>
+            </div>
+          </div>
+        </div>}
 
-      <div className="py-12 bg-gray-50 min-h-screen">
+
+      <div className="py-4 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            
+
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div
@@ -52,9 +100,14 @@ const Dashboard = () => {
                 const symbol = stock.stock_symbol?.toUpperCase()
                 const intradayData = stock.intraday || []
                 const eod = stock.eod?.[0]
-                const prevEod = stock.eod?.[1]
-                const isMarketOpen = stock.isMarketOpen
-                const intraday = isMarketOpen ? stock.intraday?.[stock.intraday.length - 1] : eod
+                // const prevEod = stock.eod?.[1]
+                // const isMarketOpen = stock.isMarketOpen
+                const intraday = stock.intraday?.[stock.intraday.length - 1]
+
+                const lastClose = stock?.intraday?.[stock.intraday.length - 1]?.marketstack_last || stock?.eod?.[0]?.close;
+                const previousClose = stock?.eod?.[1]?.close;
+                const priceChange = (lastClose - previousClose).toFixed(2);
+                const percentChange = ((priceChange / previousClose) * 100).toFixed(2);
                 const intradayFormatted = intradayData.map((item) => ({
                   ...item,
                   time: new Date(item.date).toLocaleTimeString([], {
@@ -63,15 +116,13 @@ const Dashboard = () => {
                   }),
                 }))
 
-                console.log(intradayFormatted)
-
-                const priceChange =
-                  eod && prevEod ? ((eod.close - prevEod.close) / eod.close) * 100 : null
+                // const priceChange =
+                //   eod && prevEod ? ((eod.close - prevEod.close) / eod.close) * 100 : null
 
                 const priceColor =
-                  priceChange >= 0 ? 'text-green-600' : 'text-red-500'
+                  percentChange >= 0 ? 'text-green-600' : 'text-red-500'
 
-                const PriceIcon = priceChange >= 0 ? TrendingUp : TrendingDown
+                const PriceIcon = percentChange >= 0 ? TrendingUp : TrendingDown
 
                 return (
                   <div
@@ -84,11 +135,11 @@ const Dashboard = () => {
                             <h2 className="text-lg font-semibold">{stock.stock_name}</h2>
                             <p className="text-sm text-gray-400">{symbol}</p>
                           </div>
-                          {priceChange !== null && (
+                          {percentChange !== null && (
                             <div className={`flex items-center gap-1 ${priceColor}`}>
                               <PriceIcon className="w-4 h-4" />
                               <span className="text-sm font-medium">
-                                {priceChange.toFixed(2)}%
+                                {percentChange}%
                               </span>
                             </div>
                           )}
