@@ -36,18 +36,17 @@ const Navigation = ({ user }) => {
                                 Dashboard
                             </NavLink>
 
-                            {
-                                user?.role == 1 && 
-                            <NavLink
+                           
+                            {/* <NavLink
                                 href="/exchanges"
                                 active={usePathname() === '/exchanges'}>
                                 Exchanges
-                            </NavLink>
-                            }
+                            </NavLink> */}
+                            
                             <NavLink
                                 href="/stocks"
                                 active={usePathname() === '/stocks'}>
-                                Stocks
+                                Indices
                             </NavLink>
                             {
                                 user?.role == 1 && 

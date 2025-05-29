@@ -22,10 +22,10 @@ const Exchange = () => {
   const [loading, setLoading] = useState(false)
   const [loadingStock, setLoadingStock] = useState(null)
 
-  const { portfolios, isLoading, handleCreatePortfolio  } = useAllPortfolio()
+  const { portfolios, isLoading, handleCreatePortfolio } = useAllPortfolio()
 
-  const { stocks, handleAddStocks } = useStocks() 
-  
+  const { stocks, handleAddStocks } = useStocks()
+
   const fetchStocks = async (currentOffset = 0, append = false) => {
     setLoading(true)
     try {
@@ -34,9 +34,9 @@ const Exchange = () => {
       if (!data) return
 
       if (append) {
-        setStockData(prev => [...prev, ...data.data.tickers])
+        setStockData(prev => [...prev, ...(data.data.tickers || data.data.indexes)])
       } else {
-        setStockData(data.data.tickers)
+        setStockData(data.data.tickers || data.data.indexes)
       }
 
       setTotal(data.pagination.total)
@@ -111,31 +111,31 @@ const Exchange = () => {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {user?.role == 1 && filteredStocks.length > 0 ? (
+            {filteredStocks.length > 0 ? (
               filteredStocks.map((stock) => (
                 <div
-                key={stock.symbol}
-                className="bg-white shadow-md rounded-2xl p-4 border hover:shadow-lg transition"
-              >
-                <p className="text-xl font-bold text-gray-800">
-                  {stock.name} ({stock.symbol})
-                </p>
-              
-                      
-                {/* Monitor Status */}
-                {stocks?.find((s) => s.symbol === stock.symbol) ? (user?.role == 1 && 
-                  <p className="text-green-500 mt-2 font-medium"> Already in stock list</p>
-                ) : (user?.role == 1 && 
-                  <button
-                    onClick={() => handleAddStocks(stock)}
-                    className="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-60"
-                    disabled={loadingStock === stock.symbol || isLoading}
-                  >
-                    {loadingStock === stock.symbol ? 'Adding...' : 'Add to stock list'}
-                  </button>
-                )}
-              </div>
-              
+                  key={stock.symbol}
+                  className="bg-white shadow-md rounded-2xl p-4 border hover:shadow-lg transition"
+                >
+                  <p className="text-xl font-bold text-gray-800">
+                    {stock.name} ({stock.symbol})
+                  </p>
+
+
+                  {/* Monitor Status */}
+                  {stocks?.find((s) => s.symbol === stock.symbol) ? (
+                    <p className="text-green-500 mt-2 font-medium"> Already in stock list</p>
+                  ) : (
+                    <button
+                      onClick={() => handleAddStocks(stock)}
+                      className="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-60"
+                      disabled={loadingStock === stock.symbol || isLoading}
+                    >
+                      {loadingStock === stock.symbol ? 'Adding...' : 'Add to stock list'}
+                    </button>
+                  )}
+                </div>
+
               ))
             ) : (
               <p className="text-gray-600 text-center col-span-full">

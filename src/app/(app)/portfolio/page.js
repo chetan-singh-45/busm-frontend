@@ -1,6 +1,6 @@
 'use client'
 
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/app/(app)/Header'
 import { useAuth } from '@/hooks/auth'
 import { useAllPortfolio } from '@/hooks/portfolios'
@@ -17,18 +17,17 @@ const Portfolio = () => {
 
   const onAddToWatchlist = async (stock) => {
     const watchlistData = {
-      stock_id: stock.stock.id, 
+      stock_id: stock.stock.id,
     }
     setLoadingId(stock.id)
     try {
-      
-        //  
-        const exists = watchlist.find(
-            (w) => w.id === stock.id && w.user_id === user.id
-        )
-        
-        if (!exists) {
-        await handleAddWatchlist(watchlistData) 
+
+      const exists = watchlist.find(
+        (w) => w.id === stock.id && w.user_id === user.id
+      )
+
+      if (!exists) {
+        await handleAddWatchlist(watchlistData)
         toast.success('Added to watchlist')
       } else {
         toast.error('Already exists in watchlist')
@@ -37,10 +36,10 @@ const Portfolio = () => {
       toast.error('Failed to add to watchlist')
       console.error('Error adding stock to watchlist:', error)
     } finally {
-        setLoadingId(null)
-      }
+      setLoadingId(null)
+    }
   }
-  
+
   useEffect(() => {
     if (isError) {
       toast.error('Failed to load portfolios')
@@ -60,7 +59,7 @@ const Portfolio = () => {
                 Your selected stocks...
               </p>
 
-              {isLoading || portfolios === undefined  ? (
+              {isLoading || portfolios === undefined ? (
                 <p className="text-gray-500">Loading your portfolio...</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -77,50 +76,50 @@ const Portfolio = () => {
                           {stock.stock.has_intraday ? 'Yes' : 'No'}
                         </p>
                         {
-                            watchlist?.find((p) => p.stock_id === stock.stock.id) ? (
-                              <>
+                          watchlist?.find((p) => p.stock_id === stock.stock.id) ? (
+                            <>
                               <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
-                              <p className="text-green-500 mt-2">Already in watchlist</p>
-                              <button
-                                onClick={() => handleDeletePortfolio(stock.id)
-                                  .then(() => toast.success(`${stock.stock.symbol} removed from Portfolio`))
-                                  .catch((err) => { toast.error(err)})
-                                }
-                                className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
-                              >
-                                Remove Portfolio
-                              </button>
+                                <p className="text-green-500 mt-2">Already in watchlist</p>
+                                <button
+                                  onClick={() => handleDeletePortfolio(stock.id)
+                                    .then(() => toast.success(`${stock.stock.symbol} removed from Portfolio`))
+                                    .catch((err) => { toast.error(err) })
+                                  }
+                                  className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                                >
+                                  Remove Portfolio
+                                </button>
                               </div>
                             </>
-                            ) : (
+                          ) : (
                             <>
-                            <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
+                              <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
 
                                 <button
                                   onClick={() => onAddToWatchlist(stock)}
                                   disabled={loadingId === stock.id}
                                   className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-                                  >
+                                >
                                   {loadingId === stock.id ? 'Adding...' : 'Add to Watchlist'}
-                                </button>           
-                              <button
-                                onClick={() => handleDeletePortfolio(stock.id)
-                                  .then(() => toast.success(`${stock.stock.symbol} removed from Portfolio`))
-                                  .catch((err) => { toast.error(err)})
-                                }
-                                className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
-                              >
-                                Remove Portfolio
-                              </button>
-                            </div>  
+                                </button>
+                                <button
+                                  onClick={() => handleDeletePortfolio(stock.id)
+                                    .then(() => toast.success(`${stock.stock.symbol} removed from Portfolio`))
+                                    .catch((err) => { toast.error(err) })
+                                  }
+                                  className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
+                                >
+                                  Remove Portfolio
+                                </button>
+                              </div>
                             </>
-                         )
+                          )
                         }
                       </div>
                     ))
                   ) : (
                     <p className="text-gray-600 text-center col-span-full">
-                    No data available.
+                      No data available.
                     </p>
                   )}
                 </div>

@@ -1,62 +1,57 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import Header from '@/app/(app)/Header'
-import { useAllPortfolio } from '@/hooks/portfolios'
-import { useStocks } from '@/hooks/stocks'
-import toast, { Toaster } from 'react-hot-toast'
-import { ConfirmDelete } from '@/components/ConfirmDelete'
-import { useAuth } from '@/hooks/auth'
+import { useState } from 'react';
+import Header from '@/app/(app)/Header';
+import { useStocks } from '@/hooks/stocks';
+import { useWatchlist } from '@/hooks/watchlist';
+import toast, { Toaster } from 'react-hot-toast';
+import { useAuth } from '@/hooks/auth';
+import { Star } from 'lucide-react';
 
 const Stock = () => {
+  const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loadingStock, setLoadingStock] = useState(null);
 
-  const { user } = useAuth()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [loadingStock, setLoadingStock] = useState(null)
-  const { portfolios, isLoading, handleCreatePortfolio } = useAllPortfolio()
-  const { stocks , handleDeleteStock} = useStocks()
-  const handleAddToPortfolio = async (stock) => {
+  const { stocks } = useStocks();
+  const { watchlist, handleAddWatchlist, handleRemoveWatchlist } = useWatchlist({ withoutPricing: true });
 
-    // Protect against undefined portfolios
-    // if (!Array.isArray(portfolios)) {
-    //   toast.error('Portfolios not loaded yet. Please wait.')
-    //   return
-    // }
-
-    setLoadingStock(stock.symbol)
-
-    const portfolio = {
-      id: stock.id,
+  const handleToggleWatchlist = async (stock) => {
+    if (!user) {
+      toast.error('You must be logged in to manage watchlist');
+      return;
     }
 
+    setLoadingStock(stock.symbol);
 
     try {
-      const existingPortfolio = portfolios.find((p) => p.stock.symbol === stock.symbol)
-      if (!existingPortfolio) {
-        await handleCreatePortfolio(portfolio)
-        toast.success(`${stock.name} added to portfolio`)
+      const existingEntry = watchlist.find((w) => w.stock_id === stock.id);
+
+      if (existingEntry) {
+        await handleRemoveWatchlist(existingEntry.id);
+        toast.success(`${stock.name} removed from watchlist`);
       } else {
-        toast.error(`${stock.name} already exists in portfolio`)
+        await handleAddWatchlist({ stock_id: stock.id });
+        toast.success(`${stock.name} added to watchlist`);
       }
     } catch (error) {
-      toast.error('Failed to add to portfolio')
-      console.error('Error adding stock to portfolio:', error)
+      toast.error('Watchlist operation failed');
+      console.error(error);
     } finally {
-      setLoadingStock(null)
-      setLoading(false)
+      setLoadingStock(null);
     }
-  }
+  };
 
-  const filteredMonitoredStocks = stocks?.filter((stock) =>
+  const filteredStocks = stocks?.filter((stock) =>
     stock.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
     stock.symbol.toLowerCase().includes(searchQuery.trim().toLowerCase())
-  )
-  
+  );
+
   return (
     <>
       <Header title="Stocks" />
       <Toaster position="top-right" />
+
       <div className="py-12">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <input
@@ -67,67 +62,56 @@ const Stock = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          
-           { filteredMonitoredStocks?.length > 0 ? (
-              filteredMonitoredStocks.map((stock) => (
-                <div key={stock.symbol} className="bg-white shadow-md rounded-2xl p-4 border hover:shadow-lg transition">
-                  <p className="text-xl font-bold text-gray-800">
-                    {stock.name} ({stock.symbol})
-                  </p>
-                  {portfolios?.find((p) => p.stock.symbol === stock.symbol) ? (
-                  <>
-                    <p className="text-green-500 mt-2 font-medium">Already in portfolio</p>
-                    { user?.role == 1 && <button
-                        onClick={() =>
-                          ConfirmDelete(() => handleDeleteStock(stock.id))
-                        }
-                        className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
-                        >
-                        Remove Stock
-                        </button>}
-                  </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => handleAddToPortfolio(stock)}
-                        className="mt-3 mr-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
-                        disabled={loadingStock === stock.symbol || isLoading}
-                      >
-                        {loadingStock === stock.symbol ? 'Adding...' : 'Add to Portfolio'}
-                      </button>
-                      { user?.role == 1 && <button
+          <div className="overflow-x-auto bg-white rounded-xl shadow-md">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Watchlist</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Symbol</th>
+                </tr>
+              </thead>
 
-                      onClick={() =>
-                        ConfirmDelete(() => handleDeleteStock(stock.id))
-                      }
-                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400"
-                    >
-                      Remove Stock
-                    </button>}
-                    </>
-                  )}
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredStocks?.length > 0 ? (
+                  filteredStocks.map((stock) => {
+                    const isInWatchlist = watchlist?.some((w) => w.stock_id === stock.id);
 
-                </div>
-              ))
-            ) : (
-               <p className="text-gray-600 text-center col-span-full">
-                {loading ? 'Loading...' : 'No data available.'}
-              </p>
-            )
-          }
+                    return (
+                      <tr key={stock.symbol}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <button
+                            onClick={() => handleToggleWatchlist(stock)}
+                            className="flex items-center gap-2 p-1 rounded-lg hover:scale-105 transition"
+                            disabled={loadingStock === stock.symbol}
+                          >
+                            <Star
+                              className={`w-5 h-5 ${
+                                isInWatchlist ? 'text-yellow-400' : 'text-gray-300'
+                              }`}
+                              fill={isInWatchlist ? 'currentColor' : 'none'}
+                            />
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{stock.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{stock.symbol}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center text-gray-500 px-6 py-6">
+                      No data available.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-            {/* <div className="flex justify-center mt-8">
-              <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Load More
-              </button>
-            </div> */}
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Stock
+export default Stock;

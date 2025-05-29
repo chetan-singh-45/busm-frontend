@@ -32,13 +32,14 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
   const stock = watchlist?.find((s) => s.stock_symbol.toUpperCase() === symbol.toUpperCase());
   const intraday = stock?.intraday || [];
   const eod = stock?.eod?.[0].close.toFixed?.(2);   
-  const isMarketOpen = stock?.isMarketOpen;
-  const closingPrice = isMarketOpen ? stock?.intraday?.[stock.intraday.length - 1]?.close.toFixed?.(2) : eod;
-  const dayHigh = intraday.length > 0 ? Math.max(...intraday.map(item => item.high)) : null;
-  const dayLow = intraday.length > 0 ? Math.min(...intraday.map(item => item.low)) : null;
+  // const isMarketOpen = stock?.isMarketOpen;
+  // const closingPrice = isMarketOpen ? stock?.intraday?.[stock.intraday.length - 1]?.close.toFixed?.(2) : eod;
+  const closingPrice = intraday.price;
+  const dayHigh =data?.[0]?.["high"] ?? null;
+  const dayLow = data?.[0]?.["low"] ?? null;
   const week52high = data?.[0]?.["52high"] ?? null;
   const week52low = data?.[0]?.["52low"] ?? null;
-  // const prevClosingPrice = stock?.eod?.[1]?.close;
+
   const closeModal = () => {
     setIsOpen(false)
   }
@@ -130,7 +131,7 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
   return (
     <div className="bg-white shadow-md rounded-2xl p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">{symbol.toUpperCase()} Chart</h2>
+        <h2 className="text-xl font-semibold">{stock?.stock_name} Chart</h2>
         {closingPrice ? (
           <p className="text-lg font-bold text-gray-800">
             ${formatNumber(closingPrice)}
@@ -171,7 +172,6 @@ const OverviewChart = ({ symbol, defaultRange = '1d' }) => {
                   } else if (range === '5d' || range === '1m') {
                     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                   } else if (range === '6m' || range === 'YTD') {
-                    console.log(range)
                     return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
                   }
                   else {
