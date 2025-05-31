@@ -6,7 +6,7 @@ import { useStocks } from '@/hooks/stocks';
 import { useWatchlist } from '@/hooks/watchlist';
 import toast, { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/hooks/auth';
-import { Star } from 'lucide-react';
+import StockTable from '@/components/StockTable';
 
 const Stock = () => {
   const { user } = useAuth();
@@ -56,58 +56,21 @@ const Stock = () => {
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <input
             type="text"
-            placeholder="Search stocks..."
+            placeholder="Search ..."
             className="w-60 border border-gray-300 rounded-md p-2 text-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
 
-          <div className="overflow-x-auto bg-white rounded-xl shadow-md">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Watchlist</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Symbol</th>
-                </tr>
-              </thead>
+          <StockTable
+              stocks={filteredStocks}
+              watchlist={watchlist}
+              isLoading={loadingStock}
+              handleToggleWatchlist={handleToggleWatchlist}
+            />
 
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredStocks?.length > 0 ? (
-                  filteredStocks.map((stock) => {
-                    const isInWatchlist = watchlist?.some((w) => w.stock_id === stock.id);
 
-                    return (
-                      <tr key={stock.symbol}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <button
-                            onClick={() => handleToggleWatchlist(stock)}
-                            className="flex items-center gap-2 p-1 rounded-lg hover:scale-105 transition"
-                            disabled={loadingStock === stock.symbol}
-                          >
-                            <Star
-                              className={`w-5 h-5 ${
-                                isInWatchlist ? 'text-yellow-400' : 'text-gray-300'
-                              }`}
-                              fill={isInWatchlist ? 'currentColor' : 'none'}
-                            />
-                          </button>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{stock.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{stock.symbol}</td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan="3" className="text-center text-gray-500 px-6 py-6">
-                      No data available.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+
         </div>
       </div>
     </>
