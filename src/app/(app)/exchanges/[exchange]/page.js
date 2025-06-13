@@ -103,7 +103,7 @@ const Exchange = () => {
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <input
             type="text"
-            placeholder="Search stocks..."
+            placeholder="Search..."
             className="w-60 border border-gray-300 rounded-md p-2 text-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

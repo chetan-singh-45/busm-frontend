@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import toast from 'react-hot-toast'
+import { Toaster ,toast} from 'react-hot-toast'
 import { Star } from 'lucide-react'
+import Dropdown from '@/components/Dropdown'
 
 export default function StockTable({
   stocks = [],
@@ -34,7 +35,9 @@ export default function StockTable({
       stock.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       stock.symbol.toLowerCase().includes(searchQuery.toLowerCase())
     const countryMatch =
-      selectedCountry === 'all' || stock.country.name === selectedCountry
+      selectedCountry === 'all' ||
+      stock.country.name.toLowerCase() === selectedCountry.toLowerCase()
+
     return nameMatch && countryMatch
   })
 
@@ -43,34 +46,61 @@ export default function StockTable({
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg">
+      <Toaster position="top-right" />
       {/* Filters */}
       <div className="flex flex-wrap gap-4 items-center mb-6">
         <input
           type="text"
-          placeholder="Search stocks..."
+          placeholder="Search..."
           className="w-full sm:w-64 border border-gray-300 rounded-lg px-4 py-2 text-base focus:ring-2 focus:ring-blue-500 focus:outline-none"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <select
-          value={selectedCountry}
-          onChange={(e) => setSelectedCountry(e.target.value)}
-          className="border border-gray-300 rounded-lg px-4 py-2 text-base"
-        >
-          <option value="all">All Countries</option>
-          {countries.map((country) => (
-            <option key={country} value={country}>
-              {country.charAt(0).toUpperCase() + country.slice(1)}
-            </option>
-          ))}
-        </select>
+        <div className="relative z-30 w-48">
+          <Dropdown
+            align="left"
+            width="48"
+            trigger={
+              <button className="inline-flex justify-between w-full px-4 py-2 text-base border border-gray-300 bg-white rounded-lg hover:bg-gray-100">
+                {selectedCountry === 'all' ? 'All Countries' : selectedCountry.charAt(0).toUpperCase() + selectedCountry.slice(1)}
+                <svg
+                  className="ml-2 w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            }
+          >
+            <button
+              onClick={() => setSelectedCountry('all')}
+              className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${selectedCountry === 'all' ? 'font-semibold text-blue-600' : ''
+                }`}
+            >
+              All Countries
+            </button>
+            {countries.map((country) => (
+              <button
+                key={country}
+                onClick={() => setSelectedCountry(country.toLowerCase())}
+                className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${selectedCountry.toLowerCase() === country.toLowerCase() ? 'font-semibold text-blue-600' : ''
+                  }`}
+              >
+                {country.charAt(0).toUpperCase() + country.slice(1)}
+              </button>
+            ))}
+          </Dropdown>
+        </div>
       </div>
 
       {/* Table */}
       {isLoading ? (
         <p className="text-gray-600">Loading...</p>
       ) : filteredStocks?.length === 0 ? (
-        <p className="text-gray-500">No matching stocks found.</p>
+        <p className="text-gray-500">No matching data found.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto border-collapse">
@@ -98,16 +128,15 @@ export default function StockTable({
 
                 return (
                   <tr key={stock.id} className="border-t hover:bg-gray-50 transition duration-150">
-                     <td className="px-4 py-3 text-center">
+                    <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => handleToggleWatchlist(stock)}
                         title={isStarred ? 'Remove from Watchlist' : 'Add to Watchlist'}
                         className="hover:scale-110 transition-transform duration-200"
                       >
                         <Star
-                          className={`w-5 h-5 ${
-                            isStarred ? 'text-yellow-400' : 'text-gray-300'
-                          }`}
+                          className={`w-5 h-5 ${isStarred ? 'text-yellow-400' : 'text-gray-300'
+                            }`}
                           fill={isStarred ? 'currentColor' : 'none'}
                         />
                       </button>
@@ -125,9 +154,8 @@ export default function StockTable({
                     <td className="px-4 py-3 text-center">
                       {percentChange != null ? (
                         <span
-                          className={`px-2 py-1 rounded-full text-sm font-medium ${
-                            isPositive ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'
-                          }`}
+                          className={`px-2 py-1 rounded-full text-sm font-medium ${isPositive ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'
+                            }`}
                         >
                           {percentChange} ({priceChange})
                         </span>

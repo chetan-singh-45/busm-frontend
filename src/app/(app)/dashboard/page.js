@@ -6,17 +6,37 @@ import { useAuth } from '@/hooks/auth'
 import { useWatchlist } from '@/hooks/watchlist'
 import { useDashboard } from '@/hooks/dashboard'
 import toast, { Toaster } from 'react-hot-toast'
-import { Bell, Building, CandlestickChart, User } from 'lucide-react'
+import { Bell, Building, CandlestickChart, User, TrendingUp, BellRing } from 'lucide-react'
 import StockTable from '@/components/StockTable'
+import Notification from '@/components/Notification'
+import { getRecentNotifications, notificationStats } from '@/services/stats';
+import { useRouter } from 'next/navigation'
 
 const Dashboard = () => {
   const { user } = useAuth()
   const { watchlist, isLoading, isError, handleRemoveWatchlist, handleAddWatchlist } = useWatchlist()
   const { stats, isLoading: loadingStats } = useDashboard()
+  const [loadingStock, setLoadingStock] = useState(null)
+  const [userStats, setUserStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [showBanner, setShowBanner] = useState(true)
+  const router = useRouter()
+  // const [searchQuery, setSearchQuery] = useState('')
+  // const [selectedCountry, setSelectedCountry] = useState('all')
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await notificationStats()
+        setUserStats(res?.data?.data[0])
+      } catch (error) {
+        console.error('Failed to load user stats', error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCountry, setSelectedCountry] = useState('all')
-  const [loadingStock, setLoadingStock] = useState(null) 
+    fetchStats()
+  }, [])
 
   const handleToggleWatchlist = async (stock) => {
     if (!user) {
@@ -53,8 +73,33 @@ const Dashboard = () => {
   return (
     <>
       <Header title="Dashboard" />
-      <Toaster position="top-right" />
+      {/* Last visit banner */}
+      {showBanner && stats?.new_notifications?.length > 0 && (
+      <div className="fixed top-6 right-6 z-50 bg-blue-50 border border-blue-300 text-blue-800 px-12 py-2 rounded-lg shadow-md flex items-center space-x-3 max-w-sm w-full">            <BellRing className="w-5 h-5 text-green-600" />
+              <span className="text-sm">
+                {stats.new_notifications.length} new alert
+                {stats.new_notifications.length > 1 ? 's' : ''} since last visit.
+                <button
+                  onClick={() => {
+                    setShowBanner(false)
+                    router.push('/notifications')
+                  }}
+                  className="ml-2 underline text-blue-700 hover:text-blue-900"
+                >
+                  view
+                </button>
+              </span>
+              <button
+                onClick={() => setShowBanner(false)}
+                className="text-blue-700 hover:text-blue-900 text-lg font-semibold"
+                aria-label="Dismiss"
+              >
+                &times;
+              </button>
+            </div>
+          )}
 
+      <Toaster position="top-right" />
       {/* Admin Stats */}
       {user?.role == 1 && (
         <div className="bg-gray-50 py-4">
@@ -104,16 +149,115 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+      {user && (
+        <div className="bg-gray-100 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6">Your Trading Insights</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {loadingStats ? (
+                // Skeleton loading state
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-white p-6 rounded-xl shadow animate-pulse flex flex-col"
+                  >
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                  </div>
+                ))
+              ) : (
+                <>
+                  {/* Total Alerts */}
+                  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-500">Total Alerts</span>
+                      <Bell className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <p className="text-2xl font-bold text-gray-800 mt-3">
+                      {userStats?.last_7_days_alert_count || 0}
+                    </p>
+                    <span className="text-xs text-gray-400 mt-1">Last 7 days</span>
+                  </div>
 
-      {/* Watchlist Table */}
-      <StockTable
-        stocks={watchlist} // you can change to all stocks if needed
-        watchlist={watchlist}
-        isLoading={isLoading}
-        isError={isError}
-        handleToggleWatchlist={handleToggleWatchlist}
-        loadingStock={loadingStock}
-      />
+                  {/* Most Active Indicator */}
+                  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-500">Most Active Tool</span>
+                      <TrendingUp className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-800">{userStats?.most_active_indicator?.indicator_name || 'None'}</span>
+                        <span className="text-sm font-medium text-gray-800"> {userStats?.most_active_indicator?.usage_count || 0} alerts</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Top Triggered Stocks */}
+                  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-500">Top Triggered Index</span>
+                      <TrendingUp className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {userStats?.top_stocks?.length ? (
+                        userStats.top_stocks.map((stock, index) => (
+                          <div key={index} className="flex justify-between items-center">
+                            <span className="text-sm text-gray-700">{stock.name}</span>
+                            <span className="text-sm font-medium text-gray-800">{stock.count} alerts</span>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-500">No Index triggered</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Direction Summary */}
+                    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-500">Direction Summary:</span>
+                      <TrendingUp className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {userStats?.direction?.length ? (
+                        userStats.direction.map((stock, index) => (
+                          <div key={index} className="flex justify-between items-center">
+                            <span className="text-sm text-gray-700">{stock.prediction}</span>
+                            <span className="text-sm font-medium text-gray-800">{stock.count} alerts</span>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-500">No Index triggered</span>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-4">
+        {/* Notification Table */}
+        <div className="bg-white rounded-xl shadow p-4 overflow-x-auto">
+          <Notification fetchNotifications={getRecentNotifications} />
+        </div>
+
+        {/* Watchlist Table */}
+        <div className="bg-white rounded-xl shadow p-4 overflow-x-auto">
+          <h2 className="text-lg font-semibold mb-4">Watchlist</h2>
+          <StockTable
+            stocks={watchlist}
+            watchlist={watchlist}
+            isLoading={isLoading}
+            isError={isError}
+            handleToggleWatchlist={handleToggleWatchlist}
+            loadingStock={loadingStock}
+          />
+        </div>
+      </div>
     </>
   )
 }

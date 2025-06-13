@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 export function ConfirmDelete(onConfirm) {
   toast((t) => (
     <div className="flex flex-col space-y-2">
-      <h2>Remove</h2>
+      <h2>Are you sure to remove</h2>
       <div className="flex justify-end space-x-2 mt-2">
         <button
           onClick={() => {
@@ -13,7 +13,7 @@ export function ConfirmDelete(onConfirm) {
           }}
           className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
         >
-         Delete it
+         Remove
         </button>
         <button
           onClick={() => toast.dismiss(t.id)}

@@ -1,15 +1,18 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react'
-import toast from 'react-hot-toast'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
+import * as echarts from 'echarts'
+import { Toaster ,toast} from 'react-hot-toast'
 import { useWatchlist } from '@/hooks/watchlist'
 import { useAuth } from '@/hooks/auth'
 import { useAllIndicator } from '@/hooks/indicators'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
-import Modal from './Modal'
 import PriceLine from '@/components/PriceLine'
+import { useStocks } from '@/hooks/stocks'
+import { Star, CandlestickChart, LineChart } from 'lucide-react'
+import SetAlertModal from '@/components/SetAlertModal';
+import ChaseLoader from '@/components/ChaseLoader';
 
-const ranges = ['1D', '5D', '1M', '6M', 'YTD', '1Y','5Y']
+const ranges = ['1D', '5D', '1M', '6M', 'YTD', '1Y', '5Y']
 
 const OverviewChart = ({ symbol, defaultRange = '1D' }) => {
   const { user } = useAuth()
@@ -17,100 +20,160 @@ const OverviewChart = ({ symbol, defaultRange = '1D' }) => {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [chartType, setChartType] = useState('area')
-  const [showVolume, setShowVolume] = useState(false)
+  const [chartType, setChartType] = useState('line')
   const { indicators, smaFetcher, createIndicatorStock } = useAllIndicator(symbol)
   const [modalData, setModalData] = useState(null)
   const [selectedIndicator, setSelectedIndicator] = useState(null)
-  const { watchlist, handleHistoricalData } = useWatchlist()
+  const { watchlist, handleHistoricalData, handleRemoveWatchlist, handleAddWatchlist } = useWatchlist()
+  const [prediction, setPrediction] = useState()
+  const [timeframe, setTimeframe] = useState()
+  const [expiryWeeks, setExpiryWeeks] = useState('')
+  const { stocks } = useStocks()
+  const index = stocks?.find((s) => s?.symbol?.toUpperCase() === symbol.toUpperCase())
+  const closingPrice = index?.stock_price?.price
 
-  const stock = watchlist?.find((s) => s.stock?.symbol?.toUpperCase() === symbol.toUpperCase())
-  const closingPrice = stock?.stock?.stock_price?.price
+  const chartRef = useRef(null)
+  const chartInstance = useRef(null)
 
   useEffect(() => {
     if (!symbol) return
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const res = await handleHistoricalData(symbol, range)
-        setData(res.data.data)
-      } catch (err) {
-        toast.error('Failed to fetch history')
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
+    setLoading(true)
+    handleHistoricalData(symbol, range)
+      .then(res => setData(res.data.data))
+      .catch(() => toast.error('Failed to fetch history'))
+      .finally(() => setLoading(false))
   }, [symbol, range])
 
   const marketData = useMemo(() => {
-    if (!data || !data.length) return null
-    const prices = data.map((d) => d.close)
-    const volumes = data.map((d) => d.volume || 0)
-    const dayHigh = Math.max(...data.map((d) => d.high))
-    const dayLow = Math.min(...data.map((d) => d.low))
-    const week52High = data[0]?.['52high']
-    const week52Low = data[0]?.['52low']
-    const avgVolume = volumes.reduce((a, b) => a + b, 0) / volumes.length
-    const sma20 = prices.slice(-20).reduce((a, b) => a + b, 0) / Math.min(20, prices.length)
-    const sma50 = prices.slice(-50).reduce((a, b) => a + b, 0) / Math.min(50, prices.length)
-    return { dayHigh, dayLow, week52High, week52Low, avgVolume, sma20, sma50 }
+    if (!data?.length) return null
+    const prices = data.map(d => d.close)
+    const volumes = data.map(d => d.volume || 0)
+    return {
+      dayHigh: Math.max(...data.map(d => d.high)),
+      dayLow: Math.min(...data.map(d => d.low)),
+      week52High: data[0]?.['52high'],
+      week52Low: data[0]?.['52low'],
+      avgVolume: volumes.reduce((a, b) => a + b, 0) / volumes.length,
+      sma20: prices.slice(-20).reduce((a, b) => a + b, 0) / Math.min(20, prices.length),
+      sma50: prices.slice(-50).reduce((a, b) => a + b, 0) / Math.min(50, prices.length),
+    }
   }, [data])
 
-  const formatNumber = (num) =>
-    num ? Number(num).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-'
-
-  const formatXAxisTick = (dateStr) => {
-    const date = new Date(dateStr)
-    if (range === '1D') {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    } else if (['5D', '1M'].includes(range)) {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    } else {
-      return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
-    }
+  const formatNumber = num => num ? Number(num).toLocaleString(undefined, { maxFractionDigits: 2 }) : '-'
+  const formatXAxis = dateStr => {
+    const d = new Date(dateStr)
+    if (range === '1D') return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    if (['5D', '1M'].includes(range)) return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
   }
 
-  const handleIndicatorData = async (indicator) => {
+  useEffect(() => {
+    if (!data?.length || !chartRef.current) return
+
+    const category = data.map(d => formatXAxis(d.datetime))
+    const ohlc = data.map(d => [d.open, d.close, d.low, d.high])
+    const closeLine = data.map(d => d.close)
+
+    const option = {
+      tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+      xAxis: { type: 'category', data: category, boundaryGap: chartType === 'candlestick' },
+      yAxis: { scale: true, splitLine: { show: true } },
+      grid: { left: 60, right: 20, top: 30, bottom: 60 },
+      dataZoom: [
+        { type: 'inside', start: 70, end: 100 },
+        { type: 'slider', bottom: 20, start: 70, end: 100 }
+      ],
+      series:
+        chartType === 'candlestick'
+          ? [
+              {
+                type: 'candlestick',
+                data: ohlc,
+                itemStyle: {
+                  color: '#0f766e',
+                  color0: '#ef4444',
+                  borderColor: '#0f766e',
+                  borderColor0: '#ef4444'
+                }
+              }
+            ]
+          : [
+              {
+                type: 'line',
+                data: closeLine,
+                smooth: true,
+                lineStyle: { color: '#0f766e', width: 2 },
+                showSymbol: false,
+                areaStyle: { color: 'rgba(16, 103, 185, 0.1)' }
+              }
+            ]
+    }
+
+    chartInstance.current?.dispose()
+    chartInstance.current = echarts.init(chartRef.current)
+    chartInstance.current.setOption(option)
+    window.addEventListener('resize', () => chartInstance.current?.resize())
+
+    return () => chartInstance.current?.dispose()
+  }, [data, range, chartType])
+
+  const handleIndicatorData = async indicator => {
     try {
       const res = await smaFetcher(symbol)
-      const { sma_200, latest_close } = res.data
       setSelectedIndicator(indicator)
-      setModalData({ sma: sma_200, lastPrice: latest_close })
-      setIsOpen(true)
-    } catch (err) {
+      setModalData({ sma: res.data.sma_200, lastPrice: res.data.latest_close })
+    } catch {
       toast.error('Failed to load SMA data')
     }
   }
 
-  const handleCreateIndicatorStock = async (prediction) => {
-    const indicator_stock = {
+  const handleCreateIndicator = () => {
+    const payload = {
       indicator_id: selectedIndicator.id,
       stock_symbol: symbol,
       user_id: user.id,
       sma_price: modalData.sma,
       last_price: modalData.lastPrice,
       prediction,
+      timeframe,
+      expiry_weeks: parseInt(expiryWeeks, 10)
     }
     setLoading(true)
+    createIndicatorStock(payload)
+      .then(() => { setIsOpen(false); toast.success('Alert saved successfully') })
+      .catch(() => toast.error('Failed to create indicator entry'))
+      .finally(() => setLoading(false))
+  }
+
+if (!marketData) return <ChaseLoader message="Loading chart..." />;
+
+  const toggleWatchlist = async () => {
+    if (!user) return toast.error('You must be logged in')
+    setLoading(true)
+    const inList = watchlist?.some(w => w.stock?.symbol?.toUpperCase() === symbol.toUpperCase())
+    const fn = inList ? handleRemoveWatchlist : handleAddWatchlist
+    const arg = inList
+      ? watchlist.find(w => w.stock?.symbol?.toUpperCase() === symbol.toUpperCase()).id
+      : { stock_id: index.id }
     try {
-      await createIndicatorStock(indicator_stock)
-      setIsOpen(false)
-    } catch (err) {
-      toast.error('Failed to create indicator entry')
+      await fn(arg)
+      toast.success(inList ? 'Removed from watchlist' : 'Added to watchlist')
+    } catch {
+      toast.error('Watchlist operation failed')
     } finally {
       setLoading(false)
     }
   }
-
-  if (!marketData) return <p className="text-gray-600">Loading...</p>
+  const isStarred = watchlist?.some(w => w.stock?.symbol?.toUpperCase() === symbol.toUpperCase())
 
   return (
+    
     <div className="bg-white shadow-xl border rounded-xl p-6">
+      <Toaster position="top-right" />
       {/* Header */}
-      <div className="flex justify-between items-start mb-6">
+      <div className="flex justify-between items-start mb-1">
         <div>
-          <h2 className="text-2xl font-bold">{stock?.stock?.name || symbol}</h2>
+          <h2 className="text-2xl font-bold">{index?.name || symbol}</h2>
           <p className="text-sm text-gray-500">{symbol.toUpperCase()}</p>
         </div>
         <div className="text-right">
@@ -118,180 +181,94 @@ const OverviewChart = ({ symbol, defaultRange = '1D' }) => {
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-          {ranges.map((r) => (
-            <button
-              key={r}
-              onClick={() => setRange(r)}
-              className={`px-3 py-1 text-xs rounded-md ${
-                range === r ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-black'
-              }`}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setChartType(chartType === 'line' ? 'area' : 'line')}
-            className="px-3 py-1 text-xs rounded border"
+      {/* Buttons */}
+      <div className="flex gap-3 items-center mt-4 mb-6">
+        <button
+          onClick={toggleWatchlist}
+          title={isStarred ? 'Remove from Watchlist' : 'Add to Watchlist'}
+          className="hover:scale-110 transition-transform duration-200"
+        >
+          <Star
+            className={`w-5 h-5 ${isStarred ? 'text-yellow-400' : 'text-gray-300'}`}
+            fill={isStarred ? 'currentColor' : 'none'}
+          />
+        </button>
+        <button onClick={() => { setIsOpen(true); handleIndicatorData(indicators[0]) }} title="Set Alert">
+          <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a6 6 0 00-6 6v2.586l-.707.707A1 1 0 004 13h12a1 1 0 00.707-1.707L16 10.586V8a6 6 0 00-6-6zM10 18a2 2 0 002-2H8a2 2 0 002 2z" />
+          </svg>
+        </button>
+      </div>
+
+     <div className="flex gap-1 bg-gray-100 p-1 rounded-lg mb-4">
+      {/*CandlestickChart*/}
+       <button
+          onClick={() => setChartType('candlestick')}
+          className={`p-1 rounded hover:bg-gray-100 ${chartType === 'candlestick' ? 'bg-white shadow border' : ''}`}
+          title="Candlestick"
+        >
+          <CandlestickChart className="w-5 h-5" strokeWidth={2} />
+        </button>
+
+      {/*LineChart*/}
+        <button
+          onClick={() => setChartType('line')}
+          className={`p-1 rounded hover:bg-gray-100 ${chartType === 'line' ? 'bg-white shadow border' : ''}`}
+          title="Line Chart"
           >
-            {chartType === 'line' ? 'Area' : 'Line'}
-          </button>
+          <LineChart className="w-5 h-5" strokeWidth={2} />
+        </button>
+
+          {/* Range Selector */}
+        <div className="w-px h-5 bg-gray-300 mx-2" />
+        {ranges.map(r => (
           <button
-            onClick={() => setShowVolume(!showVolume)}
-            className="px-3 py-1 text-xs rounded border"
+            key={r}
+            onClick={() => setRange(r)}
+            className={`px-3 py-1 text-xs rounded ${range === r ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
           >
-            Volume
+            {r}
           </button>
-        </div>
+        ))}
       </div>
 
       {/* Chart */}
       <div className="bg-gray-50 p-4 rounded-xl mb-6">
-        <ResponsiveContainer width="100%" height={showVolume ? 280 : 350}>
-          {chartType === 'line' ? (
-            <LineChart data={data}>
-              <XAxis dataKey="datetime" tickFormatter={formatXAxisTick} fontSize={10} />
-              <YAxis fontSize={10} domain={['dataMin - 1', 'dataMax + 1']} />
-              <Tooltip
-                formatter={(val) => [`$${val.toFixed(2)}`, 'Close']}
-                labelFormatter={(label) => new Date(label).toLocaleString()}
-              />
-              <Line type="monotone" dataKey="close" stroke="#3b82f6" strokeWidth={2.5} dot={false} />
-            </LineChart>
-          ) : (
-            <AreaChart data={data}>
-              <defs>
-                <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="datetime" tickFormatter={formatXAxisTick} fontSize={10} />
-              <YAxis fontSize={10} domain={['dataMin - 1', 'dataMax + 1']} />
-              <Tooltip
-                formatter={(val) => [`$${val.toFixed(2)}`, 'Close']}
-                labelFormatter={(label) => new Date(label).toLocaleString()}
-              />
-              <Area type="monotone" dataKey="close" stroke="#3b82f6" fill="url(#priceGradient)" />
-            </AreaChart>
-          )}
-        </ResponsiveContainer>
-
-        {showVolume && (
-          <div className="mt-4">
-            <ResponsiveContainer width="100%" height={80}>
-              <AreaChart data={data}>
-                <XAxis dataKey="datetime" hide />
-                <YAxis hide />
-                <Tooltip formatter={(val) => [`${val}`, 'Volume']} />
-                <Area type="monotone" dataKey="volume" stroke="#6b7280" fill="#6b7280" fillOpacity={0.3} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </div>
-
-      {/* Indicators */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Technical Indicators</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {indicators.map((indicator) => (
-            <button
-              key={indicator.id}
-              onClick={() => handleIndicatorData(indicator)}
-              className="p-4 border rounded-lg bg-white hover:shadow transition"
-            >
-              <div className="font-medium">{indicator.indicator_name}</div>
-              <div className="text-xs text-gray-500">View Signal</div>
-            </button>
-          ))}
-        </div>
+        <div ref={chartRef} style={{ width: '100%', height: '400px' }} />
       </div>
 
       {/* Market Summary */}
       <div className="bg-white border p-4 rounded-xl">
-        <h4 className="font-semibold mb-4">Market Summary</h4>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex justify-between">
-            <span>Day Low</span>
-            <span className="text-red-600 font-medium">${formatNumber(marketData.dayLow)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Day High</span>
-            <span className="text-green-600 font-medium">${formatNumber(marketData.dayHigh)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>SMA 20</span>
-            <span className="text-blue-600 font-medium">${formatNumber(marketData.sma20)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>SMA 50</span>
-            <span className="text-blue-600 font-medium">${formatNumber(marketData.sma50)}</span>
-          </div>
+        <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+          <div className="flex justify-between"><span>Day Low</span><span className="text-red-600">${formatNumber(marketData.dayLow)}</span></div>
+          <div className="flex justify-between"><span>Day High</span><span className="text-green-600">${formatNumber(marketData.dayHigh)}</span></div>
+          <div className="flex justify-between"><span>SMA 20</span><span className="text-blue-600">${formatNumber(marketData.sma20)}</span></div>
+          <div className="flex justify-between"><span>SMA 50</span><span className="text-blue-600">${formatNumber(marketData.sma50)}</span></div>
         </div>
-
-        {/* 52W Price Indicator */}
-        <div className="mt-6">
-          <div className="flex justify-between text-sm">
-            <span>52W Low</span>
-            <span>52W High</span>
-          </div>
-          <div className="flex justify-between text-sm font-semibold">
-            <span className="text-red-600">${formatNumber(marketData.week52Low)}</span>
-            <span className="text-green-600">${formatNumber(marketData.week52High)}</span>
-          </div>
-          <PriceLine
-            week52High={marketData.week52High}
-            week52Low={marketData.week52Low}
-            closingPrice={closingPrice}
-          />
+        <div className="flex justify-between text-sm font-semibold">
+          <span className="text-red-600">${formatNumber(marketData.week52Low)}</span>
+          <span className="text-green-600">${formatNumber(marketData.week52High)}</span>
         </div>
+        <PriceLine week52High={marketData.week52High} week52Low={marketData.week52Low} closingPrice={closingPrice} />
       </div>
 
-      {/* Modal */}
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={selectedIndicator?.indicator_name || "Indicator"}>
-        <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-4 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-500 font-medium">SMA</span>
-            <span className="text-blue-600 font-semibold">
-              {typeof modalData?.sma === 'number' ? modalData.sma.toFixed(2) : '-'}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500 font-medium">Last Price</span>
-            <span className="text-green-600 font-semibold">
-              {typeof modalData?.lastPrice === 'number' ? modalData.lastPrice.toFixed(2) : '-'}
-            </span>
-          </div>
-        </div>
+      {/* Alert Modal */}
+       <SetAlertModal
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        symbol={symbol}
+        indicators={indicators}
+        selectedIndicator={selectedIndicator}
+        setSelectedIndicator={setSelectedIndicator}
+        prediction={prediction}
+        setPrediction={setPrediction}
+        timeframe={timeframe}
+        setTimeframe={setTimeframe}
+        expiryWeeks={expiryWeeks}
+        setExpiryWeeks={setExpiryWeeks}
+        handleCreateIndicator={handleCreateIndicator}
+      />
 
-        <div className="mt-6 flex justify-center gap-6">
-          <button
-            onClick={() => handleCreateIndicatorStock("up")}
-            className="px-4 py-2 border bg-white text-black hover:bg-gray-200 rounded"
-          >
-            ↑ Cross Up
-          </button>
-          <button
-            onClick={() => handleCreateIndicatorStock("down")}
-            className="px-4 py-2 border bg-white text-black hover:bg-gray-200 rounded"
-          >
-            ↓ Cross Down
-          </button>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={() => setIsOpen(false)}
-            className="px-4 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition"
-          >
-            Close
-          </button>
-        </div>
-      </Modal>
     </div>
   )
 }

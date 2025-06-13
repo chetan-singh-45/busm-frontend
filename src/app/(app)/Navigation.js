@@ -63,7 +63,18 @@ const Navigation = ({ user }) => {
                                 active={usePathname() === '/portfolio'}>
                                 Portfolio
                             </NavLink> */}
-
+                            <NavLink
+                                href="/notifications" 
+                            >
+                            Notifications
+                            </NavLink>
+                            
+                            <NavLink
+                                href="/alert"
+                                active={usePathname() === '/alert'}>
+                                Alerts
+                            </NavLink>
+                            
                         </div>
                     </div>
 

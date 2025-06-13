@@ -21,7 +21,6 @@ const Stock = () => {
       toast.error('You must be logged in to manage watchlist');
       return;
     }
-
     setLoadingStock(stock.symbol);
 
     try {
@@ -54,13 +53,6 @@ const Stock = () => {
 
       <div className="py-12">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <input
-            type="text"
-            placeholder="Search ..."
-            className="w-60 border border-gray-300 rounded-md p-2 text-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
 
           <StockTable
               stocks={filteredStocks}
@@ -68,8 +60,6 @@ const Stock = () => {
               isLoading={loadingStock}
               handleToggleWatchlist={handleToggleWatchlist}
             />
-
-
 
         </div>
       </div>
