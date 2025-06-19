@@ -48,7 +48,7 @@ const Stock = () => {
 
   return (
     <>
-      <Header title="Stocks" />
+      <Header title="Indices" />
       <Toaster position="top-right" />
 
       <div className="py-12">

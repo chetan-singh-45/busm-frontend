@@ -30,12 +30,18 @@ const Navigation = ({ user }) => {
 
                         {/* Navigation Links */}
                         <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            
+                             <NavLink
+                                href="/"
+                                active={usePathname() === '/'}>
+                                Home
+                            </NavLink>
+
                             <NavLink
                                 href="/dashboard"
                                 active={usePathname() === '/dashboard'}>
                                 Dashboard
                             </NavLink>
-
                            
                             {/* <NavLink
                                 href="/exchanges"

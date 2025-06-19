@@ -47,90 +47,88 @@ const Login = () => {
     }
 
     return (
-        <>
-            <AuthSessionStatus className="mb-4" status={status} />
+  <div className="flex items-center justify-center py-16">
+  <div className="bg-[#0a0839] text-white rounded-xl shadow-lg px-6 py-8 w-[360px]">
+    <h2 className="text-xl font-bold text-center text-green-500 mb-6">Login to Trend Notifier</h2>
 
-            <form onSubmit={submitForm}>
-                {/* Email Address */}
-                <div>
-                    <Label htmlFor="email">Email</Label>
+                <AuthSessionStatus className="mb-4" status={status} />
 
-                    <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        className="block mt-1 w-full"
-                        onChange={event => setEmail(event.target.value)}
-                        required
-                        autoFocus
-                        placeholder="Enter your email"
-                    />
-
-                    <InputError messages={errors.email} className="mt-2" />
-                </div>
-
-                {/* Password */}
-                <div className="mt-4">
-                    <Label htmlFor="password">Password</Label>
-
-                    <div className="relative">
+                <form onSubmit={submitForm}>
+                    {/* Email Address */}
+                    <div>
+                        <Label htmlFor="email" className="text-[#0a0839]">Email</Label>
                         <Input
-                            id="password"
-                            type={showPassword ? 'text' : 'password'}
-                            value={password}
-                            className="block mt-1 w-full pr-10"
-                            onChange={event => setPassword(event.target.value)}
+                            id="email"
+                            type="email"
+                            value={email}
+                            className="block mt-1 w-full"
+                            onChange={event => setEmail(event.target.value)}
                             required
-                            autoComplete="current-password"
-                            placeholder="Enter your password"
+                            autoFocus
+                            placeholder="Enter your email"
                         />
-
-                        <button
-                            type="button"
-                            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-
+                        <InputError messages={errors.email} className="mt-2" />
                     </div>
 
-                    <InputError messages={errors.password} className="mt-2" />
-                </div>
+                    {/* Password */}
+                    <div className="mt-4">
+                        <Label htmlFor="password" className="text-[#0a0839]">Password</Label>
 
-                {/* Remember Me */}
-                <div className="block mt-4">
-                    <label
-                        htmlFor="remember_me"
-                        className="inline-flex items-center">
-                        <input
-                            id="remember_me"
-                            type="checkbox"
-                            name="remember"
-                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                            onChange={event =>
-                                setShouldRemember(event.target.checked)
-                            }
-                        />
+                        <div className="relative">
+                            <Input
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                value={password}
+                                className="block mt-1 w-full pr-10"
+                                onChange={event => setPassword(event.target.value)}
+                                required
+                                autoComplete="current-password"
+                                placeholder="Enter your password"
+                            />
 
-                        <span className="ml-2 text-sm text-gray-600">
-                            Remember me
-                        </span>
-                    </label>
-                </div>
+                            <button
+                                type="button"
+                                className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-green-600 focus:outline-none"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
 
-                {/* Actions */}
-                <div className="flex items-center justify-end mt-4">
-                    <Link
-                        href="/forgot-password"
-                        className="underline text-sm text-gray-600 hover:text-gray-900">
-                        Forgot your password?
-                    </Link>
+                        <InputError messages={errors.password} className="mt-2" />
+                    </div>
 
-                    <Button className="ml-3">Login</Button>
-                </div>
-            </form>
-        </>
+                    {/* Remember Me */}
+                    <div className="block mt-4">
+                        <label htmlFor="remember_me" className="inline-flex items-center">
+                            <input
+                                id="remember_me"
+                                type="checkbox"
+                                name="remember"
+                                className="rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-400"
+                                onChange={event => setShouldRemember(event.target.checked)}
+                            />
+                            <span className="ml-2 text-sm text-gray-700">
+                                Remember me
+                            </span>
+                        </label>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end mt-6 space-x-4">
+                        <Link href="/register" className="text-sm text-gray-600 underline hover:text-green-600">
+                            Register
+                        </Link>
+                        <Link href="/forgot-password" className="text-sm text-gray-600 underline hover:text-green-600">
+                            Forgot your password?
+                        </Link>
+                        <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-md">
+                            Login
+                        </Button>
+                    </div>
+                </form>
+            </div>
+    </div>
     )
 }
 

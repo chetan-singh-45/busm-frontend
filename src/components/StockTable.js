@@ -61,8 +61,7 @@ export default function StockTable({
             align="left"
             width="48"
             trigger={
-              <button className="inline-flex justify-between w-full px-4 py-2 text-base border border-gray-300 bg-white rounded-lg hover:bg-gray-100">
-                {selectedCountry === 'all' ? 'All Countries' : selectedCountry.charAt(0).toUpperCase() + selectedCountry.slice(1)}
+              <button className="inline-flex justify-between w-full px-4 py-2 text-base border border-gray-300 bg-white text-gray-900 rounded-lg hover:bg-gray-100 focus:ring-2 focus:ring-blue-500">                {selectedCountry === 'all' ? 'All Countries' : selectedCountry.charAt(0).toUpperCase() + selectedCountry.slice(1)}
                 <svg
                   className="ml-2 w-5 h-5"
                   fill="none"
@@ -77,8 +76,12 @@ export default function StockTable({
           >
             <button
               onClick={() => setSelectedCountry('all')}
-              className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${selectedCountry === 'all' ? 'font-semibold text-blue-600' : ''
-                }`}
+              className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${
+                selectedCountry === 'all'
+                  ? 'font-semibold text-blue-600'
+                  : 'text-gray-800'
+              }`}
+
             >
               All Countries
             </button>
@@ -86,8 +89,11 @@ export default function StockTable({
               <button
                 key={country}
                 onClick={() => setSelectedCountry(country.toLowerCase())}
-                className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${selectedCountry.toLowerCase() === country.toLowerCase() ? 'font-semibold text-blue-600' : ''
-                  }`}
+                className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${
+                selectedCountry.toLowerCase() === country.toLowerCase()
+                  ? 'font-semibold text-blue-600'
+                  : 'text-gray-800'
+              }`}
               >
                 {country.charAt(0).toUpperCase() + country.slice(1)}
               </button>
@@ -116,58 +122,61 @@ export default function StockTable({
               </tr>
             </thead>
             <tbody>
-              {filteredStocks.map((item) => {
-                const stock = item?.stock || item
-                const symbol = stock.symbol?.toUpperCase()
-                const price = stock.stock_price?.price
-                const percentChange = stock.stock_price?.percentage_day
-                const priceChange = stock.stock_price?.price_change_day
-                const volume = stock.stock_price?.volume
-                const isStarred = isInWatchlist(stock.id)
-                const isPositive = percentChange >= 0
+            {filteredStocks.map((item) => {
+              const stock = item?.stock || item
+              const symbol = stock.symbol?.toUpperCase()
+              const price = stock?.stock_price?.price
+              const percentChange = stock?.stock_price?.percentage_day
+              const priceChange = stock?.stock_price?.price_change_day
+              const volume = stock?.stock_price?.volume
+              const isStarred = isInWatchlist(stock.id)
+              const isPositive = percentChange >= 0
+              const countryName = stock?.country?.name || '-'
+              const countryEmoji = stock?.country?.emoji || ''
 
-                return (
-                  <tr key={stock.id} className="border-t hover:bg-gray-50 transition duration-150">
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => handleToggleWatchlist(stock)}
-                        title={isStarred ? 'Remove from Watchlist' : 'Add to Watchlist'}
-                        className="hover:scale-110 transition-transform duration-200"
+              return (
+                <tr key={stock.id} className="border-t hover:bg-gray-50 transition duration-150">
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => handleToggleWatchlist(stock)}
+                      title={isStarred ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                      className="hover:scale-110 transition-transform duration-200"
+                    >
+                      <Star
+                        className={`w-5 h-5 ${isStarred ? 'text-yellow-400' : 'text-gray-300'}`}
+                        fill={isStarred ? 'currentColor' : 'none'}
+                      />
+                    </button>
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-gray-800 text-center">{symbol || '-'}</td>
+                  <td className="px-4 py-3 text-center">
+                    <Link href={`/overview/${symbol}`} className="text-blue-600 hover:underline">
+                      {stock.name || '-'}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 capitalize text-gray-800 text-center">
+                    {countryEmoji} {countryName}
+                  </td>
+                  <td className="px-4 py-3 text-gray-800 text-center">{formatNumber(price)}</td>
+                  <td className="px-4 py-3 text-center">
+                    {percentChange != null ? (
+                      <span
+                        className={`px-2 py-1 rounded-full text-sm font-medium ${
+                          isPositive ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'
+                        }`}
                       >
-                        <Star
-                          className={`w-5 h-5 ${isStarred ? 'text-yellow-400' : 'text-gray-300'
-                            }`}
-                          fill={isStarred ? 'currentColor' : 'none'}
-                        />
-                      </button>
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-gray-800 text-center">{symbol}</td>
-                    <td className="px-4 py-3 text-center">
-                      <Link href={`/overview/${symbol}`} className="text-blue-600 hover:underline">
-                        {stock.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 capitalize text-center">
-                      {stock.country?.emoji} {stock.country?.name}
-                    </td>
-                    <td className="px-4 py-3 text-center">{formatNumber(price)}</td>
-                    <td className="px-4 py-3 text-center">
-                      {percentChange != null ? (
-                        <span
-                          className={`px-2 py-1 rounded-full text-sm font-medium ${isPositive ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'
-                            }`}
-                        >
-                          {percentChange} ({priceChange})
-                        </span>
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-center">{formatNumber(volume)}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
+                        {percentChange} ({priceChange})
+                      </span>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-gray-800 text-center">{formatNumber(volume)}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+
           </table>
         </div>
       )}
