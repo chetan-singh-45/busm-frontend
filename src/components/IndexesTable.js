@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Toaster, toast } from 'react-hot-toast'
 import IndexRow from '@/components/IndexRow'
 import FloatingFooter from '@/components/FloatingFooter'
+import UserSetAlertModal from '@/components/UserSetAlertModal'
+import LoginRegisterModal from '@/components/LoginRegisterModal'
 
 export default function IndexesTable({
   data,
@@ -14,12 +16,16 @@ export default function IndexesTable({
   const [region, setRegion] = useState(null)
   const [localData, setLocalData] = useState([])
   const [selectedIndex, setSelectedIndex] = useState(null)
+  const [showAlertModalFor, setShowAlertModalFor] = useState(null)
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   useEffect(() => {
     if (data?.length) {
-      setLocalData(data)
+        const cleaned = data.map(item => ({ ...item, checked: false }))
+        setLocalData(cleaned)
     }
   }, [data])
+
 
   useEffect(() => {
     if (isError) {
@@ -28,18 +34,18 @@ export default function IndexesTable({
   }, [isError])
 
   const handleCheckboxToggle = (index) => {
-  const updatedData = [...localData]
-  updatedData[index].checked = !updatedData[index].checked
-  setLocalData(updatedData)
-  onCheckboxClick?.(updatedData[index])
+    const updatedData = [...localData]
+    updatedData[index].checked = !updatedData[index].checked
+    setLocalData(updatedData)
+    onCheckboxClick?.(updatedData[index])
 
-  // Update selectedIndex based on checked state
-  if (updatedData[index].checked) {
-    setSelectedIndex(updatedData[index])
-  } else if (selectedIndex?.name === updatedData[index].name) {
-    setSelectedIndex(null)
-  }
-}
+    // Update selectedIndex based on checked state
+    if (updatedData[index].checked) {
+        setSelectedIndex(updatedData[index])
+    } else if (selectedIndex?.name === updatedData[index].name) {
+        setSelectedIndex(null)
+    }
+   }
 
   const filteredData = localData.filter((item) => {
     const matchSearch = item.name.toLowerCase().includes(search.toLowerCase())
@@ -64,15 +70,33 @@ export default function IndexesTable({
         <table className="min-w-full table-auto">
           <thead className="bg-gray-50 text-gray-700 text-sm uppercase">
             <tr>
-              <th className="px-4 py-3 text-left">Country / Name</th>
-              <th className="px-4 py-3 text-right">Last</th>
-              <th className="px-4 py-3 text-right">High</th>
-              <th className="px-4 py-3 text-right">Low</th>
-              <th className="px-4 py-3 text-right">Change (€)</th>
-              <th className="px-4 py-3 text-right">Change (%)</th>
-              <th className="px-4 py-3 text-right">Last Updated</th>
+              <th className="px-4 py-3 text-left">
+                <div className="flex items-center gap-2">
+                    <input
+                    type="checkbox"
+                    className="w-4 h-4"
+                    checked={localData.length > 0 && localData.every((item) => item.checked)}
+                    onChange={(e) => {
+                        const checked = e.target.checked
+                        const updated = localData.map((item) => ({ ...item, checked }))
+                        setLocalData(updated)
+                        if (!checked) {
+                        setSelectedIndex(null)
+                        }
+                    }}
+                    />
+                    <span>Country / Name</span>
+                </div>
+                </th>
+                <th className="px-4 py-3 text-right">Last</th>
+                <th className="px-4 py-3 text-right">High</th>
+                <th className="px-4 py-3 text-right">Low</th>
+                <th className="px-4 py-3 text-right">Change (€)</th>
+                <th className="px-4 py-3 text-right">Change (%)</th>
+                <th className="px-4 py-3 text-right">Last Updated</th>
             </tr>
-          </thead>
+            </thead>
+
           <tbody className="text-sm text-gray-800">
             {filteredData.length === 0 ? (
               <tr>
@@ -96,14 +120,26 @@ export default function IndexesTable({
         </table>
 
         <FloatingFooter
-        selectedItems={localData.filter((item) => item.checked)}
-        selectedCount={localData.filter((item) => item.checked).length}
-        onClear={() => {
-            setLocalData((prev) =>
-            prev.map((item) => ({ ...item, checked: false }))
-            )
-            setSelectedIndex(null)
-        }}
+            selectedItems={localData.filter((item) => item.checked)}
+            selectedCount={localData.filter((item) => item.checked).length}
+            onClear={() => {
+                setLocalData((prev) =>
+                prev.map((item) => ({ ...item, checked: false }))
+                )
+                setSelectedIndex(null)
+            }}
+            onSetAlert={(item) => setShowAlertModalFor(item)}
+            setShowLoginModal={setShowLoginModal}
+        />
+
+        <LoginRegisterModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+       />
+        
+        <UserSetAlertModal
+        index={showAlertModalFor}
+        onClose={() => setShowAlertModalFor(null)}
         />
 
       </div>

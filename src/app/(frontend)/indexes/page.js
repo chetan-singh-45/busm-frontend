@@ -213,12 +213,6 @@ export default function Indexes() {
         />
       </div>
 
-      {selectedAlertIndex && (
-        <UserSetAlertModal
-          index={selectedAlertIndex}
-          onClose={handleCloseModal}
-        />
-      )}
 
       <Toaster position="top-right" />
     </>

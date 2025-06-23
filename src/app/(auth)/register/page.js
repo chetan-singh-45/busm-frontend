@@ -33,90 +33,103 @@ const Page = () => {
     }
 
     return (
-        <form onSubmit={submitForm}>
-            {/* Name */}
-            <div>
-                <Label htmlFor="name">Name</Label>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur flex items-center justify-center px-4">
+            <div className="bg-white rounded-2xl w-full max-w-sm p-6 sm:p-8 shadow-xl">
+                {/* Heading */}
+                <h2 className="text-lg sm:text-xl font-bold text-[#0a0a35] text-center">
+                    Create a Free Account to Start Your Watchlist
+                </h2>
+                <p className="text-sm text-center text-gray-600 mt-1 mb-6">
+                    Spot Opportunities as they arise!
+                </p>
 
-                <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    className="block mt-1 w-full"
-                    onChange={event => setName(event.target.value)}
-                    required
-                    autoFocus
-                />
+                <form onSubmit={submitForm} className="space-y-4">
+                    {/* Name */}
+                    <div>
+                        <Input
+                            id="name"
+                            type="text"
+                            placeholder="Nickname"
+                            value={name}
+                            className="w-full rounded-full px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-green-500"
+                            onChange={event => setName(event.target.value)}
+                            required
+                        />
+                        <InputError messages={errors.name} className="mt-2" />
+                    </div>
 
-                <InputError messages={errors.name} className="mt-2" />
+                    {/* Email */}
+                    <div>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="Email Address"
+                            value={email}
+                            className="w-full rounded-full px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-green-500"
+                            onChange={event => setEmail(event.target.value)}
+                            required
+                        />
+                        <InputError messages={errors.email} className="mt-2" />
+                    </div>
+
+                    {/* Password */}
+                    <div>
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            className="w-full rounded-full px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-green-500"
+                            onChange={event => setPassword(event.target.value)}
+                            required
+                        />
+                        <InputError messages={errors.password} className="mt-2" />
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div>
+                        <Input
+                            id="passwordConfirmation"
+                            type="password"
+                            placeholder="Confirm Password"
+                            value={passwordConfirmation}
+                            className="w-full rounded-full px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-green-500"
+                            onChange={event => setPasswordConfirmation(event.target.value)}
+                            required
+                        />
+                        <InputError messages={errors.password_confirmation} className="mt-2" />
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                        type="submit"
+                        className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-full text-sm"
+                    >
+                        Sign Up
+                    </button>
+                </form>
+
+                {/* Footer Links */}
+                <p className="text-sm text-center mt-5 text-gray-700">
+                    Already have an account?{' '}
+                    <Link href="/login" className="text-green-600 font-medium hover:underline">
+                        Sign In
+                    </Link>
+                </p>
+
+                <p className="text-xs text-center text-gray-500 mt-2">
+                    By signing up you agree to our{' '}
+                    <Link href="/terms" className="underline">
+                        Terms & Conditions
+                    </Link>{' '}
+                    and{' '}
+                    <Link href="/privacy" className="underline">
+                        Privacy Policy
+                    </Link>
+                    .
+                </p>
             </div>
-
-            {/* Email Address */}
-            <div className="mt-4">
-                <Label htmlFor="email">Email</Label>
-
-                <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    className="block mt-1 w-full"
-                    onChange={event => setEmail(event.target.value)}
-                    required
-                />
-
-                <InputError messages={errors.email} className="mt-2" />
-            </div>
-
-            {/* Password */}
-            <div className="mt-4">
-                <Label htmlFor="password">Password</Label>
-
-                <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    className="block mt-1 w-full"
-                    onChange={event => setPassword(event.target.value)}
-                    required
-                    autoComplete="new-password"
-                />
-
-                <InputError messages={errors.password} className="mt-2" />
-            </div>
-
-            {/* Confirm Password */}
-            <div className="mt-4">
-                <Label htmlFor="passwordConfirmation">
-                    Confirm Password
-                </Label>
-
-                <Input
-                    id="passwordConfirmation"
-                    type="password"
-                    value={passwordConfirmation}
-                    className="block mt-1 w-full"
-                    onChange={event =>
-                        setPasswordConfirmation(event.target.value)
-                    }
-                    required
-                />
-
-                <InputError
-                    messages={errors.password_confirmation}
-                    className="mt-2"
-                />
-            </div>
-
-            <div className="flex items-center justify-end mt-4">
-                <Link
-                    href="/login"
-                    className="underline text-sm text-gray-600 hover:text-gray-900">
-                    Already registered?
-                </Link>
-
-                <Button className="ml-4">Register</Button>
-            </div>
-        </form>
+        </div>
     )
 }
 

@@ -47,88 +47,90 @@ const Login = () => {
     }
 
     return (
-  <div className="flex items-center justify-center py-16">
-  <div className="bg-[#0a0839] text-white rounded-xl shadow-lg px-6 py-8 w-[360px]">
-    <h2 className="text-xl font-bold text-center text-green-500 mb-6">Login to Trend Notifier</h2>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4">
+            <div className="bg-white rounded-2xl w-full max-w-sm p-6 sm:p-8 shadow-xl">
+                <h2 className="text-xl font-bold text-center text-[#0A1045] mb-1">
+                    Login to Trend Notifier
+                </h2>
+                <p className="text-sm text-center text-gray-600 mb-6">
+                    Access your alerts and watchlist
+                </p>
 
                 <AuthSessionStatus className="mb-4" status={status} />
 
-                <form onSubmit={submitForm}>
-                    {/* Email Address */}
+                <form onSubmit={submitForm} className="space-y-5">
+                    {/* Email */}
                     <div>
-                        <Label htmlFor="email" className="text-[#0a0839]">Email</Label>
                         <Input
                             id="email"
                             type="email"
                             value={email}
-                            className="block mt-1 w-full"
-                            onChange={event => setEmail(event.target.value)}
+                            onChange={e => setEmail(e.target.value)}
                             required
                             autoFocus
-                            placeholder="Enter your email"
+                            placeholder="Email address"
+                            className="w-full rounded-full px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-green-500"
                         />
                         <InputError messages={errors.email} className="mt-2" />
                     </div>
 
                     {/* Password */}
-                    <div className="mt-4">
-                        <Label htmlFor="password" className="text-[#0a0839]">Password</Label>
-
+                    <div>
                         <div className="relative">
                             <Input
                                 id="password"
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
-                                className="block mt-1 w-full pr-10"
-                                onChange={event => setPassword(event.target.value)}
+                                onChange={e => setPassword(e.target.value)}
                                 required
-                                autoComplete="current-password"
-                                placeholder="Enter your password"
+                                placeholder="Password"
+                                className="w-full rounded-full px-4 py-2 border border-gray-300 pr-10 focus:ring-2 focus:ring-green-500"
                             />
-
                             <button
                                 type="button"
-                                className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-green-600 focus:outline-none"
                                 onClick={() => setShowPassword(!showPassword)}
+                                className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-green-600"
                             >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
                         </div>
-
                         <InputError messages={errors.password} className="mt-2" />
                     </div>
 
                     {/* Remember Me */}
-                    <div className="block mt-4">
-                        <label htmlFor="remember_me" className="inline-flex items-center">
-                            <input
-                                id="remember_me"
-                                type="checkbox"
-                                name="remember"
-                                className="rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-400"
-                                onChange={event => setShouldRemember(event.target.checked)}
-                            />
-                            <span className="ml-2 text-sm text-gray-700">
-                                Remember me
-                            </span>
-                        </label>
+                    <div className="flex items-center text-sm text-gray-700">
+                        <input
+                            type="checkbox"
+                            id="remember_me"
+                            checked={shouldRemember}
+                            onChange={e => setShouldRemember(e.target.checked)}
+                            className="rounded border-gray-300 text-green-600 mr-2"
+                        />
+                        <label htmlFor="remember_me">Remember me</label>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center justify-end mt-6 space-x-4">
-                        <Link href="/register" className="text-sm text-gray-600 underline hover:text-green-600">
-                            Register
+                    {/* Submit Button */}
+                    <Button className="w-full flex justify-center items-center bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 rounded-full">
+                        Login
+                    </Button>
+
+                </form>
+
+                <div className="text-center mt-5 text-sm space-y-1">
+                    <p>
+                        Don’t have an account?{' '}
+                        <Link href="/register" className="text-green-600 hover:underline">
+                            Sign Up
                         </Link>
-                        <Link href="/forgot-password" className="text-sm text-gray-600 underline hover:text-green-600">
+                    </p>
+                    <p>
+                        <Link href="/forgot-password" className="text-gray-500 hover:underline">
                             Forgot your password?
                         </Link>
-                        <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-md">
-                            Login
-                        </Button>
-                    </div>
-                </form>
+                    </p>
+                </div>
             </div>
-    </div>
+        </div>
     )
 }
 
