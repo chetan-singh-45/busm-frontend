@@ -17,6 +17,7 @@ import Footer from '@/components/Footer';
 import TrustedCompanies from "@/components/TrustedCompanies";
 import FeatureSection  from "@/components/FeatureSection";
 import DashboardSection  from "@/components/BrandSection";
+import CommanCurvedSection from "@/components/CommanCurvedSection"
 
 
 const Stock = () => {
@@ -82,7 +83,7 @@ const Stock = () => {
         /> */}
         <DashboardSection />
         <FeatureSection />
-        <HomeCurvedSection
+        <CommanCurvedSection
             title="The Web's Most Advanced Interactive Financial Charting Platform"
             subtitle="Designed to Transform The Way You See The Markets."
           />
