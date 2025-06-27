@@ -5,7 +5,7 @@ export default function HomeCurvedSection({ title, subtitle }) {
     <section className="relative rounded-t-[3rem] bg-[#0a0a35] text-white pb-48 mx-2 sm:mx-6">
       <div className="max-w-6xl mx-auto px-4 py-20 text-center">
         {/* Title */}
-        <h2 className="text-3xl sm:text-5xl mb-6 leading-tight">
+        <h2 className="text-3xl font-bold sm:text-5xl mb-6 leading-tight">
           {title || (
             <>
               Get notified on <br className="hidden sm:block" />
@@ -32,11 +32,11 @@ export default function HomeCurvedSection({ title, subtitle }) {
       </div>
 
       {/* Overlapping Image */}
-      <div className="relative z-10 max-w-5xl mx-auto transform translate-y-16">
+      <div className="relative z-10 max-w-5xl mx-auto mt-4">
         <div className="relative w-full h-[450px] rounded-3xl border border-[#3d3d72] bg-black/10 overflow-hidden shadow-xl transition-transform duration-300 hover:scale-105">
           <Image
-            src="/team.jpg"
-            alt="Team"
+            src="/admin.png"
+            alt="admin"
             fill
             className="object-cover rounded-2xl"
           />

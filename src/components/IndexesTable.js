@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Toaster, toast } from 'react-hot-toast'
 import IndexRow from '@/components/IndexRow'
 import FloatingFooter from '@/components/FloatingFooter'
-import UserSetAlertModal from '@/components/UserSetAlertModal'
 import LoginRegisterModal from '@/components/LoginRegisterModal'
 
 export default function IndexesTable({
@@ -48,14 +47,14 @@ export default function IndexesTable({
    }
 
   const filteredData = localData.filter((item) => {
-    const matchSearch = item.name.toLowerCase().includes(search.toLowerCase())
+    const matchSearch =  item.name.toLowerCase().includes(search.toLowerCase()) ||
+    item.countryName.toLowerCase().includes(search.toLowerCase())
     const matchRegion = !region || item.region === region
     return matchSearch && matchRegion
   })
 
   return (
     <div className="flex flex-col flex-1">
-      <Toaster />
       <div className="mb-4">
         <input
           type="text"
@@ -136,11 +135,6 @@ export default function IndexesTable({
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
        />
-        
-        <UserSetAlertModal
-        index={showAlertModalFor}
-        onClose={() => setShowAlertModalFor(null)}
-        />
 
       </div>
     </div>

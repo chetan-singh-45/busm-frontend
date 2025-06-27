@@ -10,11 +10,11 @@ import ResponsiveNavLink, {
 } from '@/components/ResponsiveNavLink'
 
 const FrontendNavigation = () => {
-    const { user } = useAuth()
+    const { user , logout} = useAuth()
     const pathname = usePathname()
 
     return (
-        <nav className="relative bg-white border-b border-[#0a0839] shadow-sm h-16 flex items-center">
+        <nav className="relative h-16 flex items-center">
             <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between relative">
                 
                 {/* Logo */}
@@ -38,44 +38,88 @@ const FrontendNavigation = () => {
                     <NavLink href="/faq" active={pathname === '/faq'}>
                         FAQ
                     </NavLink>
-                    {/* <NavLink href="/indexes" active={pathname === '/indexes'}>
-                        Indexes
-                    </NavLink> */}
+                    <NavLink href="/notifier" active={pathname === '/notifier'}>
+                        Notifier
+                    </NavLink>
                     <NavLink href="/plans" active={pathname === '/plans'}>
                         Plans
                     </NavLink>
-                    {/* <NavLink href="/notifier" active={pathname === '/notifier'}>
-                        Notifier
+                    {/* {user && 
+                    <NavLink href="/user_alert" active={pathname === '/user_alert'}>
+                        Alerts
                     </NavLink>
+                    } */}
+                    {user && 
                     <NavLink href="/watchlist" active={pathname === '/watchlist'}>
                         Watchlist
-                    </NavLink> */}
+                    </NavLink>}
                     <NavLink href="/contact" active={pathname === '/contact'}>
                         Contact Us
                     </NavLink>
                 </div>
 
                 {/*Login Button */}
-                <div className="flex items-center">
-                   { user ?(                       
-                    <Link href="/dashboard">
-                        <button className="bg-green-500 text-white px-5 py-2 rounded-full font-medium text-sm hover:bg-green-600 transition-all duration-150">
-                            Dashboard
+              <div className="flex items-center space-x-4">
+                {user ? (
+                    <div className="relative group">
+                        <button className="flex items-center space-x-2 focus:outline-none">
+                            <img
+                                src={user.avatar || '/profile.png'}
+                                alt="Avatar"
+                                className="w-8 h-8 rounded-full"
+                            />
+                            <span className="text-sm font-semibold text-[#0a0839]">
+                                {user.name || 'Profile'}
+                            </span>
+                            <svg
+                                className="w-4 h-4 text-gray-500"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                />
+                            </svg>
                         </button>
-                    </Link>             
-                    ):(                   
+
+                        <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                            <Link
+                                href="/profile"
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                                My Profile
+                            </Link>
+                            <Link
+                                href="/alerts"
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                                Alert Center
+                            </Link>
+                            <button
+                                onClick= {logout}
+                                className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                                Signout
+                            </button>
+                        </div>
+                    </div>
+                ) : (
                     <Link href="/login">
                         <button className="bg-green-500 text-white px-5 py-2 rounded-full font-medium text-sm hover:bg-green-600 transition-all duration-150">
                             Login
                         </button>
                     </Link>
-                    ) 
-                   }
-                </div>
+                )}
+            </div>
+
             </div>
 
             {/* Responsive Navigation Menu */}
-            {open && (
+            {user && (
                 <div className="block sm:hidden">
                     <div className="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink

@@ -1,6 +1,6 @@
-import Image from 'next/image'
+'use client'
 
-export default function CommanCurvedSection({ title, subtitle }) {
+export default function VideoSection({ title, subtitle }) {
   return (
     <section className="relative rounded-t-[3rem] bg-[#0a0a35] text-white pb-48 sm:mx-6">
       {/* Text Content */}
@@ -20,15 +20,30 @@ export default function CommanCurvedSection({ title, subtitle }) {
         </p>
       </div>
 
-      {/* Image Section with margin */}
+      {/* Video Section */}
       <div className="relative z-10 max-w-5xl mx-auto mb-20 px-2">
         <div className="relative w-full h-[450px] rounded-3xl border border-[#3d3d72] bg-black/10 overflow-hidden shadow-xl transition-transform duration-300 hover:scale-105">
-          <Image
-            src="/team.jpg"
-            alt="Team"
-            fill
-            className="object-cover rounded-2xl"
+
+          {/* Video */}
+          <video
+            src="/video.mp4" // Replace with your actual path
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover rounded-2xl"
           />
+
+          {/* Overlay Text */}
+          <div className="absolute inset-0 flex flex-col justify-end p-8 bg-black/30 backdrop-blur-sm text-left text-white z-10">
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 max-w-lg">
+              Over 1.9 million investors trust TrendNotifier.com to deliver the tools and resources they need to invest with confidence.
+            </h3>
+            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-full w-fit">
+              View Our Plans
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -41,5 +56,5 @@ export default function CommanCurvedSection({ title, subtitle }) {
         <path d="M0,50 C480,0 960,0 1440,50 L1440,120 L0,120" fill="#ffffff" />
       </svg>
     </section>
-  );
+  )
 }

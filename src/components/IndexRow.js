@@ -19,13 +19,20 @@ export default function IndexRow({ item, index, isSelected, onToggle, onSelect }
             checked={item.checked}
             onChange={onToggle}
           />
-          <span
-            className="flex items-center gap-1 cursor-pointer"
-            onClick={onSelect}
-          >
-            <span>{item.countryEmoji}</span>
-            <span>{item.name}</span>
-          </span>
+        <div className="relative group inline-block cursor-pointer" onClick={onSelect}>
+          <span>{item.countryEmoji}</span>
+          <span>{item.name}</span>
+
+          {/* Tooltip */}
+          <div className="absolute left-1/2 top-full mt-2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition z-50">
+            <div className="relative bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+              {item.countryName}
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+            </div>
+          </div>
+        </div>
+
+
         </div>
       </td>
       <td className="px-4 py-3 text-right">{item.last}</td>

@@ -21,7 +21,7 @@ const Contact = () => {
   return (
   <section className="relative overflow-hidden bg-white text-white py-12">
   {/* Main Container */}
-  <div className="max-w-7xl mx-auto relative z-10">
+  <div className="w-full px-2 md:px-4 py-8 mx-auto relative z-10">
     {/* Dark Background Container */}
     <div className="relative overflow-hidden rounded-t-[3rem] bg-[#0a0a35] pb-24">
       {/* Content */}
@@ -67,7 +67,7 @@ const Contact = () => {
                 onChange={handleChange}
                 className="mt-1 mr-2"
               />
-              Opt in to receive SMS notifications, alerts & occasional marketing communication.
+              Opt in to receive Email notifications, alerts & occasional marketing communication.
             </label>
 
             <button

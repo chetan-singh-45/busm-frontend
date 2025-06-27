@@ -17,7 +17,7 @@ import Footer from '@/components/Footer';
 import TrustedCompanies from "@/components/TrustedCompanies";
 import FeatureSection  from "@/components/FeatureSection";
 import DashboardSection  from "@/components/BrandSection";
-import CommanCurvedSection from "@/components/CommanCurvedSection"
+import VideoSection from "@/components/VideoSection"
 
 
 const Stock = () => {
@@ -65,7 +65,7 @@ const Stock = () => {
       <FrontendNavigation />
       <Toaster position="top-right" />
       
-      <div className="bg-gray-50 text-gray-900 min-h-screen py-8">
+      <div className="bg-gray-50 text-gray-900 min-h-screen py-1">
       <div className="w-full">
         <HomeCurvedSection
           title="Get notified on technical analysis events on European stock indices"
@@ -83,7 +83,7 @@ const Stock = () => {
         /> */}
         <DashboardSection />
         <FeatureSection />
-        <CommanCurvedSection
+        <VideoSection
             title="The Web's Most Advanced Interactive Financial Charting Platform"
             subtitle="Designed to Transform The Way You See The Markets."
           />
