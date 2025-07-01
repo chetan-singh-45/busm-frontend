@@ -24,11 +24,16 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
   }
 
   const handleAddToWatchlist = () => {
-    if (!user) return setShowLoginModal(true)
-
-    setShowWatchlistPopover((prev) => !prev)
-    setShowPopover(false)
+  if (!user) {
+    // Save selected indexes to localStorage before showing login modal
+    localStorage.setItem('pendingWatchlist', JSON.stringify(selectedItems))
+    return setShowLoginModal(true)
   }
+
+  setShowWatchlistPopover((prev) => !prev)
+  setShowPopover(false)
+}
+
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 rounded-xl bg-[#0A1045] text-white flex items-center justify-between px-6 py-3 shadow-lg">

@@ -1,8 +1,9 @@
 'use client'
+import Link from 'next/link';
 
 export default function VideoSection({ title, subtitle }) {
   return (
-    <section className="relative rounded-t-[3rem] bg-[#0a0a35] text-white pb-48 sm:mx-6">
+    <section className="relative rounded-t-[2rem] bg-[#0a0a35] text-white pb-38 sm:mx-6">
       {/* Text Content */}
       <div className="max-w-6xl mx-auto px-4 pt-20 text-center">
         <h2 className="text-3xl sm:text-5xl mb-6 leading-tight">
@@ -39,9 +40,11 @@ export default function VideoSection({ title, subtitle }) {
             <h3 className="text-xl sm:text-2xl font-bold mb-3 max-w-lg">
               Over 1.9 million investors trust TrendNotifier.com to deliver the tools and resources they need to invest with confidence.
             </h3>
+            <Link href="/plans">
             <button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-full w-fit">
               View Our Plans
             </button>
+          </Link>
           </div>
 
         </div>
@@ -49,7 +52,7 @@ export default function VideoSection({ title, subtitle }) {
 
       {/* Curved Bottom SVG */}
       <svg
-        className="absolute bottom-0 left-0 w-full h-[400px] z-0"
+        className="absolute bottom-0 left-0 w-full h-[150px] z-0"
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"
       >

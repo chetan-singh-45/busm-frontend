@@ -73,13 +73,13 @@ const Chart = ({ symbol, defaultRange = '1D' }) => {
     },
     dataZoom: [
         {
-        type: 'inside', // ✅ zoom via mousewheel/pinch
+        type: 'inside', // zoom via mousewheel/pinch
         xAxisIndex: 0,
         start: 80,
         end: 100,
         },
         {
-        type: 'slider', // ✅ visible zoom bar at the bottom
+        type: 'slider', // visible zoom bar at the bottom
         xAxisIndex: 0,
         height: 20,
         bottom: 10,
@@ -118,7 +118,6 @@ const Chart = ({ symbol, defaultRange = '1D' }) => {
             areaStyle: { color: 'rgba(37,99,235,0.08)' }
         }]
     }
-
 
     if (chartInstance.current) chartInstance.current.dispose()
     chartInstance.current = echarts.init(chartRef.current)

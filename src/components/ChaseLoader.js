@@ -1,4 +1,4 @@
-const ChaseLoader = ({ message = "Loading market stocks..." }) => {
+const ChaseLoader = ({ message = "Loading..." }) => {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white">
       <div className="relative w-10 h-10" style={{ animation: 'spin 2s linear infinite' }}>
@@ -11,7 +11,7 @@ const ChaseLoader = ({ message = "Loading market stocks..." }) => {
             }}
           >
             <div
-              className="w-[25%] h-[25%] rounded-full bg-blue-500 mx-auto"
+              className="w-[25%] h-[25%] rounded-full bg-[#22c55e] mx-auto"
               style={{
                 animation: `sk-chase-dot-before 2s infinite ease-in-out both`,
                 animationDelay: `-${1.1 - i * 0.1}s`,
@@ -20,7 +20,7 @@ const ChaseLoader = ({ message = "Loading market stocks..." }) => {
           </div>
         ))}
       </div>
-      <p className="mt-4 text-sm text-gray-600">{message}</p>
+      <p className="mt-4 text-sm text-[#22c55e]">{message}</p>
     </div>
   );
 };

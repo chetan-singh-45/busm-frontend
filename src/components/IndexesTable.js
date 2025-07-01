@@ -5,26 +5,46 @@ import { Toaster, toast } from 'react-hot-toast'
 import IndexRow from '@/components/IndexRow'
 import FloatingFooter from '@/components/FloatingFooter'
 import LoginRegisterModal from '@/components/LoginRegisterModal'
+import { useWatchlist } from '@/hooks/watchlist'
+import { useAuth } from '@/hooks/auth'
 
 export default function IndexesTable({
   data,
+  isLoading,
   isError,
   onCheckboxClick,
 }) {
+  const { user } = useAuth()
+  const { handleAddWatchlist } = useWatchlist()
   const [search, setSearch] = useState('')
-  const [region, setRegion] = useState(null)
   const [localData, setLocalData] = useState([])
   const [selectedIndex, setSelectedIndex] = useState(null)
-  const [showAlertModalFor, setShowAlertModalFor] = useState(null)
   const [showLoginModal, setShowLoginModal] = useState(false)
 
+   useEffect(() => {
+    if (user) {
+      const savedItems = JSON.parse(localStorage.getItem('pendingWatchlist') || '[]')
+      console.log(savedItems)
+      if (savedItems.length > 0) {
+        Promise.all(savedItems.map(item => handleAddWatchlist({stock_id: item.id})))
+          .then(() => {
+            toast.success('Indexes added to your watchlist.')
+            localStorage.removeItem('pendingWatchlist')
+          })
+          .catch(() => {
+            toast.error('Failed to sync some watchlist items.')
+          })
+      }
+    }
+  }, [user])
+
+  
   useEffect(() => {
     if (data?.length) {
-        const cleaned = data.map(item => ({ ...item, checked: false }))
-        setLocalData(cleaned)
+      const cleaned = data.map(item => ({ ...item, checked: false }))
+      setLocalData(cleaned)
     }
   }, [data])
-
 
   useEffect(() => {
     if (isError) {
@@ -38,19 +58,18 @@ export default function IndexesTable({
     setLocalData(updatedData)
     onCheckboxClick?.(updatedData[index])
 
-    // Update selectedIndex based on checked state
     if (updatedData[index].checked) {
-        setSelectedIndex(updatedData[index])
-    } else if (selectedIndex?.name === updatedData[index].name) {
-        setSelectedIndex(null)
+      setSelectedIndex(updatedData[index])
+    } else if (selectedIndex?.id === updatedData[index].id) {
+      setSelectedIndex(null)
     }
-   }
+  }
 
   const filteredData = localData.filter((item) => {
-    const matchSearch =  item.name.toLowerCase().includes(search.toLowerCase()) ||
-    item.countryName.toLowerCase().includes(search.toLowerCase())
-    const matchRegion = !region || item.region === region
-    return matchSearch && matchRegion
+    const matchSearch =
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
+      item.countryName.toLowerCase().includes(search.toLowerCase())
+    return matchSearch
   })
 
   return (
@@ -97,25 +116,32 @@ export default function IndexesTable({
             </thead>
 
           <tbody className="text-sm text-gray-800">
-            {filteredData.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
-                  No index found.
-                </td>
-              </tr>
-            ) : (
-              filteredData.map((item, index) => (
-                <IndexRow
-                    key={item.name}
-                    item={item}
-                    index={index}
-                    isSelected={selectedIndex?.name === item.name}
-                    onToggle={() => handleCheckboxToggle(index)}
-                    onSelect={() => setSelectedIndex(selectedIndex?.name === item.name ? null : item)}
-                />
-              ))
-            )}
-          </tbody>
+          {isLoading ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                Loading indexes...
+              </td>
+            </tr>
+          ) : filteredData.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                No index found.
+              </td>
+            </tr>
+          ) : (
+            filteredData.map((item, index) => (
+              <IndexRow
+                key={item.id}
+                item={item}
+                index={index}
+                isSelected={selectedIndex?.id === item.id}
+                onToggle={() => handleCheckboxToggle(index)}
+                onSelect={() => setSelectedIndex(selectedIndex?.id === item.id ? null : item)}
+              />
+            ))
+          )
+          }
+        </tbody>
         </table>
 
         <FloatingFooter
@@ -127,13 +153,12 @@ export default function IndexesTable({
                 )
                 setSelectedIndex(null)
             }}
-            onSetAlert={(item) => setShowAlertModalFor(item)}
             setShowLoginModal={setShowLoginModal}
         />
 
         <LoginRegisterModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
+         isOpen={showLoginModal}
+         onClose={() => setShowLoginModal(false)}
        />
 
       </div>

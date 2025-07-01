@@ -5,8 +5,8 @@ export default function HeadingSection({
   description,
 }) {
   return (
-    <section className="relative bg-[#1a1a3a] text-white py-16 md:py-20 px-6 md:px-8 rounded-t-[2.5rem] md:rounded-t-[3rem] overflow-hidden min-h-[300px]">
-      <div className="relative z-10 max-w-7xl mx-auto">
+    <section className="-mt-4  w-full relative bg-[#1a1a3a] text-white  md:py-20 px-6 md:px-8 rounded-t-[2.5rem] md:rounded-t-[3rem] overflow-hidden min-h-[50px]">
+      <div className="relative z-10 w-full">
         <div className="flex items-start justify-between gap-8 md:gap-12 min-h-[180px]">
           {/* Left Icon */}
           <div className="flex-shrink-0 pt-2">
@@ -39,7 +39,7 @@ export default function HeadingSection({
 
       {/* Curved Bottom */}
       <svg
-        className="absolute bottom-0 left-0 w-full h-[150px] z-0"
+        className="absolute bottom-0 left-0 w-full h-[100px] z-0"
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"
       >

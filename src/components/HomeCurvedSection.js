@@ -1,8 +1,9 @@
 import Image from 'next/image'
+import Link from 'next/link';
 
 export default function HomeCurvedSection({ title, subtitle }) {
   return (
-    <section className="relative rounded-t-[3rem] bg-[#0a0a35] text-white pb-48 mx-2 sm:mx-6">
+    <section className="relative rounded-t-[3rem] bg-[#0a0a35] text-white pb-40 mx-2 sm:mx-6">
       <div className="max-w-6xl mx-auto px-4 py-20 text-center">
         {/* Title */}
         <h2 className="text-3xl font-bold sm:text-5xl mb-6 leading-tight">
@@ -21,10 +22,12 @@ export default function HomeCurvedSection({ title, subtitle }) {
         </p>
 
         {/* Buttons */}
-        <div className="flex justify-center gap-4 mb-6 flex-wrap">
-          <button className="bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 text-sm rounded-full transition">
-            Sign Up Free
-          </button>
+        <div className="flex justify-center gap-4 flex-wrap">
+          <Link href="/register">
+            <button className="bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 text-sm rounded-full transition">
+              Sign Up Free
+            </button>
+          </Link>
           <button className="bg-white text-[#0a0a35] font-medium px-4 py-2 text-sm rounded-full transition hover:bg-gray-100">
             Try Demo
           </button>
@@ -33,7 +36,7 @@ export default function HomeCurvedSection({ title, subtitle }) {
 
       {/* Overlapping Image */}
       <div className="relative z-10 max-w-5xl mx-auto mt-4">
-        <div className="relative w-full h-[450px] rounded-3xl border border-[#3d3d72] bg-black/10 overflow-hidden shadow-xl transition-transform duration-300 hover:scale-105">
+        <div className="relative w-full h-[500px] rounded-3xl border border-[#3d3d72] bg-black/10 overflow-hidden shadow-xl transition-transform duration-300 hover:scale-105">
           <Image
             src="/admin.png"
             alt="admin"
@@ -45,7 +48,7 @@ export default function HomeCurvedSection({ title, subtitle }) {
 
       {/* Curved Bottom SVG */}
       <svg
-        className="absolute bottom-0 left-0 w-full h-[300px] z-0"
+        className="absolute bottom-0 left-0 w-full h-[250px] z-0"
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"
       >

@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 export default function TrustedCompanies() {
   return (
-    <section className="py-12 bg-white text-center">
+    <section className="py-8 bg-white text-center">
       <h3 className="text-lg sm:text-xl font-medium text-[#0a0a35] mb-8">
         Trusted by the world’s best companies
       </h3>
