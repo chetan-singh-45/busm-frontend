@@ -1,33 +1,30 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Search as SearchIcon } from 'lucide-react'
+import { Search as SearchIcon, Trash2 } from 'lucide-react'
 import HeadingSection from '@/components/HeadingSection'
 import UserSetAlertPopover from '@/components/UserSetAlertPopover'
 import { useWatchlist } from '@/hooks/watchlist'
-import { useAuth } from '@/hooks/auth'
+import FloatingFooter from '@/components/FloatingFooter'
 
 export default function WatchlistTable() {
   const { watchlist } = useWatchlist()
-  const { user } = useAuth()
-
   const [search, setSearch] = useState('')
   const [showAlertPopover, setShowAlertPopover] = useState(false)
   const [watchlistData, setWatchlistData] = useState([])
-  
+
   useEffect(() => {
     if (watchlist && Array.isArray(watchlist)) {
       const mappedData = watchlist.map((item) => {
         const stock = item.stock || {}
         const stockPrice = stock.stock_price || {}
         const country = stock.country || {}
-
         const changeEUR = parseFloat(stockPrice.price_change_day || 0)
         const changePct = parseFloat((stockPrice.percentage_day || '0').replace('%', ''))
-
         const lastUpdated = stockPrice.date || stockPrice.updated_at || 'N/A'
 
         return {
+          id: stock.id, 
           name: stock.name || 'N/A',
           last: stockPrice.price || 'N/A',
           high: stockPrice.high || '-',
@@ -35,8 +32,7 @@ export default function WatchlistTable() {
           changeEUR,
           changePct,
           lastUpdated,
-          countryEmoji: getEmojiFromCountryCode(country.iso2),
-          region: '', // Optional: map region if needed
+          countryEmoji: stock.country.emoji,
           checked: false,
         }
       })
@@ -62,6 +58,8 @@ export default function WatchlistTable() {
     item.countryEmoji.toLowerCase().includes(search.toLowerCase())
   )
 
+  const selectedItems = watchlistData.filter(item => item.checked)
+
   return (
     <>
       <HeadingSection title="Your Watchlist" />
@@ -79,7 +77,7 @@ export default function WatchlistTable() {
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500"
             />
-            <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           </div>
           <div className="relative">
             <button
@@ -123,13 +121,13 @@ export default function WatchlistTable() {
           <tbody className="text-gray-800">
             {filteredData.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">
                   No items in this watchlist.
                 </td>
               </tr>
             ) : (
               filteredData.map((item, index) => (
-                <tr key={index} className="border-t hover:bg-gray-50">
+                <tr key={item.stock_id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-2">
                     <input
                       type="checkbox"
@@ -156,14 +154,19 @@ export default function WatchlistTable() {
             )}
           </tbody>
         </table>
+
+        {selectedItems.length > 0 && (
+          <FloatingFooter
+            selectedItems={selectedItems}
+            selectedCount={selectedItems.length}
+            onClear={() => {
+              setWatchlistData(prev =>
+                prev.map(item => ({ ...item, checked: false }))
+              )
+            }}
+          />
+        )}
       </div>
     </>
   )
-}
-
-function getEmojiFromCountryCode(code) {
-  if (!code) return ''
-  return code
-    .toUpperCase()
-    .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt()))
 }
