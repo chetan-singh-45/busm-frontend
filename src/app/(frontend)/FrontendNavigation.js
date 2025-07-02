@@ -1,5 +1,5 @@
 'use client'
-
+import { useState } from 'react'
 import ApplicationLogo from '@/components/ApplicationLogo'
 import Link from 'next/link'
 import NavLink from '@/components/NavLink'
@@ -8,10 +8,15 @@ import { useAuth } from '@/hooks/auth'
 import ResponsiveNavLink, {
     ResponsiveNavButton,
 } from '@/components/ResponsiveNavLink'
+import WatchlistPopover from '@/components/WatchlistDropdown'
+import { useWatchlist } from '@/hooks/watchlist'
 
 const FrontendNavigation = () => {
     const { user , logout} = useAuth()
     const pathname = usePathname()
+    const { watchlist } = useWatchlist()
+
+    const [showDropdown, setShowDropdown] = useState(false)
 
     return (
         <nav className="relative h-16 flex items-center">
@@ -56,6 +61,22 @@ const FrontendNavigation = () => {
                     <NavLink href="/contact" active={pathname === '/contact'}>
                         Contact Us
                     </NavLink>
+                     <div className="relative">
+                        <button
+                            id="watchlist-button"
+                            onClick={() => setShowDropdown(prev => !prev)}
+                            className="text-sm text-xs px-4 py-2 rounded hover:bg-gray-100 transition"
+                        >
+                            My Watchlist
+                        </button>
+
+                        {showDropdown && (
+                            <WatchlistPopover
+                            watchlist={watchlist}
+                            onClose={() => setShowDropdown(false)}
+                            />
+                        )}
+                        </div>
                 </div>
 
                 {/*Login Button */}

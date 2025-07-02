@@ -24,7 +24,6 @@ export default function IndexesTable({
    useEffect(() => {
     if (user) {
       const savedItems = JSON.parse(localStorage.getItem('pendingWatchlist') || '[]')
-      console.log(savedItems)
       if (savedItems.length > 0) {
         Promise.all(savedItems.map(item => handleAddWatchlist({stock_id: item.id})))
           .then(() => {

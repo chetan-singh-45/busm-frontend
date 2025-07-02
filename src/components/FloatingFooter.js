@@ -1,39 +1,68 @@
 import { useState } from 'react'
-import { BellIcon } from 'lucide-react'
+import { BellIcon, Star } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/hooks/auth'
+import { useWatchlist } from '@/hooks/watchlist'
 import UserSetAlertPopover from '@/components/UserSetAlertPopover'
-import AddToWatchlistPopover from '@/components/AddToWatchlistPopover'
 
 export default function FloatingFooter({ selectedItems, selectedCount, onClear, setShowLoginModal }) {
   const { user } = useAuth()
+  const { watchlist, handleAddWatchlist, handleRemoveWatchlist } = useWatchlist()
   const [showPopover, setShowPopover] = useState(false)
-  const [showWatchlistPopover, setShowWatchlistPopover] = useState(false)
 
   if (selectedCount === 0) return null
 
+  const selected = selectedItems[0]
+  const isSingle = selectedItems.length === 1
+
+  const allInWatchlist = selectedItems.every(item =>
+    watchlist.some(w => w.stock_id === item.id)
+  )
+
   const handleSetAlert = () => {
     if (!user) return setShowLoginModal(true)
+    if (!isSingle) return toast.error('Select only one index to set an alert.')
+    setShowPopover(prev => !prev)
+  }
 
-    if (selectedItems.length === 1) {
-      setShowPopover((prev) => !prev)
-      setShowWatchlistPopover(false)
-    } else {
-      toast.error('Please select only one index to set an alert.')
+  const handleWatchlistToggle = async () => {
+    if (!user) {
+      localStorage.setItem('pendingWatchlist', JSON.stringify(selectedItems))
+      return setShowLoginModal(true)
+    }
+
+    try {
+      const itemsToRemove = selectedItems.filter(item =>
+        watchlist.some(w => w.stock_id === item.id)
+      )
+      const itemsToAdd = selectedItems.filter(item =>
+        !watchlist.some(w => w.stock_id === item.id)
+      )
+
+      await Promise.all(
+        itemsToRemove.map(item => {
+          const match = watchlist.find(w => w.stock_id === item.id)
+          return handleRemoveWatchlist(match.id) 
+        })
+      )
+
+      await Promise.all(
+        itemsToAdd.map(item =>
+          handleAddWatchlist({ stock_id: item.id })
+        )
+      )
+
+      if (itemsToAdd.length && !itemsToRemove.length) {
+        toast.success('Added to your watchlist!')
+      } else if (!itemsToAdd.length && itemsToRemove.length) {
+        toast.success('Removed from your watchlist!')
+      } else if (itemsToAdd.length && itemsToRemove.length) {
+        toast.success('Watchlist updated!')
+      }
+    } catch (err) {
+      toast.error('Failed to update watchlist.')
     }
   }
-
-  const handleAddToWatchlist = () => {
-  if (!user) {
-    // Save selected indexes to localStorage before showing login modal
-    localStorage.setItem('pendingWatchlist', JSON.stringify(selectedItems))
-    return setShowLoginModal(true)
-  }
-
-  setShowWatchlistPopover((prev) => !prev)
-  setShowPopover(false)
-}
-
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 rounded-xl bg-[#0A1045] text-white flex items-center justify-between px-6 py-3 shadow-lg">
@@ -44,13 +73,13 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
       </div>
 
       <div className="flex items-center gap-3 relative">
-        {/* Set Alert Button & Popover */}
+        {/* Alert button */}
         <div className="relative">
           <button
             onClick={handleSetAlert}
-            disabled={selectedItems.length !== 1 ? 'Select a single asset to add an alert' : ''}
+            disabled={!isSingle}
             className={`w-9 h-9 flex items-center justify-center rounded-full shadow transition
-              ${selectedItems.length === 1
+              ${isSingle
                 ? 'bg-white text-[#0A1045] hover:bg-gray-100'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
             `}
@@ -58,31 +87,32 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
             <BellIcon size={18} />
           </button>
 
-          {showPopover && selectedItems.length === 1 && (
+          {showPopover && isSingle && (
             <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-50">
               <UserSetAlertPopover
-                index={selectedItems[0]}
+                index={selected}
                 onClose={() => setShowPopover(false)}
               />
             </div>
           )}
         </div>
 
-        {/* Add to Watchlist Button & Popover */}
-        <div className="relative">
-          <button
-            onClick={handleAddToWatchlist}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium"
-          >
-            Add To Watchlist
-          </button>
-
-          {showWatchlistPopover && (
-            <div className="absolute bottom-12 right-0 z-50">
-              <AddToWatchlistPopover onClose={() => setShowWatchlistPopover(false)} />
-            </div>
-          )}
-        </div>
+        {/* Toggle Watchlist Button */}
+        <button
+          onClick={handleWatchlistToggle}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition ${
+            allInWatchlist
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+          }`}
+        >
+          <Star
+            className={allInWatchlist ? 'text-yellow-400' : 'text-gray-500'}
+            size={18}
+            fill={allInWatchlist ? 'currentColor' : 'none'}
+          />
+          {allInWatchlist ? 'Added' : 'Add to Watchlist'}
+        </button>
       </div>
     </div>
   )

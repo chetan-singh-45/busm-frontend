@@ -11,6 +11,7 @@ export default function Notifier() {
   const { stocks, isLoading, isError } = useStocks()
   const [selectedRegion, setSelectedRegion] = useState('Europe')
   const [selectedIndexName, setSelectedIndexName] = useState(null)
+  
   const formattedData = (stocks || [])
     .map(stock => {
       const price = stock.stock_price

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { X, Plus, Star } from 'lucide-react'
 
-const sampleWatchlists = ['My Watchlist', 'watchlist 2']
+const sampleWatchlists = ['My Watchlist']
 
 export default function AddToWatchlistPopover({ onClose }) {
   const [watchlists, setWatchlists] = useState(

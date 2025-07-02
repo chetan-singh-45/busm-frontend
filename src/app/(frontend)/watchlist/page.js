@@ -1,146 +1,80 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Search as SearchIcon } from 'lucide-react'
-import HeadingSection from "@/components/HeadingSection"
+import HeadingSection from '@/components/HeadingSection'
 import UserSetAlertPopover from '@/components/UserSetAlertPopover'
-
-const defaultData = [
-  {
-    name: 'FTSE 100',
-    last: '8,163.67',
-    high: '8,200.00',
-    low: '8,120.00',
-    changeEUR: 45.23,
-    changePct: 0.56,
-    lastUpdated: '29/05',
-    countryEmoji: '🇬🇧',
-    region: 'Europe',
-    checked: false,
-  },
-  {
-    name: 'DAX',
-    last: '18,492.00',
-    high: '18,600.00',
-    low: '18,400.00',
-    changeEUR: -9.56,
-    changePct: -0.05,
-    lastUpdated: '29/05',
-    countryEmoji: '🇩🇪',
-    region: 'Europe',
-    checked: false,
-  },
-  {
-    name: 'CAC 40',
-    last: '7,925.15',
-    high: '7,950.00',
-    low: '7,880.00',
-    changeEUR: 22.85,
-    changePct: 0.29,
-    lastUpdated: '29/05',
-    countryEmoji: '🇫🇷',
-    region: 'Europe',
-    checked: false,
-  },
-]
+import { useWatchlist } from '@/hooks/watchlist'
+import { useAuth } from '@/hooks/auth'
 
 export default function WatchlistTable() {
-  const [watchlists, setWatchlists] = useState(['My Watchlist', 'My Watchlist 2'])
-  const [activeTab, setActiveTab] = useState('My Watchlist')
-
-  const [watchlistData, setWatchlistData] = useState({
-    'My Watchlist': defaultData,
-    'My Watchlist 2': defaultData,
-  })
+  const { watchlist } = useWatchlist()
+  const { user } = useAuth()
 
   const [search, setSearch] = useState('')
   const [showAlertPopover, setShowAlertPopover] = useState(false)
-  const [creatingNew, setCreatingNew] = useState(false)
-  const [newWatchlistName, setNewWatchlistName] = useState('')
+  const [watchlistData, setWatchlistData] = useState([])
+  
+  useEffect(() => {
+    if (watchlist && Array.isArray(watchlist)) {
+      const mappedData = watchlist.map((item) => {
+        const stock = item.stock || {}
+        const stockPrice = stock.stock_price || {}
+        const country = stock.country || {}
 
-  const currentData = watchlistData[activeTab] || []
+        const changeEUR = parseFloat(stockPrice.price_change_day || 0)
+        const changePct = parseFloat((stockPrice.percentage_day || '0').replace('%', ''))
+
+        const lastUpdated = stockPrice.date || stockPrice.updated_at || 'N/A'
+
+        return {
+          name: stock.name || 'N/A',
+          last: stockPrice.price || 'N/A',
+          high: stockPrice.high || '-',
+          low: stockPrice.low || '-',
+          changeEUR,
+          changePct,
+          lastUpdated,
+          countryEmoji: getEmojiFromCountryCode(country.iso2),
+          region: '', // Optional: map region if needed
+          checked: false,
+        }
+      })
+
+      setWatchlistData(mappedData)
+    }
+  }, [watchlist])
 
   const handleCheck = (index) => {
-    const updated = [...currentData]
+    const updated = [...watchlistData]
     updated[index].checked = !updated[index].checked
-    setWatchlistData({ ...watchlistData, [activeTab]: updated })
+    setWatchlistData(updated)
   }
 
   const handleCheckAll = (e) => {
     const checked = e.target.checked
-    const updated = currentData.map(item => ({ ...item, checked }))
-    setWatchlistData({ ...watchlistData, [activeTab]: updated })
+    const updated = watchlistData.map((item) => ({ ...item, checked }))
+    setWatchlistData(updated)
   }
 
-  const filteredData = currentData.filter(item =>
+  const filteredData = watchlistData.filter(item =>
     item.name.toLowerCase().includes(search.toLowerCase()) ||
     item.countryEmoji.toLowerCase().includes(search.toLowerCase())
   )
 
-  const handleCreateWatchlist = () => {
-    const trimmed = newWatchlistName.trim()
-    if (!trimmed || watchlists.includes(trimmed)) return
-    setWatchlists([...watchlists, trimmed])
-    setWatchlistData({ ...watchlistData, [trimmed]: [] }) // empty watchlist
-    setActiveTab(trimmed)
-    setNewWatchlistName('')
-    setCreatingNew(false)
-  }
-
   return (
     <>
-      <HeadingSection title="Major World Market Indices" />
+      <HeadingSection title="Your Watchlist" />
 
       <div className="p-4 bg-white rounded-xl shadow">
-        {/* Tabs */}
-        <div className="flex mb-4 items-center gap-2">
-          {watchlists.map((name, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveTab(name)}
-              className={`px-4 py-2 rounded-t-md font-medium shadow ${
-                activeTab === name ? 'bg-white text-black' : 'text-gray-500 hover:text-black'
-              }`}
-            >
-              {name}
-            </button>
-          ))}
-          {creatingNew ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={newWatchlistName}
-                onChange={(e) => setNewWatchlistName(e.target.value)}
-                className="border px-2 py-1 rounded text-sm"
-                placeholder="New Watchlist"
-              />
-              <button
-                onClick={handleCreateWatchlist}
-                className="text-green-600 hover:underline text-sm"
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setCreatingNew(true)}
-              className="text-xl text-gray-400 hover:text-black"
-              title="Create new watchlist"
-            >
-              +
-            </button>
-          )}
-        </div>
-
-        {/* Active Watchlist Title */}
-        <h2 className="text-lg font-semibold mb-2">{activeTab}</h2>
+        <h2 className="text-lg font-semibold mb-2">Watchlist</h2>
 
         {/* Search & Alerts */}
         <div className="flex items-center justify-between mb-4">
           <div className="relative w-full max-w-sm">
             <input
               type="text"
-              placeholder="EUR/USD or AAPL"
+              placeholder="Search stock or country"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -158,7 +92,7 @@ export default function WatchlistTable() {
             {showAlertPopover && (
               <div className="absolute right-full top-1/2 -translate-y-1/2 ml-2 z-50">
                 <UserSetAlertPopover
-                  index={{ name: 'Dow Jones Industrial Average' }}
+                  index={{ name: 'Watchlist Item' }}
                   onClose={() => setShowAlertPopover(false)}
                 />
               </div>
@@ -211,10 +145,10 @@ export default function WatchlistTable() {
                   <td className="px-4 py-2 text-right">{item.high}</td>
                   <td className="px-4 py-2 text-right">{item.low}</td>
                   <td className={`px-4 py-2 text-right ${item.changeEUR >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {item.changeEUR > 0 ? '+' : ''}{item.changeEUR.toFixed(2)}
+                    {item.changeEUR >= 0 ? '+' : ''}{item.changeEUR.toFixed(2)}
                   </td>
                   <td className={`px-4 py-2 text-right ${item.changePct >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {item.changePct > 0 ? '+' : ''}{item.changePct.toFixed(2)}%
+                    {item.changePct >= 0 ? '+' : ''}{item.changePct.toFixed(2)}%
                   </td>
                   <td className="px-4 py-2 text-right">{item.lastUpdated}</td>
                 </tr>
@@ -225,4 +159,11 @@ export default function WatchlistTable() {
       </div>
     </>
   )
+}
+
+function getEmojiFromCountryCode(code) {
+  if (!code) return ''
+  return code
+    .toUpperCase()
+    .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt()))
 }
