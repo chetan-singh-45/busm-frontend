@@ -5,13 +5,17 @@ import Input from '@/components/Input'
 import InputError from '@/components/InputError'
 import Label from '@/components/Label'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/auth'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import ChaseLoader from '@/components/ChaseLoader'
 
 const Page = () => {
-    const { register } = useAuth({
+
+    const router = useRouter()
+    const { register, user } = useAuth({
         middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
+        // redirectIfAuthenticated: '/dashboard',  for mannual 
     })
 
     const [name, setName] = useState('')
@@ -19,6 +23,16 @@ const Page = () => {
     const [password, setPassword] = useState('')
     const [passwordConfirmation, setPasswordConfirmation] = useState('')
     const [errors, setErrors] = useState([])
+    const [isRedirecting, setIsRedirecting] = useState(false)
+
+    useEffect(() => {
+        if (user) {
+            setIsRedirecting(true)
+            setTimeout(() => {
+                router.push('/notifier')
+            }, 1000)
+        }
+    }, [user])
 
     const submitForm = event => {
         event.preventDefault()
@@ -31,6 +45,8 @@ const Page = () => {
             setErrors,
         })
     }
+
+     if (isRedirecting) return <ChaseLoader message="Creating your account..." />
 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur flex items-center justify-center px-4">

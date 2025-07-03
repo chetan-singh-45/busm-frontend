@@ -54,7 +54,7 @@ const WatchlistPopover = ({ watchlist, onClose }) => {
                 const stock = item.stock
                 const price = parseFloat(stock.stock_price?.price || 0).toLocaleString()
                 const chg = parseFloat(stock.stock_price?.price_change_day || 0)
-                const chgPercent = parseFloat(stock.stock_price?.percent_change_day || 0)
+                const chgPercent = parseFloat(stock.stock_price?.percentage_day || 0)
                 const isUp = chg > 0
 
                 return (
@@ -78,9 +78,14 @@ const WatchlistPopover = ({ watchlist, onClose }) => {
       </div>
 
       <div className="bg-gray-100 px-3 py-2 text-center text-sm">
-        <Link href="/watchlist" className="text-blue-600 hover:underline">
+       <Link
+          href="/watchlist"
+          onClick={onClose}
+          className="text-blue-600 hover:underline"
+        >
           View Full Watchlist
         </Link>
+
       </div>
     </div>,
     document.body

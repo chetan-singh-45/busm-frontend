@@ -1,16 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Search as SearchIcon, Trash2 } from 'lucide-react'
+import { Search as SearchIcon } from 'lucide-react'
 import HeadingSection from '@/components/HeadingSection'
-import UserSetAlertPopover from '@/components/UserSetAlertPopover'
 import { useWatchlist } from '@/hooks/watchlist'
 import FloatingFooter from '@/components/FloatingFooter'
 
 export default function WatchlistTable() {
   const { watchlist } = useWatchlist()
   const [search, setSearch] = useState('')
-  const [showAlertPopover, setShowAlertPopover] = useState(false)
   const [watchlistData, setWatchlistData] = useState([])
 
   useEffect(() => {
@@ -18,7 +16,7 @@ export default function WatchlistTable() {
       const mappedData = watchlist.map((item) => {
         const stock = item.stock || {}
         const stockPrice = stock.stock_price || {}
-        const country = stock.country || {}
+        const country = stock.country.name || 'N/A'
         const changeEUR = parseFloat(stockPrice.price_change_day || 0)
         const changePct = parseFloat((stockPrice.percentage_day || '0').replace('%', ''))
         const lastUpdated = stockPrice.date || stockPrice.updated_at || 'N/A'
@@ -33,6 +31,7 @@ export default function WatchlistTable() {
           changePct,
           lastUpdated,
           countryEmoji: stock.country.emoji,
+          country,
           checked: false,
         }
       })
@@ -55,7 +54,7 @@ export default function WatchlistTable() {
 
   const filteredData = watchlistData.filter(item =>
     item.name.toLowerCase().includes(search.toLowerCase()) ||
-    item.countryEmoji.toLowerCase().includes(search.toLowerCase())
+    item.country.toLowerCase().includes(search.toLowerCase())
   )
 
   const selectedItems = watchlistData.filter(item => item.checked)
@@ -64,12 +63,12 @@ export default function WatchlistTable() {
     <>
       <HeadingSection title="Your Watchlist" />
 
-      <div className="p-4 bg-white rounded-xl shadow">
-        <h2 className="text-lg font-semibold mb-2">Watchlist</h2>
+      <div className="p-4 sm:p-6 bg-white rounded-xl shadow">
+        <h2 className="text-lg font-semibold mb-4">Watchlist</h2>
 
-        {/* Search & Alerts */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="relative w-full max-w-sm">
+        {/* Search */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+          <div className="relative w-full sm:max-w-sm">
             <input
               type="text"
               placeholder="Search stock or country"
@@ -79,81 +78,72 @@ export default function WatchlistTable() {
             />
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           </div>
-          <div className="relative">
-            <button
-              onClick={() => setShowAlertPopover(!showAlertPopover)}
-              className="ml-2 px-4 py-2 bg-green-500 text-white rounded-full text-sm font-medium hover:bg-green-600"
-            >
-              Setup alerts
-            </button>
-
-            {showAlertPopover && (
-              <div className="absolute right-full top-1/2 -translate-y-1/2 ml-2 z-50">
-                <UserSetAlertPopover
-                  index={{ name: 'Watchlist Item' }}
-                  onClose={() => setShowAlertPopover(false)}
-                />
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Table */}
-        <table className="w-full text-sm">
-          <thead className="text-left text-gray-600 border-b">
-            <tr>
-              <th className="px-4 py-3">
-                <input
-                  type="checkbox"
-                  checked={filteredData.length > 0 && filteredData.every(item => item.checked)}
-                  onChange={handleCheckAll}
-                />
-              </th>
-              <th className="px-4 py-3">Country / Name</th>
-              <th className="px-4 py-3 text-right">Last</th>
-              <th className="px-4 py-3 text-right">High</th>
-              <th className="px-4 py-3 text-right">Low</th>
-              <th className="px-4 py-3 text-right">Change (€)</th>
-              <th className="px-4 py-3 text-right">Change (%)</th>
-              <th className="px-4 py-3 text-right">Last Updated</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-800">
-            {filteredData.length === 0 ? (
+        {/* Responsive Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-gray-600 border-b">
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">
-                  No items in this watchlist.
-                </td>
+                <th className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={filteredData.length > 0 && filteredData.every(item => item.checked)}
+                    onChange={handleCheckAll}
+                  />
+                </th>
+                <th className="px-4 py-3">Country / Name</th>
+                <th className="px-4 py-3 text-right">Last</th>
+                <th className="px-4 py-3 text-right hidden sm:table-cell">High</th>
+                <th className="px-4 py-3 text-right hidden sm:table-cell">Low</th>
+                <th className="px-4 py-3 text-right">Change (€)</th>
+                <th className="px-4 py-3 text-right">Change (%)</th>
+                <th className="px-4 py-3 text-right hidden md:table-cell">Last Updated</th>
               </tr>
-            ) : (
-              filteredData.map((item, index) => (
-                <tr key={item.stock_id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-2">
-                    <input
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheck(index)}
-                    />
+            </thead>
+            <tbody className="text-gray-800">
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-400">
+                    No items in this watchlist.
                   </td>
-                  <td className="px-4 py-2 flex items-center gap-2">
-                    <span>{item.countryEmoji}</span>
-                    <span>{item.name}</span>
-                  </td>
-                  <td className="px-4 py-2 text-right">{item.last}</td>
-                  <td className="px-4 py-2 text-right">{item.high}</td>
-                  <td className="px-4 py-2 text-right">{item.low}</td>
-                  <td className={`px-4 py-2 text-right ${item.changeEUR >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {item.changeEUR >= 0 ? '+' : ''}{item.changeEUR.toFixed(2)}
-                  </td>
-                  <td className={`px-4 py-2 text-right ${item.changePct >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {item.changePct >= 0 ? '+' : ''}{item.changePct.toFixed(2)}%
-                  </td>
-                  <td className="px-4 py-2 text-right">{item.lastUpdated}</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filteredData.map((item, index) => (
+                  <tr key={item.id} className="border-t hover:bg-gray-50">
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={item.checked}
+                        onChange={() => handleCheck(index)}
+                      />
+                    </td>
+                    <td className="px-4 py-2 flex items-center gap-2">
+                      <div className="relative group flex items-center">
+                        <span>{item.countryEmoji}</span>
+                        <div className="absolute left-1/2 top-full mt-1 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
+                          {item.country}
+                          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                        </div>
+                      </div>
+                      <span className="truncate max-w-[120px]">{item.name}</span>
+                    </td>
+                    <td className="px-4 py-2 text-right">{item.last}</td>
+                    <td className="px-4 py-2 text-right hidden sm:table-cell">{item.high}</td>
+                    <td className="px-4 py-2 text-right hidden sm:table-cell">{item.low}</td>
+                    <td className={`px-4 py-2 text-right ${item.changeEUR >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                      {item.changeEUR >= 0 ? '+' : ''}{item.changeEUR.toFixed(2)}
+                    </td>
+                    <td className={`px-4 py-2 text-right ${item.changePct >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                      {item.changePct >= 0 ? '+' : ''}{item.changePct.toFixed(2)}%
+                    </td>
+                    <td className="px-4 py-2 text-right hidden md:table-cell">{item.lastUpdated}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {selectedItems.length > 0 && (
           <FloatingFooter

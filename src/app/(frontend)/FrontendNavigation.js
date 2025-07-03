@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/auth'
 import ResponsiveNavLink, {
     ResponsiveNavButton,
 } from '@/components/ResponsiveNavLink'
-import WatchlistPopover from '@/components/WatchlistDropdown'
+import WatchlistPopover from '@/components/WatchlistPopover'
 import { useWatchlist } from '@/hooks/watchlist'
 
 const FrontendNavigation = () => {
@@ -61,7 +61,7 @@ const FrontendNavigation = () => {
                     <NavLink href="/contact" active={pathname === '/contact'}>
                         Contact Us
                     </NavLink>
-                     <div className="relative">
+                    {user && <div className="relative">
                         <button
                             id="watchlist-button"
                             onClick={() => setShowDropdown(prev => !prev)}
@@ -76,7 +76,7 @@ const FrontendNavigation = () => {
                             onClose={() => setShowDropdown(false)}
                             />
                         )}
-                        </div>
+                    </div>}
                 </div>
 
                 {/*Login Button */}

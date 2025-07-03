@@ -64,11 +64,11 @@ const Dashboard = () => {
     }
   }
 
-  useEffect(() => {
-    if (isError) {
-      toast.error('Failed to load watchlist')
-    }
-  }, [isError])
+  // useEffect(() => {
+  //   if (isError) {
+  //     toast.error('Failed to load watchlist')
+  //   }
+  // }, [isError])
 
   return (
     <>

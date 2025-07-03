@@ -49,7 +49,6 @@ export default function Alert() {
 
       if (result?.length) {
         const pivots = result.map(item => item);
-        console.log(pivots)
         setUserNotification(pivots);
       } else {
         setUserNotification([]);

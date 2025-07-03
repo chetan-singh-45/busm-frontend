@@ -1,6 +1,6 @@
 'use client'
 
-import { toast } from 'react-hot-toast'
+// import { toast } from 'react-hot-toast'
 
 export default function IndexRow({ item, index, isSelected, onToggle, onSelect }) {
   const getChangeStyle = (change) =>
@@ -19,20 +19,18 @@ export default function IndexRow({ item, index, isSelected, onToggle, onSelect }
             checked={item.checked}
             onChange={onToggle}
           />
-        <div className="relative group inline-block cursor-pointer" onClick={onSelect}>
+         <div className="relative group cursor-pointer">
           <span>{item.countryEmoji}</span>
-          <span>{item.name}</span>
 
           {/* Tooltip */}
-          <div className="absolute left-1/2 top-full mt-2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition z-50">
+          <div className="absolute left-1/2 top-full mt-1 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
             <div className="relative bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
               {item.countryName}
               <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
             </div>
           </div>
         </div>
-
-
+          <span>{item.name}</span>
         </div>
       </td>
       <td className="px-4 py-3 text-right">{item.last}</td>

@@ -24,7 +24,7 @@ const Home = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (user) {
+      if (user.user == undefined) {
         setShowLoginRegisterModal(true);
       }
     }, 5000);

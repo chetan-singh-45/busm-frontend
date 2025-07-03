@@ -16,9 +16,9 @@ export default function StockTable({
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCountry, setSelectedCountry] = useState('all')
 
-  useEffect(() => {
-    if (isError) toast.error('Failed to load stocks')
-  }, [isError])
+  // useEffect(() => {
+  //   if (isError) toast.error('Failed to load stocks')
+  // }, [isError])
 
   const formatNumber = (num) =>
     num ? Number(num).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-'

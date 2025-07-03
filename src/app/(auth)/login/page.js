@@ -10,13 +10,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AuthSessionStatus from '@/app/(auth)/AuthSessionStatus'
 import { Eye, EyeOff } from 'lucide-react'
+import ChaseLoader from '@/components/ChaseLoader';
 
 const Login = () => {
     const router = useRouter()
 
-    const { login } = useAuth({
+    const { login, user } = useAuth({
         middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
+        // redirectIfAuthenticated: '/notifier', // Removed for manual redirect
     })
 
     const [email, setEmail] = useState('')
@@ -25,6 +26,7 @@ const Login = () => {
     const [shouldRemember, setShouldRemember] = useState(false)
     const [errors, setErrors] = useState([])
     const [status, setStatus] = useState(null)
+    const [isRedirecting, setIsRedirecting] = useState(false)
 
     useEffect(() => {
         if (router.reset?.length > 0 && errors.length === 0) {
@@ -33,6 +35,15 @@ const Login = () => {
             setStatus(null)
         }
     }, [router.reset, errors])
+
+    useEffect(() => {
+        if (user) {
+            setIsRedirecting(true)
+            setTimeout(() => {
+                router.push('/notifier')
+            }, 1000)
+        }
+    }, [user])
 
     const submitForm = async event => {
         event.preventDefault()
@@ -45,6 +56,8 @@ const Login = () => {
             setStatus,
         })
     }
+
+    if (isRedirecting) return <ChaseLoader message="Loading..." />;
 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4">
@@ -59,7 +72,6 @@ const Login = () => {
                 <AuthSessionStatus className="mb-4" status={status} />
 
                 <form onSubmit={submitForm} className="space-y-5">
-                    {/* Email */}
                     <div>
                         <Input
                             id="email"
@@ -74,7 +86,6 @@ const Login = () => {
                         <InputError messages={errors.email} className="mt-2" />
                     </div>
 
-                    {/* Password */}
                     <div>
                         <div className="relative">
                             <Input
@@ -97,7 +108,6 @@ const Login = () => {
                         <InputError messages={errors.password} className="mt-2" />
                     </div>
 
-                    {/* Remember Me */}
                     <div className="flex items-center text-sm text-gray-700">
                         <input
                             type="checkbox"
@@ -109,11 +119,9 @@ const Login = () => {
                         <label htmlFor="remember_me">Remember me</label>
                     </div>
 
-                    {/* Submit Button */}
                     <Button className="w-full flex justify-center items-center bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 rounded-full">
                         Login
                     </Button>
-
                 </form>
 
                 <div className="text-center mt-5 text-sm space-y-1">

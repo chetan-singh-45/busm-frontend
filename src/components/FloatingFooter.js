@@ -15,9 +15,12 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
   const selected = selectedItems[0]
   const isSingle = selectedItems.length === 1
 
-  const allInWatchlist = selectedItems.every(item =>
-    watchlist.some(w => w.stock_id === item.id)
-  )
+  const allInWatchlist = watchlist?.length
+  ? selectedItems.every(item =>
+      watchlist.some(w => w.stock_id === item.id)
+    )
+  : false
+
 
   const handleSetAlert = () => {
     if (!user) return setShowLoginModal(true)
@@ -39,30 +42,28 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
         !watchlist.some(w => w.stock_id === item.id)
       )
 
-      await Promise.all(
-        itemsToRemove.map(item => {
-          const match = watchlist.find(w => w.stock_id === item.id)
-          return handleRemoveWatchlist(match.id) 
-        })
-      )
-
-      await Promise.all(
-        itemsToAdd.map(item =>
-          handleAddWatchlist({ stock_id: item.id })
+      // Case: all selected items are in watchlist → remove them
+      if (itemsToRemove.length === selectedItems.length) {
+        await Promise.all(
+          itemsToRemove.map(item => {
+            const match = watchlist.find(w => w.stock_id === item.id)
+            return handleRemoveWatchlist(match.id)
+          })
         )
-      )
-
-      if (itemsToAdd.length && !itemsToRemove.length) {
-        toast.success('Added to your watchlist!')
-      } else if (!itemsToAdd.length && itemsToRemove.length) {
         toast.success('Removed from your watchlist!')
-      } else if (itemsToAdd.length && itemsToRemove.length) {
-        toast.success('Watchlist updated!')
+      }
+      // Case: only some items are not in the watchlist → add only those
+      else if (itemsToAdd.length > 0) {
+        await Promise.all(
+          itemsToAdd.map(item => handleAddWatchlist({ stock_id: item.id }))
+        )
+        toast.success('Added to your watchlist!')
       }
     } catch (err) {
       toast.error('Failed to update watchlist.')
     }
   }
+
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 rounded-xl bg-[#0A1045] text-white flex items-center justify-between px-6 py-3 shadow-lg">
