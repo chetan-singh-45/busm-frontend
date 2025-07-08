@@ -1,4 +1,5 @@
 'use client'
+    
 import { useState } from 'react'
 import ApplicationLogo from '@/components/ApplicationLogo'
 import Link from 'next/link'
@@ -20,7 +21,7 @@ const FrontendNavigation = () => {
 
     return (
         <nav className="relative h-16 flex items-center">
-            <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between relative">
+            <div className="max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between relative">
                 
                 {/* Logo */}
                 <div className="flex items-center">
@@ -145,7 +146,7 @@ const FrontendNavigation = () => {
                     <div className="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink
                             href="/dashboard"
-                            active={usePathname() === '/dashboard'}>
+                            active={pathname === '/dashboard'}>
                             Dashboard
                         </ResponsiveNavLink>
                     </div>

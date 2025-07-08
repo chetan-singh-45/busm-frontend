@@ -27,7 +27,7 @@ const Home = () => {
       if (user.user == undefined) {
         setShowLoginRegisterModal(true);
       }
-    }, 5000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [user]);

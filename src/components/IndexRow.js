@@ -1,17 +1,18 @@
 'use client'
 
-// import { toast } from 'react-hot-toast'
+import AlertActiveBadge from '@/components/AlertActiveBadge'
 
-export default function IndexRow({ item, index, isSelected, onToggle, onSelect }) {
+export default function IndexRow({ item, userAlerts, index, isSelected, onToggle, onSelect }) {
+
+    const isAlertActive = userAlerts.some(
+      alert => alert.pivot?.stock_id === item.stock?.id
+    )
+
   const getChangeStyle = (change) =>
     change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-600'
 
   return (
-    <tr
-      className={`border-t transition duration-150 ${
-        isSelected ? 'bg-gray-50' : 'hover:bg-gray-50'
-      }`}
-    >
+    <tr className={`border-t transition duration-150 ${isSelected ? 'bg-gray-50' : 'hover:bg-gray-50'}`}>
       <td className="px-4 py-3 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <input
@@ -19,18 +20,17 @@ export default function IndexRow({ item, index, isSelected, onToggle, onSelect }
             checked={item.checked}
             onChange={onToggle}
           />
-         <div className="relative group cursor-pointer">
-          <span>{item.countryEmoji}</span>
-
-          {/* Tooltip */}
-          <div className="absolute left-1/2 top-full mt-1 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-            <div className="relative bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-              {item.countryName}
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+          <div className="relative group cursor-pointer">
+            <span>{item.countryEmoji}</span>
+            <div className="absolute left-1/2 top-full mt-1 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+              <div className="relative bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                {item.countryName}
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+              </div>
             </div>
           </div>
-        </div>
           <span>{item.name}</span>
+          {isAlertActive && <AlertActiveBadge />}
         </div>
       </td>
       <td className="px-4 py-3 text-right">{item.last}</td>

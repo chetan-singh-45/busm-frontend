@@ -25,7 +25,6 @@ export default function Alert() {
   const fetchUserIndicators = async () => {
     try {
       const res = await getUserAlert(user.id);
-      const notify = await getUserNotifications();
       const result = res?.data?.data;
 
       if (result?.length) {

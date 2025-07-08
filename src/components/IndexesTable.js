@@ -7,6 +7,7 @@ import FloatingFooter from '@/components/FloatingFooter'
 import LoginRegisterModal from '@/components/LoginRegisterModal'
 import { useWatchlist } from '@/hooks/watchlist'
 import { useAuth } from '@/hooks/auth'
+import { getUserAlert } from '@/services/indicators'
 
 export default function IndexesTable({
   data,
@@ -19,7 +20,8 @@ export default function IndexesTable({
   const [search, setSearch] = useState('')
   const [localData, setLocalData] = useState([])
   const [selectedIndex, setSelectedIndex] = useState(null)
-  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false) 
+  const [userAlerts, setUserAlerts] = useState([])
 
    useEffect(() => {
     if (user) {
@@ -27,7 +29,7 @@ export default function IndexesTable({
       if (savedItems.length > 0) {
         Promise.all(savedItems.map(item => handleAddWatchlist({stock_id: item.id})))
           .then(() => {
-            toast.success('Indexes added to your watchlist.')
+            toast.success('Index added to your watchlist.')
             localStorage.removeItem('pendingWatchlist')
           })
           .catch(() => {
@@ -37,6 +39,22 @@ export default function IndexesTable({
     }
   }, [user])
 
+  useEffect(() => {
+    if (user?.id) {
+      refreshUserAlerts()
+    }
+  }, [user?.id])
+
+  const refreshUserAlerts = async () => {
+    try {
+      const res = await getUserAlert(user.id)
+      const result = res?.data?.data || []
+      setUserAlerts(result)
+    } catch (err) {
+      console.error("Failed to load alert data:", err)
+    }
+  }
+
   
   useEffect(() => {
     if (data?.length) {
@@ -45,12 +63,13 @@ export default function IndexesTable({
     }
   }, [data])
 
-  useEffect(() => {
-    if (isError) {
-      toast.error('Failed to load indexes.')
-    }
-  }, [isError])
+  // useEffect(() => {
+  //   if (isError) {
+  //     toast.error('Failed to load indexes.')
+  //   }
+  // }, [isError])
 
+  
   const handleCheckboxToggle = (index) => {
     const updatedData = [...localData]
     updatedData[index].checked = !updatedData[index].checked
@@ -63,15 +82,16 @@ export default function IndexesTable({
       setSelectedIndex(null)
     }
   }
-
+  
   const filteredData = localData.filter((item) => {
     const matchSearch =
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.countryName.toLowerCase().includes(search.toLowerCase())
+    item.name.toLowerCase().includes(search.toLowerCase()) ||
+    item.countryName.toLowerCase().includes(search.toLowerCase())
     return matchSearch
   })
 
   return (
+    <>
     <div className="flex flex-col flex-1">
       <div className="mb-4">
         <input
@@ -131,13 +151,15 @@ export default function IndexesTable({
             filteredData.map((item, index) => (
               <IndexRow
                 key={item.id}
+                userAlerts={userAlerts}
+                setUserAlerts={setUserAlerts}
                 item={item}
                 index={index}
                 isSelected={selectedIndex?.id === item.id}
                 onToggle={() => handleCheckboxToggle(index)}
                 onSelect={() => setSelectedIndex(selectedIndex?.id === item.id ? null : item)}
-              />
-            ))
+                />
+              ))
           )
           }
         </tbody>
@@ -149,10 +171,11 @@ export default function IndexesTable({
             onClear={() => {
                 setLocalData((prev) =>
                 prev.map((item) => ({ ...item, checked: false }))
-                )
-                setSelectedIndex(null)
+              )
+              setSelectedIndex(null)
             }}
             setShowLoginModal={setShowLoginModal}
+            refreshUserAlerts={refreshUserAlerts}
         />
 
         <LoginRegisterModal
@@ -162,5 +185,6 @@ export default function IndexesTable({
 
       </div>
     </div>
+  </>
   )
 }

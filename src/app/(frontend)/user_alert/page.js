@@ -14,20 +14,8 @@ const sampleData = [
   { flag: '🇮🇹', name: 'Bovespa', alert: 'SMA 200', direction: 'Crossing Up', timeframe: 'Hourly', notify: true, enabled: true },
 ]
 
-export default function Notifier() {
+export default function AlertCenter() {
   const [data, setData] = useState(sampleData)
-  const [checked, setChecked] = useState(Array(sampleData.length).fill(false))
-
-  const toggleAll = (e) => {
-    const isChecked = e.target.checked
-    setChecked(Array(data.length).fill(isChecked))
-  }
-
-  const toggleOne = (index) => {
-    const updated = [...checked]
-    updated[index] = !updated[index]
-    setChecked(updated)
-  }
 
   const toggleStatus = (index) => {
     const updatedData = [...data]
@@ -42,9 +30,6 @@ export default function Notifier() {
       <table className="min-w-full text-sm text-gray-700">
         <thead>
           <tr className="text-left bg-gray-100 text-gray-600">
-            <th className="px-4 py-3">
-              <input type="checkbox" checked={checked.every(Boolean)} onChange={toggleAll} />
-            </th>
             <th className="px-4 py-3">Country / Name</th>
             <th className="px-4 py-3">Alert Options</th>
             <th className="px-4 py-3">Signal Direction</th>
@@ -57,9 +42,6 @@ export default function Notifier() {
         <tbody>
           {data.map((row, i) => (
             <tr key={i} className="border-t hover:bg-gray-50">
-              <td className="px-4 py-2">
-                <input type="checkbox" checked={checked[i]} onChange={() => toggleOne(i)} />
-              </td>
               <td className="px-4 py-2 flex items-center gap-2">
                 <span>{row.flag}</span>
                 <span>{row.name}</span>
