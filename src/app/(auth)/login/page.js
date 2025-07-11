@@ -40,7 +40,11 @@ const Login = () => {
         if (user) {
             setIsRedirecting(true)
             setTimeout(() => {
-                router.push('/notifier')
+                if (user.role == 1) {
+                    router.push('/admin_dashboard');
+                } else if (user.role == 2) {
+                    router.push('/notifier');
+                }
             }, 1000)
         }
     }, [user])
