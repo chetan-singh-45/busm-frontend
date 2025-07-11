@@ -239,16 +239,16 @@ const Dashboard = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-4">
-        {/* Notification Table */}
-        <div className="bg-white rounded-xl shadow p-4 overflow-x-auto">
-          <Notification fetchNotifications={getRecentNotifications} />
+       <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-3 p-4">
+        {/* Notification Section */}
+        <div>
+          <Notification title="Recent Notifications" fetchNotifications={getRecentNotifications} />
         </div>
 
-        {/* Watchlist Table */}
-        <div className="bg-white rounded-xl shadow p-4 overflow-x-auto">
-          <h2 className="text-lg font-semibold mb-4">Watchlist</h2>
+        {/* Watchlist Section */}
+        <div>
           <StockTable
+            title="My Watchlist"
             stocks={watchlist}
             watchlist={watchlist}
             isLoading={isLoading}

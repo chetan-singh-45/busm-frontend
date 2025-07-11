@@ -6,7 +6,7 @@ import HeadingSection from '@/components/HeadingSection'
 import { useWatchlist } from '@/hooks/watchlist'
 import FloatingFooter from '@/components/FloatingFooter'
 
-export default function WatchlistTable() {
+export default function Watchlist() {
   const { watchlist } = useWatchlist()
   const [search, setSearch] = useState('')
   const [watchlistData, setWatchlistData] = useState([])

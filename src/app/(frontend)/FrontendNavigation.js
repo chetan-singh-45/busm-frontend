@@ -1,8 +1,10 @@
 'use client'
-    
+
 import { useState } from 'react'
 import ApplicationLogo from '@/components/ApplicationLogo'
+import Dropdown from '@/components/Dropdown'
 import Link from 'next/link'
+import { DropdownButton } from '@/components/DropdownLink'
 import NavLink from '@/components/NavLink'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/auth'
@@ -11,9 +13,10 @@ import ResponsiveNavLink, {
 } from '@/components/ResponsiveNavLink'
 import WatchlistPopover from '@/components/WatchlistPopover'
 import { useWatchlist } from '@/hooks/watchlist'
+import { User, BellRing, LogOut } from 'lucide-react'
 
 const FrontendNavigation = () => {
-    const { user , logout} = useAuth()
+    const { user, logout } = useAuth()
     const pathname = usePathname()
     const { watchlist } = useWatchlist()
 
@@ -22,7 +25,7 @@ const FrontendNavigation = () => {
     return (
         <nav className="relative h-16 flex items-center">
             <div className="max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between relative">
-                
+
                 {/* Logo */}
                 <div className="flex items-center">
                     <Link href="/">
@@ -55,10 +58,10 @@ const FrontendNavigation = () => {
                         Alerts
                     </NavLink>
                     } */}
-                    {user && 
-                    <NavLink href="/watchlist" active={pathname === '/watchlist'}>
-                        Watchlist
-                    </NavLink>}
+                    {user &&
+                        <NavLink href="/watchlist" active={pathname === '/watchlist'}>
+                            Watchlist
+                        </NavLink>}
                     <NavLink href="/contact" active={pathname === '/contact'}>
                         Contact Us
                     </NavLink>
@@ -73,71 +76,71 @@ const FrontendNavigation = () => {
 
                         {showDropdown && (
                             <WatchlistPopover
-                            watchlist={watchlist}
-                            onClose={() => setShowDropdown(false)}
+                                watchlist={watchlist}
+                                onClose={() => setShowDropdown(false)}
                             />
                         )}
                     </div>}
                 </div>
 
                 {/*Login Button */}
-              <div className="flex items-center space-x-4">
-                {user ? (
-                    <div className="relative group">
-                        <button className="flex items-center space-x-2 focus:outline-none">
-                            <img
-                                src={user.avatar || '/profile.png'}
-                                alt="Avatar"
-                                className="w-8 h-8 rounded-full"
-                            />
-                            <span className="text-sm font-semibold text-[#0a0839]">
-                                {user.name || 'Profile'}
-                            </span>
-                            <svg
-                                className="w-4 h-4 text-gray-500"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                {user ?
+                    (
+                        <header className="h-16 bg-white border-b border-gray-200 px-6 flex justify-end items-center z-10">
+                            <Dropdown
+                                align="right"
+                                width="48"
+                                trigger={
+                                    <button className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                                        <img
+                                            src={user?.avatar || '/profile.png'}
+                                            alt="Avatar"
+                                            className="w-8 h-8 rounded-full"
+                                        />
+                                        <span>{user?.name || 'User'}</span>
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </button>
+                                }
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 9l-7 7-7-7"
-                                />
-                            </svg>
-                        </button>
+                                <Link
+                                    href="/profile"
+                                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                                >
+                                    <User className="w-4 h-4" />
+                                    My Profile
+                                </Link>
 
-                        <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                            <Link
-                                href="/profile"
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                                My Profile
-                            </Link>
-                            <Link
-                                href="/alerts"
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                                Alert Center
-                            </Link>
-                            <button
-                                onClick= {logout}
-                                className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                                Signout
+                                <Link
+                                    href="/alerts"
+                                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                                >
+                                    <BellRing className="w-4 h-4" />
+                                    Alert Center
+                                </Link>
+
+                                <DropdownButton onClick={logout}>
+                                    <div className="flex items-center gap-2 hover:text-green-500">
+                                        <LogOut className="w-4 h-4" />
+                                        Sign Out
+                                    </div>
+                                </DropdownButton>
+
+                            </Dropdown>
+                        </header>
+                    ) : (
+                        <Link href="/login">
+                            <button className="bg-green-500 text-white px-5 py-2 rounded-full font-medium text-sm hover:bg-green-600 transition-all duration-150">
+                                Login
                             </button>
-                        </div>
-                    </div>
-                ) : (
-                    <Link href="/login">
-                        <button className="bg-green-500 text-white px-5 py-2 rounded-full font-medium text-sm hover:bg-green-600 transition-all duration-150">
-                            Login
-                        </button>
-                    </Link>
-                )}
-            </div>
-
+                        </Link>
+                    )
+                }
             </div>
 
             {/* Responsive Navigation Menu */}

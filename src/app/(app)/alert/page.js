@@ -103,14 +103,15 @@ export default function Alert() {
 
   return (
     <>
-      <Header title="Active alerts" />
+      <Header title="Active alerts" subtitle="Configure technical analysis alerts for your favorite indices"/>
       <Toaster position="top-right" />
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-4 my-6 mx-4 md:mx-8 lg:mx-16">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Your Active Alerts</h2>
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-4 m-2">
+        <h2 className="text-2xl font-semibold text-gray-800 mx-2 mb-6">Your Active Alerts</h2>
+
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto text-sm text-center">
-            <thead className="bg-gray-100 text-gray-700 uppercase tracking-wide text-xs">
+            <thead className="text-gray-700 uppercase tracking-wide text-xs">
               <tr>
                 <th className="px-4 py-3">ID</th>
                 <th className="px-4 py-3">Index</th>
@@ -125,7 +126,7 @@ export default function Alert() {
             <tbody>
               {userIndicator.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-6 text-gray-500">
+                  <td colSpan={8} className="px-4 py-6 text-gray-500">
                     No data available
                   </td>
                 </tr>
@@ -135,12 +136,9 @@ export default function Alert() {
                   const badgeColor = isPositive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
 
                   return (
-                    <tr
-                      key={index}
-                      className="border-t hover:bg-gray-50 transition duration-150"
-                    >
+                    <tr key={index} className="border-t hover:bg-gray-50 transition duration-150">
                       <td className="px-4 py-3 font-medium text-gray-800">{index + 1}</td>
-                      <td className="px-4 py-3">{(pivot.stock_name)}</td>
+                      <td className="px-4 py-3">{pivot.stock_name}</td>
                       <td className="px-4 py-3">{parseFloat(pivot.last_price).toFixed(2)}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${badgeColor}`}>
@@ -151,16 +149,16 @@ export default function Alert() {
                       <td className="px-4 py-3 text-gray-700">{pivot.timeframe}</td>
                       <td className="px-4 py-3 text-gray-700">{pivot.expiry_at}</td>
                       <td className="px-6 py-4">
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap justify-center gap-2">
                           <button
                             onClick={() => handleEditClick(pivot)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm transition"
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm transition"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => ConfirmDelete(() => deleteUserAlert(pivot.id))}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm transition"
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm transition"
                           >
                             Delete
                           </button>
@@ -174,8 +172,6 @@ export default function Alert() {
           </table>
         </div>
       </div>
-
-
 
       {isEditOpen && (
         <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title={`Edit Alert`}>

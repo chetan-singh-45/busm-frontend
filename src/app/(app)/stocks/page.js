@@ -48,21 +48,16 @@ const Stock = () => {
 
   return (
     <>
-      <Header title="Indices" />
+      <Header title="All Indices" subtitle="Browse and manage all available market indices" />
       <Toaster position="top-right" />
 
-      <div className="py-12">
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
           <StockTable
+              title="All Indices"
               stocks={filteredStocks}
               watchlist={watchlist}
               isLoading={loadingStock}
               handleToggleWatchlist={handleToggleWatchlist}
             />
-
-        </div>
-      </div>
     </>
   );
 };
