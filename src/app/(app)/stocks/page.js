@@ -1,20 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/app/(app)/Header';
 import { useStocks } from '@/hooks/stocks';
 import { useWatchlist } from '@/hooks/watchlist';
 import toast, { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/hooks/auth';
 import StockTable from '@/components/StockTable';
+import TableSkeleton from '@/components/skeletons/TableSkeleton';
 
 const Stock = () => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingStock, setLoadingStock] = useState(null);
-
   const { stocks } = useStocks();
   const { watchlist, handleAddWatchlist, handleRemoveWatchlist } = useWatchlist({ withoutPricing: true });
+
+  const [showSkeleton, setShowSkeleton] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSkeleton(false), 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleToggleWatchlist = async (stock) => {
     if (!user) {
@@ -50,14 +57,16 @@ const Stock = () => {
     <>
       <Header title="All Indices" subtitle="Browse and manage all available market indices" />
       <Toaster position="top-right" />
-
-          <StockTable
-              title="All Indices"
-              stocks={filteredStocks}
-              watchlist={watchlist}
-              isLoading={loadingStock}
-              handleToggleWatchlist={handleToggleWatchlist}
-            />
+      {
+        showSkeleton ? (<TableSkeleton />) :
+          (<StockTable
+            title="All Indices"
+            stocks={filteredStocks}
+            watchlist={watchlist}
+            isLoading={loadingStock}
+            handleToggleWatchlist={handleToggleWatchlist}
+          />)
+      }
     </>
   );
 };

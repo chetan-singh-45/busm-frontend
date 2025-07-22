@@ -17,10 +17,17 @@ import VideoSection from "@/components/VideoSection";
 import LoginRegisterModal from '@/components/LoginRegisterModal';
 
 import { useAuth } from "@/hooks/auth";
+import HomeCurvedSectionSkeleton from '@/components/skeletons/HomeCurvedSectionSkeleton';
 
 const Home = () => {
   const user = useAuth();
   const [showLoginRegisterModal, setShowLoginRegisterModal] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSkeleton(false), 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,10 +46,12 @@ const Home = () => {
 
       <div className="bg-gray-50 text-gray-900 min-h-screen py-1">
         <div className="w-full">
-          <HomeCurvedSection
+          {showSkeleton ? (<HomeCurvedSectionSkeleton />) :
+          (<HomeCurvedSection
             title="Get Notified on Technical Analysis Events on European Stock Indices"
             subtitle="Instantly rank every technical trade idea based on your optimal options strategy."
-          />
+            />
+          )}
           <TrustedCompanies />
           <DashboardSection />
           <FeatureSection />

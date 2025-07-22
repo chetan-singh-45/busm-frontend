@@ -168,7 +168,7 @@ const Notification = ({ title,fetchNotifications }) => {
                           {notification.stock?.country?.name}
                         </td> */}
                         <td className="px-4 py-3 text-center">
-                          {notification.stock?.country?.emoji}{notification.stock?.name}
+                          {notification.stock?.country?.emoji} {notification.stock?.name}
                         </td>
                         <td className="px-4 py-3 text-center">
                           {notification.indicator_name}
@@ -203,7 +203,7 @@ const Notification = ({ title,fetchNotifications }) => {
                           <div className="flex items-center justify-center">
                             <Link
                               href={`/overview/${notification.stock_symbol}`}
-                              className="inline-flex items-center gap-3 bg-green-400 px- py-1 text-xs text-white rounded-md hover:bg-green-500 transition"
+                              className="inline-flex items-center gap-3 bg-green-400 px-1 py-1 text-xs text-white rounded-md hover:bg-green-500 transition"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"

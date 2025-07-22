@@ -1,6 +1,7 @@
 const ChaseLoader = ({ message = "Loading..." }) => {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white">
+      {/* Spinner container with spin animation */}
       <div className="relative w-10 h-10" style={{ animation: 'spin 2s linear infinite' }}>
         {[...Array(6)].map((_, i) => (
           <div
@@ -13,13 +14,15 @@ const ChaseLoader = ({ message = "Loading..." }) => {
             <div
               className="w-[25%] h-[25%] rounded-full bg-[#22c55e] mx-auto"
               style={{
-                animation: `sk-chase-dot-before 2s infinite ease-in-out both`,
+                animation: `chase-dot 2s infinite ease-in-out both`,
                 animationDelay: `-${1.1 - i * 0.1}s`,
               }}
             />
           </div>
         ))}
       </div>
+
+      {/* Loading text */}
       <p className="mt-4 text-sm text-[#22c55e]">{message}</p>
     </div>
   );

@@ -29,6 +29,7 @@ const features = [
 ];
 
 export default function HowItWorks() {
+
   return (
     <section className="bg-white py-8 px-4 md:px-12">
       <h2 className="text-3xl md:text-4lg text-center text-gray-900 mb-16">
