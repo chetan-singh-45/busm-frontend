@@ -54,7 +54,7 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
       try {
         const res = await notificationStats()
-        // const active_users = await getActiveUsers()
+        const active_users = await getActiveUsers()
         const weekly_users = await getWeeklyUsers()
         setdauWauData(weekly_users?.data)
 
@@ -97,16 +97,6 @@ const AdminDashboard = () => {
       setLoadingStock(null)
     }
   }
-
-  // const dauWauData = [
-  //   { date: "Jul 1", dau: 120, wau: 300 },
-  //   { date: "Jul 2", dau: 150, wau: 310 },
-  //   { date: "Jul 3", dau: 170, wau: 320 },
-  //   { date: "Jul 4", dau: 140, wau: 305 },
-  //   { date: "Jul 5", dau: 180, wau: 330 },
-  //   { date: "Jul 6", dau: 160, wau: 325 },
-  //   { date: "Jul 7", dau: 190, wau: 335 },
-  // ]
 
   const kpiData = [
     { icon: <Bell className="w-6 h-6 text-green-500" />, title: "Total Notifications Sent", value: total_notifications },
@@ -166,7 +156,7 @@ const AdminDashboard = () => {
                 cursor={{ fill: '#f3f4f6' }}
                 contentStyle={{ fontSize: '14px', borderRadius: '8px' }}
               />
-              <Bar dataKey="event_logs_count" fill="#10B981" radius={[0, 8, 8, 0]} />
+              <Bar dataKey="event_logs_count"  name="Total Events" fill="#10B981" radius={[0, 8, 8, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -5,7 +5,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import Link from 'next/link'
 
 import Header from '@/app/(app)/Header'
-import Loading from '@/app/(app)/Loading'
+import Loading from '@/app/(app)/loading'
 import { useAllExchanges, useSelectExchange } from '@/hooks/exchanges'
 import { useAuth } from '@/hooks/auth'
 

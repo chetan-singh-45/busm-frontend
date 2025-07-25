@@ -46,7 +46,7 @@ const FrontendNavigation = () => {
                     </div>
 
                     {/* Middle: Desktop Nav */}
-                    <div className="hidden md:flex space-x-6">
+                    <div className="hidden md:flex space-x-6 ">
                         {navItems.map(item => (
                             <NavLink key={item.href} href={item.href} active={pathname === item.href}>
                                 {item.label}
@@ -54,7 +54,7 @@ const FrontendNavigation = () => {
                         ))}
 
                         {user && (
-                            <div className="relative">
+                            <div className="relative z-50">
                                 <button
                                     onClick={() => setShowDropdown(prev => !prev)}
                                     className="text-sm px-4 py-2 rounded hover:bg-gray-100 transition"
@@ -73,36 +73,48 @@ const FrontendNavigation = () => {
                     </div>
 
                     {/* Right: Auth or Login */}
-                    <div className="hidden md:flex items-center space-x-4">
+                    <div className="hidden md:flex items-center space-x-4 relative z-50">
                         {user ? (
-                            <Dropdown
-                                align="right"
-                                width="48"
-                                trigger={
-                                    <button className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-                                        <img
-                                            src={user?.avatar || '/profile.png'}
-                                            alt="Avatar"
-                                            className="w-8 h-8 rounded-full"
-                                        />
-                                        <span>{user?.name || 'User'}</span>
-                                    </button>
-                                }
+                        <Dropdown
+                            align="right"
+                            width="48"
+                            trigger={
+                                <button className="flex items-center gap-2 text-sm text-gray-700">
+                                    <img
+                                        src={user?.avatar || '/profile.png'}
+                                        alt="avatar"
+                                        className="w-8 h-8 rounded-full"
+                                    />
+                                </button>
+                            }
+                        >
+                            <div className="px-4 py-2 border-b">
+                                <p className="font-semibold text-sm">{user?.name}</p>
+                                <p className="text-xs text-gray-500">{user?.email}</p>
+                            </div>
+                            <Link
+                                href="/profile"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
                             >
-                                <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500">
+                                <div className="flex items-center gap-2">
                                     <User className="w-4 h-4" /> My Profile
-                                </Link>
-
-                                <Link href="/alerts" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500">
+                                </div>
+                            </Link>
+                            <Link
+                                href="/alerts"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                            >
+                                <div className="flex items-center gap-2">
                                     <BellRing className="w-4 h-4" /> Alert Center
-                                </Link>
-
-                                <DropdownButton onClick={logout}>
-                                    <div className="flex items-center gap-2 hover:text-green-500">
-                                        <LogOut className="w-4 h-4" /> Sign Out
-                                    </div>
-                                </DropdownButton>
-                            </Dropdown>
+                                </div>
+                            </Link>
+                            <DropdownButton onClick={logout}>
+                                <div className="flex items-center gap-2 text-sm text-red-600 hover:text-green-500">
+                                    <LogOut className="w-4 h-4 hover:text-green-500" />
+                                    Sign Out
+                                </div>
+                            </DropdownButton>
+                        </Dropdown>
                         ) : (
                             <Link href="/login">
                                 <button className="bg-green-500 text-white px-5 py-2 rounded-full font-medium text-sm hover:bg-green-600 transition-all duration-150">

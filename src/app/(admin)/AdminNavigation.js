@@ -219,7 +219,7 @@ const AdminNavigation = ({ user, children }) => {
                                 </div>
                             </Link>
                             <DropdownButton onClick={logout}>
-                                <div className="flex items-center gap-2 text-sm hover:text-green-500">
+                                <div className="flex items-center gap-2 text-sm text-red-600 hover:text-green-500">
                                     <LogOut className="w-4 h-4 hover:text-green-500" />
                                     Sign Out
                                 </div>

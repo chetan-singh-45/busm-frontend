@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import Loading from '@/app/(app)/Loading'; 
+import Loading from '@/app/(app)/loading'; 
 
 export default function LoginRegisterModal({ isOpen, onClose }) {
   const router = useRouter();

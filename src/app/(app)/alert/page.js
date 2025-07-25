@@ -77,22 +77,25 @@ export default function Alert() {
 
   const updateUserAlert = async () => {
     if (!editData) return;
-    const updated = {
-      id: editData.id,
-      prediction,
-      timeframe,
-      expiry_weeks: parseInt(expiryWeeks, 10),
-    };
 
-    try {
-      await handleUpdateUserAlert(updated, updated.id);
-      await fetchUserIndicators();
-      toast.success("Alert updated successfully");
-      setIsEditOpen(false);
-    } catch (err) {
-      toast.error("Failed to update alert");
-    }
-  };
+      const updated = {
+        id: editData.id,
+        prediction,
+        timeframe,
+        expiry_weeks: parseInt(expiryWeeks, 10),
+      };
+
+      const toastId = toast.loading('Updating alert...');
+
+      try {
+        await handleUpdateUserAlert(updated, updated.id);
+        await fetchUserIndicators();
+        toast.success('Alert updated successfully', { id: toastId });
+        setIsEditOpen(false);
+      } catch (err) {
+        toast.error('Failed to update alert', { id: toastId });
+      } 
+    };
 
   return (
     <>
@@ -152,7 +155,7 @@ export default function Alert() {
                               Edit
                             </button>
                             <button
-                              onClick={() => ConfirmDelete(() => deleteUserAlert(pivot.id))}
+                              onClick={() => ConfirmDelete(() => deleteUserAlert(pivot.id).then(fetchUserIndicators))}
                               className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm"
                             >
                               Delete
@@ -169,7 +172,6 @@ export default function Alert() {
         </div>
       )}
 
-      {/* Edit Modal */}
       {isEditOpen && (
         <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Edit Alert">
           <div className="space-y-4 text-sm">
