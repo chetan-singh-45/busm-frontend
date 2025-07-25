@@ -45,7 +45,7 @@ const AdminDashboard = () => {
   const most_used_indicator = userStats?.most_active_indicator?.indicator_name || 'none'
   const topCountry = stats?.topCountry.country_name;
   const activeTimeSlot = stats?.topHour?.time_range || 'No'
-  const topUsers = stats?.topUsers
+  const topUsers = stats?.topUsers || []
 
   //User Growth & Retention
   const formattedAvg = stats?.formattedAvg

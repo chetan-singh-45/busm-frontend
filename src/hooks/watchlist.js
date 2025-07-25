@@ -50,6 +50,7 @@ export const useWatchlist = (filters = {}) => {
 
   return {
     watchlist: data?.data,
+    mutate,
     isLoading: isLoading || (!error && !data),
     isError: error,
     handleAddWatchlist,

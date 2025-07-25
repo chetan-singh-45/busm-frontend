@@ -16,18 +16,22 @@ export default function IndexesTable({
   onCheckboxClick,
 }) {
   const { user } = useAuth()
-  const { handleAddWatchlist } = useWatchlist()
+  const {watchlist, handleAddWatchlist } = useWatchlist()
   const [search, setSearch] = useState('')
   const [localData, setLocalData] = useState([])
   const [selectedIndex, setSelectedIndex] = useState(null)
   const [showLoginModal, setShowLoginModal] = useState(false) 
   const [userAlerts, setUserAlerts] = useState([])
 
-   useEffect(() => {
-    if (user) {
+  useEffect(() => {
+    if (user && watchlist?.length >= 0) {
       const savedItems = JSON.parse(localStorage.getItem('pendingWatchlist') || '[]')
-      if (savedItems.length > 0) {
-        Promise.all(savedItems.map(item => handleAddWatchlist({stock_id: item.id})))
+      const filtered = savedItems.filter(item =>
+        !watchlist.some(w => w.stock_id === item.id)
+      )
+
+      if (filtered.length > 0) {
+        Promise.all(filtered.map(item => handleAddWatchlist({ stock_id: item.id })))
           .then(() => {
             toast.success('Index added to your watchlist.')
             localStorage.removeItem('pendingWatchlist')
@@ -37,7 +41,8 @@ export default function IndexesTable({
           })
       }
     }
-  }, [user])
+  }, [user, watchlist])
+
 
   useEffect(() => {
     if (user?.id) {

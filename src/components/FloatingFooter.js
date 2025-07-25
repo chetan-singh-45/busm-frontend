@@ -9,7 +9,7 @@ import { useAllIndicator } from '@/hooks/indicators'
 export default function FloatingFooter({ selectedItems, selectedCount, onClear, setShowLoginModal, refreshUserAlerts }) {
  
   const { user } = useAuth()
-  const { watchlist, handleAddWatchlist, handleRemoveWatchlist } = useWatchlist()
+  const { watchlist,mutate, handleAddWatchlist, handleRemoveWatchlist } = useWatchlist()
   const symbol = selectedItems?.[0]?.stock?.symbol          
   const { indicators, smaFetcher, createIndicatorStock } = useAllIndicator(symbol)
   // const { indicators, smaFetcher, createIndicatorStock } = useAllIndicator(selectedItems?.[0]?.stock?.symbol)
@@ -95,7 +95,6 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
         !watchlist.some(w => w.stock_id === item.id)
       )
 
-      // Case: all selected items are in watchlist → remove them
       if (itemsToRemove.length === selectedItems.length) {
         await Promise.all(
           itemsToRemove.map(item => {
@@ -104,14 +103,13 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
           })
         )
         toast.success('Removed from your watchlist!')
-      }
-      // Case: only some items are not in the watchlist → add only those
-      else if (itemsToAdd.length > 0) {
+      } else if (itemsToAdd.length > 0) {
         await Promise.all(
           itemsToAdd.map(item => handleAddWatchlist({ stock_id: item.id }))
         )
         toast.success('Added to your watchlist!')
       }
+      await mutate()
     } catch (err) {
       toast.error('Failed to update watchlist.')
     }

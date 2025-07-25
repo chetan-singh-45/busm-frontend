@@ -81,7 +81,7 @@ export default function Watchlist() {
         </div>
 
         {/* Responsive Table */}
-        <div className="overflow-x-auto">
+        <div className="w-full overflow-x-auto sm:overflow-visible min-h-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-gray-600 border-b">
               <tr>
