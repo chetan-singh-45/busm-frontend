@@ -5,11 +5,35 @@ import { Search as SearchIcon } from 'lucide-react'
 import HeadingSection from '@/components/HeadingSection'
 import { useWatchlist } from '@/hooks/watchlist'
 import FloatingFooter from '@/components/FloatingFooter'
+import { useAuth } from '@/hooks/auth'
+import { Toaster, toast } from 'react-hot-toast'
 
 export default function Watchlist() {
-  const { watchlist } = useWatchlist()
+  
+  const { user } = useAuth()
+  const {watchlist, handleAddWatchlist } = useWatchlist()
   const [search, setSearch] = useState('')
   const [watchlistData, setWatchlistData] = useState([])
+
+  useEffect(() => {
+      if (user && watchlist?.length >= 0) {
+        const savedItems = JSON.parse(localStorage.getItem('pendingWatchlist') || '[]')
+        const filtered = savedItems.filter(item =>
+          !watchlist.some(w => w.stock_id === item.id)
+        )
+
+        if (filtered.length > 0) {
+          localStorage.removeItem('pendingWatchlist')
+          Promise.all(filtered.map(item => handleAddWatchlist({ stock_id: item.id })))
+            .then(() => {
+              toast.success('Index added to your watchlist.')
+            })
+            .catch(() => {
+              toast.error('Failed to sync some watchlist items.')
+            })
+        }
+      }
+    }, [user, watchlist])
 
   useEffect(() => {
     if (watchlist && Array.isArray(watchlist)) {
@@ -62,6 +86,7 @@ export default function Watchlist() {
   return (
     <>
       <HeadingSection title="Your Watchlist" />
+        <Toaster position="top-right" />
 
       <div className="p-4 sm:p-6 bg-white rounded-xl shadow">
         <h2 className="text-lg font-semibold mb-4">Watchlist</h2>

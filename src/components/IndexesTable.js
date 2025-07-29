@@ -31,10 +31,10 @@ export default function IndexesTable({
       )
 
       if (filtered.length > 0) {
+        localStorage.removeItem('pendingWatchlist')
         Promise.all(filtered.map(item => handleAddWatchlist({ stock_id: item.id })))
           .then(() => {
             toast.success('Index added to your watchlist.')
-            localStorage.removeItem('pendingWatchlist')
           })
           .catch(() => {
             toast.error('Failed to sync some watchlist items.')

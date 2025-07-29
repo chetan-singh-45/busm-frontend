@@ -51,6 +51,26 @@ const AdminDashboard = () => {
   const formattedAvg = stats?.formattedAvg
 
   useEffect(() => {
+      if (user && watchlist?.length >= 0) {
+        const savedItems = JSON.parse(localStorage.getItem('pendingWatchlist') || '[]')
+        const filtered = savedItems.filter(item =>
+          !watchlist.some(w => w.stock_id === item.id)
+        )
+
+        if (filtered.length > 0) {
+          localStorage.removeItem('pendingWatchlist')
+          Promise.all(filtered.map(item => handleAddWatchlist({ stock_id: item.id })))
+            .then(() => {
+              toast.success('Index added to your watchlist.')
+            })
+            .catch(() => {
+              toast.error('Failed to sync some watchlist items.')
+            })
+        }
+      }
+    }, [user, watchlist])
+
+  useEffect(() => {
     const fetchStats = async () => {
       try {
         const res = await notificationStats()
