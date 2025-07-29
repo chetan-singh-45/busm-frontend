@@ -11,6 +11,7 @@ import StockTable from '@/components/StockTable'
 import Notification from '@/components/Notification'
 import { getRecentNotifications, notificationStats } from '@/services/stats';
 import { useRouter } from 'next/navigation'
+import InsightCard from '@/components/InsightCard'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -72,7 +73,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <Header title="Dashboard" />
       {/* Last visit banner */}
       {showBanner && stats?.new_notifications?.length > 0 && (
       <div className="fixed top-6 right-6 z-50 bg-blue-50 border border-blue-300 text-blue-800 px-12 py-2 rounded-lg shadow-md flex items-center space-x-3 max-w-sm w-full">            
@@ -102,7 +102,7 @@ const Dashboard = () => {
 
       <Toaster position="top-right" />
       {/* Admin Stats */}
-      {user?.role == 1 && (
+      {/* {user?.role == 1 && (
         <div className="bg-gray-50 py-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {loadingStats ? (
@@ -129,7 +129,7 @@ const Dashboard = () => {
                 </div>
                 <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
                   <div className="bg-blue-100 p-3 rounded-full">
-                    <Bell className="w-6 h-6 text-blue-600" />
+                  <Bell className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
                     <h3 className="text-sm text-gray-500">Total Alerts</h3>
@@ -149,11 +149,11 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-      )}
+      )} */}
       {user && (
-        <div className="bg-gray-100 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6">Your Trading Insights</h2>
+            <Header title="Dashboard Overview" />
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6">Trading Insights</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {loadingStats ? (
                 // Skeleton loading state
@@ -168,97 +168,94 @@ const Dashboard = () => {
                   </div>
                 ))
               ) : (
-                <>
-                  {/* Total Alerts */}
-                  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-500">Total Alerts</span>
-                      <Bell className="w-5 h-5 text-blue-500" />
-                    </div>
-                    <p className="text-2xl font-bold text-gray-800 mt-3">
-                      {userStats?.last_7_days_alert_count || 0}
-                    </p>
-                    <span className="text-xs text-gray-400 mt-1">Last 7 days</span>
-                  </div>
+               <>
+              {/* Total Alerts */}
+              <InsightCard
+                title="Total Alerts"
+                icon={<Bell className="text-green-500 w-5 h-5" />}
+                value={userStats?.last_7_days_alert_count || 0}
+                subtitle="Last 7 days"
+              />
 
-                  {/* Most Active Indicator */}
-                  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+              {/* Most Active Tool */}
+              <InsightCard
+                title="Most Active Tool"
+                icon={<TrendingUp className="text-green-500 w-5 h-5" />}
+                content={
+                  <div className="mt-3 space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-500">Most Active Tool</span>
-                      <TrendingUp className="w-5 h-5 text-green-500" />
-                    </div>
-                    <div className="mt-3 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-gray-800">{userStats?.most_active_indicator?.indicator_name || 'None'}</span>
-                        <span className="text-sm font-medium text-gray-800"> {userStats?.most_active_indicator?.usage_count || 0} alerts</span>
-                      </div>
+                      <span className="text-sm font-medium text-gray-800">
+                        {userStats?.most_active_indicator?.indicator_name || 'None'}
+                      </span>
+                      <span className="text-sm font-medium text-gray-800">
+                        {userStats?.most_active_indicator?.usage_count || 0} alerts
+                      </span>
                     </div>
                   </div>
-                  {/* Top Triggered Stocks */}
-                  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-500">Top Triggered Index</span>
-                      <TrendingUp className="w-5 h-5 text-purple-500" />
-                    </div>
-                    <div className="mt-3 space-y-2">
-                      {userStats?.top_stocks?.length ? (
-                        userStats.top_stocks.map((stock, index) => (
-                          <div key={index} className="flex justify-between items-center">
-                            <span className="text-sm text-gray-700">{stock.name}</span>
-                            <span className="text-sm font-medium text-gray-800">{stock.count} alerts</span>
-                          </div>
-                        ))
-                      ) : (
-                        <span className="text-sm text-gray-500">No Index triggered</span>
-                      )}
-                    </div>
-                  </div>
+                }
+              />
 
-                  {/* Direction Summary */}
-                    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-500">Direction Summary:</span>
-                      <TrendingUp className="w-5 h-5 text-purple-500" />
-                    </div>
-                    <div className="mt-3 space-y-2">
-                      {userStats?.direction?.length ? (
-                        userStats.direction.map((stock, index) => (
-                          <div key={index} className="flex justify-between items-center">
-                            <span className="text-sm text-gray-700">{stock.prediction}</span>
-                            <span className="text-sm font-medium text-gray-800">{stock.count} alerts</span>
-                          </div>
-                        ))
-                      ) : (
-                        <span className="text-sm text-gray-500">No Index triggered</span>
-                      )}
-                    </div>
+              {/* Top Triggered Stocks */}
+              <InsightCard
+                title="Top Triggered Index"
+                icon={<TrendingUp className="text-green-500 w-5 h-5" />}
+                content={
+                  <div className="mt-3 space-y-2">
+                    {userStats?.top_stocks?.length ? (
+                      userStats.top_stocks.map((stock, index) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-sm text-gray-700">{stock.name}</span>
+                          <span className="text-sm font-medium text-gray-800">{stock.count} alerts</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-sm text-gray-500">No Index triggered</span>
+                    )}
                   </div>
-                </>
+                }
+              />
+
+              {/* Direction Summary */}
+              <InsightCard
+                title="Direction Summary"
+                icon={<TrendingUp className="text-green-500 w-5 h-5" />}
+                content={
+                  <div className="mt-3 space-y-2">
+                    {userStats?.direction?.length ? (
+                      userStats.direction.map((item, index) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-sm text-gray-700">{item.prediction}</span>
+                          <span className="text-sm font-medium text-gray-800">{item.count} alerts</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-sm text-gray-500">No direction data</span>
+                    )}
+                  </div>
+                }
+              />
+            </>
+
               )}
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              <Notification
+                title="Recent Notifications"
+                fetchNotifications={getRecentNotifications}
+              />
+              <StockTable
+                title="My Watchlist"
+                stocks={watchlist}
+                watchlist={watchlist}
+                isLoading={isLoading}
+                isError={isError}
+                handleToggleWatchlist={handleToggleWatchlist}
+                loadingStock={loadingStock}
+              />
+            </div>
           </div>
-        </div>
       )}
 
-       <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-3 p-4">
-        {/* Notification Section */}
-        <div>
-          <Notification title="Recent Notifications" fetchNotifications={getRecentNotifications} />
-        </div>
-
-        {/* Watchlist Section */}
-        <div>
-          <StockTable
-            title="My Watchlist"
-            stocks={watchlist}
-            watchlist={watchlist}
-            isLoading={isLoading}
-            isError={isError}
-            handleToggleWatchlist={handleToggleWatchlist}
-            loadingStock={loadingStock}
-          />
-        </div>
-      </div>
     </>
   )
 }

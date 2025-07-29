@@ -27,6 +27,7 @@ const Login = () => {
     const [errors, setErrors] = useState([])
     const [status, setStatus] = useState(null)
     const [isRedirecting, setIsRedirecting] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => {
         if (router.reset?.length > 0 && errors.length === 0) {
@@ -38,12 +39,22 @@ const Login = () => {
 
     useEffect(() => {
         if (user) {
+            setIsSubmitting(false)
             setIsRedirecting(true)
+
+            const pendingWatchlist = localStorage.getItem('pendingWatchlist')
+            const hasPending = pendingWatchlist && JSON.parse(pendingWatchlist)?.length > 0
+
             setTimeout(() => {
+
+                // Normal role-based redirection
                 if (user.role == 1) {
-                    router.push('/admin_dashboard');
-                } else if (user.role == 2) {
-                    router.push('/notifier');
+                    router.push('/admin_dashboard')
+                } else if (user.role == 2 && hasPending) {
+                    router.push('/watchlist')
+                } else {
+                    router.push('/notifier')
+
                 }
             }, 1000)
         }
@@ -51,16 +62,17 @@ const Login = () => {
 
     const submitForm = async event => {
         event.preventDefault()
+        setIsSubmitting(true)
 
-        login({
+        await login({
             email,
             password,
             remember: shouldRemember,
             setErrors,
             setStatus,
         })
-    }
 
+    }
     if (isRedirecting) return <ChaseLoader message="Loading..." />;
 
     return (
@@ -123,9 +135,14 @@ const Login = () => {
                         <label htmlFor="remember_me">Remember me</label>
                     </div>
 
-                    <Button className="w-full flex justify-center items-center bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 rounded-full">
-                        Login
+                    <Button
+                        loading={isSubmitting}
+                        className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-full text-sm"
+                    >
+                        {isSubmitting ? 'Logging in' : 'Login'}
                     </Button>
+
+
                 </form>
 
                 <div className="text-center mt-5 text-sm space-y-1">

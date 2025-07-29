@@ -15,12 +15,9 @@ const AppLayout = ({ children }) => {
     return (
         <div className="min-h-screen bg-gray-100">
             {user?.role == 1 ? (
-                <AdminNavigation user={user}>{children}</AdminNavigation>
+               <AdminNavigation user={user}>{children}</AdminNavigation>
             ) : (
-                <>
-                    <Navigation user={user} />
-                    <main>{children}</main>
-                </>
+               <Navigation user={user}>{children}</Navigation>
             )}
         </div>
     )

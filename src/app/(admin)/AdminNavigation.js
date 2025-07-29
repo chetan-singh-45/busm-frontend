@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/auth'
 import { usePathname } from 'next/navigation'
 import {
     Home, List, LineChart, Bell, Heart, Users, User,
-    BellRing, LogOut, Menu, X
+    BellRing, LogOut, Menu, X, ShieldCheck
 } from 'lucide-react'
 import { getRecentNotifications } from '@/services/stats'
 import { useDashboard } from '@/hooks/dashboard'
@@ -21,24 +21,12 @@ const AdminNavigation = ({ user, children }) => {
     const [showNotifications, setShowNotifications] = useState(false)
     const [notification, setNotification] = useState([]);
     const { stats } = useDashboard()
-    
+
     const fetchUserNotification = async () => {
         try {
             const notify = await getRecentNotifications();
-            if (notify) {
-                const notifications = notify?.data?.data || [];
-                setNotification(notifications);
-                // const uniqueCountries = [
-                //     ...new Set(
-                //         notifications
-                //             .map((n) => n.stock?.country?.name)
-                //             .filter(Boolean)
-                //     ),
-                // ];
-                // setCountries(uniqueCountries);
-            } else {
-                setNotification([]);
-            }
+            const notifications = notify?.data?.data || [];
+            setNotification(notifications);
         } catch (err) {
             console.error('Failed to load notification data:', err);
         }
@@ -57,7 +45,7 @@ const AdminNavigation = ({ user, children }) => {
         }`
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+        <div className="flex h-screen bg-gray-50 overflow-hidden">
             {/* Sidebar Overlay */}
             <div
                 className={`fixed inset-0 z-40 bg-black bg-opacity-30 md:hidden transition-opacity duration-300 ${sidebarOpen ? 'block' : 'hidden'
@@ -68,10 +56,9 @@ const AdminNavigation = ({ user, children }) => {
             {/* Sidebar */}
             <aside
                 className={`fixed md:relative z-50 transform top-0 left-0 transition-transform duration-300 bg-[#0E123A] text-white flex flex-col justify-between
-                  w-4/5 max-w-xs md:w-64 h-screen md:h-auto md:min-h-screen
+                  w-4/5 max-w-xs md:w-64 h-screen md:min-h-screen
                 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
             >
-
                 <div>
                     <div className="h-20 flex items-center justify-center border-b border-gray-700">
                         <Link href="/">
@@ -105,7 +92,7 @@ const AdminNavigation = ({ user, children }) => {
                                 <Heart className="w-4 h-4" /> Watchlist
                             </div>
                         </Link>
-                        {user?.role === 1 && (
+                        {user?.role == 1 && (
                             <Link href="/users" className={linkClass('/users')}>
                                 <div className="flex items-center gap-2">
                                     <Users className="w-4 h-4" /> Users
@@ -126,10 +113,9 @@ const AdminNavigation = ({ user, children }) => {
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col min-h-screen">
+            <div className="flex-1 flex flex-col ml-0 h-screen">
                 {/* Topbar */}
                 <header className="h-16 bg-white border-b px-4 flex items-center justify-between sticky top-0 z-30">
-                    {/* Sidebar Toggle */}
                     <button
                         className="md:hidden p-2 rounded hover:bg-gray-100"
                         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -138,28 +124,26 @@ const AdminNavigation = ({ user, children }) => {
                     </button>
 
                     <div className="flex items-center gap-4 ml-auto">
-                        {/* Notifications */}
                         <div className="relative">
                             <button
                                 onClick={() => setShowNotifications((prev) => !prev)}
                                 className="relative p-2 rounded-full hover:bg-gray-100"
                             >
                                 <BellRing className="w-5 h-5 text-gray-700" />
-                             {stats?.new_notifications?.length > 0 && (
-                                <span className="absolute -top-1 right-1 bg-red-500 text-white text-xs font-bold px-1 rounded-full">
-                                    {stats.new_notifications.length}
-                                </span>
+                                {stats?.new_notifications?.length > 0 && (
+                                    <span className="absolute -top-1 right-1 bg-red-500 text-white text-xs font-bold px-1 rounded-full">
+                                        {stats.new_notifications.length}
+                                    </span>
                                 )}
-
                             </button>
+
                             {showNotifications && stats?.new_notifications && (
                                 <div className="absolute right-0 mt-2 w-60 max-w-xs sm:max-w-sm bg-white shadow-lg rounded-md z-50 border">
                                     <div className="p-4 border-b font-semibold text-sm sm:text-base">
                                         Recent Notifications
                                     </div>
-
                                     <ul className="divide-y text-sm max-h-60 overflow-y-auto">
-                                        {stats?.new_notifications?.map((notif) => (
+                                        {stats?.new_notifications.map((notif) => (
                                             <li key={notif.id} className="px-4 py-2 flex items-center gap-2">
                                                 <span className="w-2 h-2 bg-blue-500 rounded-full inline-block" />
                                                 <span>
@@ -168,8 +152,6 @@ const AdminNavigation = ({ user, children }) => {
                                             </li>
                                         ))}
                                     </ul>
-
-
                                     <div className="p-3 border-t text-center">
                                         <Link
                                             href="/notifications"
@@ -180,11 +162,8 @@ const AdminNavigation = ({ user, children }) => {
                                     </div>
                                 </div>
                             )}
-
-
                         </div>
 
-                        {/* User Dropdown */}
                         <Dropdown
                             align="right"
                             width="48"
@@ -202,26 +181,34 @@ const AdminNavigation = ({ user, children }) => {
                                 <p className="font-semibold text-sm">{user?.name}</p>
                                 <p className="text-xs text-gray-500">{user?.email}</p>
                             </div>
-                            <Link
-                                href="/profile"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
-                            >
+                            <Link href="/profile"
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500">
                                 <div className="flex items-center gap-2">
                                     <User className="w-4 h-4" /> My Profile
                                 </div>
                             </Link>
+                            <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500">
+                                <div className="flex items-center gap-2">
+                                    <Home className="w-4 h-4" /> Home
+                                </div>
+                            </Link>
                             <Link
-                                href="/alerts"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
-                            >
+                                href={user?.role == 1 ? "/admin_dashboard" : "/dashboard"}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                                >
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck className="w-4 h-4" /> Dashboard  
+                             </div>
+                            </Link>
+                            <Link href="/alert"
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500">
                                 <div className="flex items-center gap-2">
                                     <BellRing className="w-4 h-4" /> Alert Center
                                 </div>
                             </Link>
                             <DropdownButton onClick={logout}>
                                 <div className="flex items-center gap-2 text-sm text-red-600 hover:text-green-500">
-                                    <LogOut className="w-4 h-4 hover:text-green-500" />
-                                    Sign Out
+                                    <LogOut className="w-4 h-4" /> Sign Out
                                 </div>
                             </DropdownButton>
                         </Dropdown>
@@ -229,7 +216,9 @@ const AdminNavigation = ({ user, children }) => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 p-4 sm:p-6">{children}</main>
+                <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
+                    {children}
+                </main>
             </div>
         </div>
     )

@@ -24,6 +24,8 @@ const Page = () => {
     const [passwordConfirmation, setPasswordConfirmation] = useState('')
     const [errors, setErrors] = useState([])
     const [isRedirecting, setIsRedirecting] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
 
     useEffect(() => {
         if (user) {
@@ -36,17 +38,21 @@ const Page = () => {
 
     const submitForm = event => {
         event.preventDefault()
+        setIsSubmitting(true)
 
         register({
             name,
             email,
             password,
             password_confirmation: passwordConfirmation,
-            setErrors,
+            setErrors: errors => {
+                setErrors(errors)
+                setIsSubmitting(false)
+            },
         })
     }
 
-     if (isRedirecting) return <ChaseLoader message="Creating your account..." />
+    if (isRedirecting) return <ChaseLoader message="Creating your account..." />
 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur flex items-center justify-center px-4">
@@ -117,12 +123,13 @@ const Page = () => {
                     </div>
 
                     {/* Submit */}
-                    <button
+                    <Button
                         type="submit"
+                        loading={isSubmitting}
                         className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-full text-sm"
                     >
-                        Sign Up
-                    </button>
+                        {isSubmitting ? 'Signing up' : 'Sign Up'}
+                    </Button>
                 </form>
 
                 {/* Footer Links */}

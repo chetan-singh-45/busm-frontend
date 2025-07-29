@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Toaster } from 'react-hot-toast'
 import { Star, TrendingUp, TrendingDown, Search } from 'lucide-react'
 import Dropdown from '@/components/Dropdown'
+import { useRouter } from 'next/navigation'
 
 export default function StockTable({
   title,
@@ -16,6 +17,17 @@ export default function StockTable({
 }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCountry, setSelectedCountry] = useState('all')
+  const router = useRouter()
+  const [loadingOverviewSymbol, setLoadingOverviewSymbol] = useState(null)
+
+  const handleOverviewClick = (symbol) => {
+    setLoadingOverviewSymbol(symbol)
+
+    setTimeout(() => {
+      router.push(`/overview/${symbol}`)
+    }, 500)
+  }
+
 
   const formatNumber = (num) =>
     num ? Number(num).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-'
@@ -184,21 +196,30 @@ export default function StockTable({
                     </td>
 
                     <td className="px-2 sm:px-4 py-2 sm:py-3 text-center">
-                      <Link
-                        href={`/overview/${symbol}`}
-                        className="inline-flex items-center justify-center text-black hover:text-blue-600 transition"
+                      <button
+                        onClick={() => handleOverviewClick(symbol)}
+                        disabled={loadingOverviewSymbol === symbol}
+                        className="inline-flex items-center justify-center text-black hover:text-blue-600 transition disabled:opacity-50"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-5 h-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                          <circle cx="12" cy="12" r="3" />
-                        </svg>
-                      </Link>
+                        {loadingOverviewSymbol === symbol ? (
+                          <span className="flex space-x-1">
+                            <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce [animation-delay:-0.3s]" />
+                            <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce [animation-delay:-0.15s]" />
+                            <span className="w-1.5 h-1.5 bg-black rounded-full animate-bounce" />
+                          </span>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                        )}
+                      </button>
                     </td>
                   </tr>
                 )

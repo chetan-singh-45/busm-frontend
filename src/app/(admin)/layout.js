@@ -17,10 +17,7 @@ const AppLayout = ({ children }) => {
             {user?.role == 1 ? (
                 <AdminNavigation user={user}>{children}</AdminNavigation>
             ) : (
-                <>
-                    <Navigation user={user} />
-                    <main>{children}</main>
-                </>
+                <Navigation user={user}>{children}</Navigation>
             )}
         </div>
     )

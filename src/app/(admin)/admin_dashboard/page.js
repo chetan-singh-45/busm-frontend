@@ -33,18 +33,18 @@ const AdminDashboard = () => {
   const [dauWauData, setdauWauData] = useState(null)
 
   // Platform Summary KPI's
-  const total_notifications = stats?.stock_events_count;
-  const notification_24h = stats?.notification_24h
+  const total_notifications = stats?.stock_events_count || 0;
+  const notification_24h = stats?.notification_24h || 0
   const total_users = stats?.users_count || 0;
   const new_user_7d = stats?.newUsers_7d || 0;
   const countriesMonitored = stats?.totalUniqueCountries || 0;
-  const indices_traked = stats?.indices_traked
+  const indices_traked = stats?.indices_traked || 0
 
   //User Behavior Insights
   const most_popular_index = stats?.top_index
-  const most_used_indicator = userStats?.most_active_indicator?.indicator_name || 'none'
+  const most_used_indicator = userStats?.most_active_indicator?.indicator_name || 'No Data'
   const topCountry = stats?.topCountry.country_name;
-  const activeTimeSlot = stats?.topHour?.time_range || 'No'
+  const activeTimeSlot = stats?.topHour?.time_range || 'No Data'
   const topUsers = stats?.topUsers || []
 
   //User Growth & Retention
@@ -79,7 +79,7 @@ const AdminDashboard = () => {
   </>)
 
   const handleToggleWatchlist = async (stock) => {
-    if (user) return toast.error('Login required')
+    if (!user) return toast.error('Login required')
     setLoadingStock(stock.symbol)
 
     try {

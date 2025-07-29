@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/auth'
 import ResponsiveNavLink from '@/components/ResponsiveNavLink'
 import WatchlistPopover from '@/components/WatchlistPopover'
 import { useWatchlist } from '@/hooks/watchlist'
-import { User, BellRing, LogOut, Menu, X } from 'lucide-react'
+import { Home, User, BellRing, ShieldCheck, LogOut, Menu, X } from 'lucide-react'
 
 const FrontendNavigation = () => {
     const { user, logout } = useAuth()
@@ -100,8 +100,21 @@ const FrontendNavigation = () => {
                                     <User className="w-4 h-4" /> My Profile
                                 </div>
                             </Link>
+                            <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500">
+                                <div className="flex items-center gap-2">
+                                    <Home className="w-4 h-4" /> Home
+                                </div>
+                            </Link>
                             <Link
-                                href="/alerts"
+                                href={user?.role == 1 ? "/admin_dashboard" : "/dashboard"}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                                >
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck className="w-4 h-4" /> Dashboard  
+                             </div>
+                            </Link>
+                            <Link
+                                href="/alert"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
                             >
                                 <div className="flex items-center gap-2">
@@ -149,7 +162,7 @@ const FrontendNavigation = () => {
                     {user && (
                         <>
                             <ResponsiveNavLink href="/profile">My Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink href="/alerts">Alert Center</ResponsiveNavLink>
+                            <ResponsiveNavLink href="/alert">Alert Center</ResponsiveNavLink>
                             <button
                                 onClick={logout}
                                 className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded"
