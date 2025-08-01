@@ -1,8 +1,8 @@
 import useSWR from 'swr'
-import { getIndicator, getSMA, storeIndicatorStock, deleteUserAlert, updateUserAlert} from '@/services/indicators'
+import { getIndicator, getSMA, storeIndicatorStock, deleteUserAlert, updateUserAlert, updateUserAlertStatus} from '@/services/indicators'
 import { useAuth } from '@/hooks/auth';
 
-export const useAllIndicator = (symbol) => {
+export const useAllIndicator = () => {
   const { user } = useAuth();
 
   const fetcher = async () => {
@@ -10,7 +10,7 @@ export const useAllIndicator = (symbol) => {
     return data
   }
     
-  const smaFetcher = async () => {
+  const smaFetcher = async (symbol) => {
     if (!symbol) return null
       const { data } = await getSMA(symbol)
     return data
@@ -45,6 +45,16 @@ export const useAllIndicator = (symbol) => {
     }
   }
 
+  //update user alert status
+  const handleUpdateUserAlertStatus = async (data, id) => {
+    try {
+      await updateUserAlertStatus(data, id)
+      mutate()
+    } catch (err) {
+      throw err.response?.data?.message || 'Update failed'
+    }
+  }
+
 const { data, error, mutate, isLoading } = useSWR('/api/indicators', fetcher)
 
 return {
@@ -54,5 +64,6 @@ return {
     smaFetcher,
     createIndicatorStock,
     handleUpdateUserAlert,
+    handleUpdateUserAlertStatus
   }
 }

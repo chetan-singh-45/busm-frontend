@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Toaster } from 'react-hot-toast'
-import { Star, TrendingUp, TrendingDown, Search } from 'lucide-react'
+import { Toaster, toast } from 'react-hot-toast'
+import { Star, Bell, TrendingUp, TrendingDown, Search, Eye } from 'lucide-react'
 import Dropdown from '@/components/Dropdown'
 import { useRouter } from 'next/navigation'
+import { useAllIndicator } from '@/hooks/indicators'
+import SetAlertModal from '@/components/SetAlertModal';
+import { useAuth } from '@/hooks/auth'
 
 export default function StockTable({
   title,
@@ -15,10 +18,54 @@ export default function StockTable({
   handleToggleWatchlist,
   watchlist = [],
 }) {
+  const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCountry, setSelectedCountry] = useState('all')
   const router = useRouter()
   const [loadingOverviewSymbol, setLoadingOverviewSymbol] = useState(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [selectedSymbol, setSelectedSymbol] = useState(null)
+  const { indicators, smaFetcher, createIndicatorStock } = useAllIndicator()
+  const [selectedIndicator, setSelectedIndicator] = useState(null)
+  const [modalData, setModalData] = useState(null)
+  const [prediction, setPrediction] = useState()
+  const [timeframe, setTimeframe] =  useState() 
+  const [expiryWeeks, setExpiryWeeks] = useState('1')
+  const [stockName,setStockName] = useState('')
+  
+  const handleIndicatorData = async (symbol, indicator) => {
+    try {
+      const res = await smaFetcher(symbol)
+      setSelectedIndicator(indicator)
+      setModalData({ sma: res.data.sma_200, lastPrice: res.data.latest_close })
+    } catch {
+      toast.error('Failed to load SMA data')
+    }
+  }
+
+  const handleCreateIndicator = () => {
+    if (!selectedIndicator || !modalData || !prediction || !timeframe) {
+      toast.error("Please fill all alert fields.")
+      return
+    }
+
+    const payload = {
+      indicator_id: selectedIndicator.id,
+      stock_symbol: selectedSymbol,
+      user_id: user.id,
+      sma_price: modalData.sma,
+      last_price: modalData.lastPrice,
+      prediction,
+      timeframe,
+      expiry_weeks: parseInt(expiryWeeks, 10)
+    }
+    setLoading(true)
+    createIndicatorStock(payload)
+      .then(() => { setIsOpen(false); toast.success('Alert saved successfully') })
+      .catch(() => toast.error('Failed to create indicator entry'))
+      .finally(() => setLoading(false))
+  }
 
   const handleOverviewClick = (symbol) => {
     setLoadingOverviewSymbol(symbol)
@@ -47,12 +94,12 @@ export default function StockTable({
       selectedCountry === 'all' ||
       stock.country.name.toLowerCase() === selectedCountry.toLowerCase()
 
-    return nameMatch && countryMatch
+      return nameMatch && countryMatch
   })
 
   const isInWatchlist = (stockId) =>
     watchlist?.some(w => w.stock_id === stockId || w.stock?.id === stockId)
-
+  
   return (
     <div className="bg-white rounded-2xl shadow-md border p-4 sm:p-6 w-full">
       <Toaster position="top-right" />
@@ -95,21 +142,19 @@ export default function StockTable({
           >
             <button
               onClick={() => setSelectedCountry('all')}
-              className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${
-                selectedCountry === 'all' ? 'font-semibold text-blue-600' : 'text-gray-800'
-              }`}
-            >
+              className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${selectedCountry === 'all' ? 'font-semibold text-blue-600' : 'text-gray-800'
+                }`}
+                >
               All Countries
             </button>
             {countries.map((country) => (
               <button
                 key={country}
                 onClick={() => setSelectedCountry(country.toLowerCase())}
-                className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${
-                  selectedCountry.toLowerCase() === country.toLowerCase()
-                    ? 'font-semibold text-blue-600'
-                    : 'text-gray-800'
-                }`}
+                className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${selectedCountry.toLowerCase() === country.toLowerCase()
+                  ? 'font-semibold text-blue-600'
+                  : 'text-gray-800'
+                  }`}
               >
                 {country.charAt(0).toUpperCase() + country.slice(1)}
               </button>
@@ -147,23 +192,38 @@ export default function StockTable({
                 const isPositive = priceChange >= 0 || percentChange >= 0
                 const countryName = stock?.country?.name || '-'
                 const countryEmoji = stock?.country?.emoji || ''
-
+                const stock_name = item?.name || ''
+                
                 return (
                   <tr
                     key={stock.id}
                     className="border-t hover:bg-gray-50 transition duration-150"
                   >
                     <td className="text-right px-2 sm:px-4 py-2 sm:py-3">
-                      <button
-                        onClick={() => handleToggleWatchlist(stock)}
-                        title={isStarred ? 'Remove from Watchlist' : 'Add to Watchlist'}
-                        className="hover:scale-110 transition-transform duration-200"
-                      >
-                        <Star
-                          className={`w-5 h-5 ${isStarred ? 'text-yellow-400' : 'text-gray-300'}`}
-                          fill={isStarred ? 'currentColor' : 'none'}
-                        />
-                      </button>
+                      <div className="flex justify-end gap-3">
+                        <button
+                          onClick={() => handleToggleWatchlist(stock)}
+                          title={isStarred ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                          className="hover:scale-110 transition-transform duration-200"
+                        >
+                          <Star
+                            className={`w-5 h-5 ${isStarred ? 'text-yellow-400' : 'text-gray-300'}`}
+                            fill={isStarred ? 'currentColor' : 'none'}
+                          />
+                        </button>
+                        <button
+                          onClick={ () => {
+                            setSelectedSymbol(symbol)
+                            setStockName(stock_name)
+                            setIsOpen(true)
+                            handleIndicatorData(symbol, indicators[0])
+                          }}
+                          title={'set alert'}
+                          className="hover:scale-110 transition-transform duration-200"
+                        >
+                          <Bell className={`w-5 h-5 text-green-500`} />
+                        </button>
+                      </div>
                     </td>
 
                     <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-gray-800">
@@ -228,6 +288,24 @@ export default function StockTable({
           </table>
         </div>
       )}
+      {/* Alert Modal */}
+      <SetAlertModal
+        isOpen={isOpen}
+        loading={loading}
+        setIsOpen={setIsOpen}
+        symbol={selectedSymbol}
+        stockName={stockName}
+        indicators={indicators}
+        selectedIndicator={selectedIndicator}
+        setSelectedIndicator={setSelectedIndicator}
+        prediction={prediction}
+        setPrediction={setPrediction}
+        timeframe={timeframe}
+        setTimeframe={setTimeframe}
+        expiryWeeks={expiryWeeks}
+        setExpiryWeeks={setExpiryWeeks}
+        handleCreateIndicator={handleCreateIndicator}
+      />
     </div>
   )
 }

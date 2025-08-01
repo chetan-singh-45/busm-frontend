@@ -15,7 +15,7 @@ export default function Alert() {
   const { user } = useAuth();
   const [userIndicator, setUserIndicator] = useState([]);
   const [userNotification, setUserNotification] = useState([]);
-  const { handleUpdateUserAlert } = useAllIndicator();
+  const { handleUpdateUserAlert, handleUpdateUserAlertStatus } = useAllIndicator();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [prediction, setPrediction] = useState('');
@@ -97,6 +97,18 @@ export default function Alert() {
       } 
     };
 
+    const handleToggleStatus = async (pivot) => {
+      const newStatus = pivot.status === 'active' ? 'inactive' : 'active';
+
+      try {
+        await handleUpdateUserAlertStatus({ status: newStatus }, pivot.id);
+        await fetchUserIndicators();
+        toast.success(`Alert status changed to ${newStatus}`);
+      } catch (err) {
+        toast.error(`Failed to update status`);
+      }
+    };
+
   return (
     <>
       <Header title="Active alerts" subtitle="Configure technical analysis alerts for your favorite indices" />
@@ -118,6 +130,7 @@ export default function Alert() {
                   <th className="px-4 py-3">SMA Price</th>
                   <th className="px-4 py-3">Timeframe</th>
                   <th className="px-4 py-3">Expiry</th>
+                  <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
@@ -146,6 +159,17 @@ export default function Alert() {
                         <td className="px-4 py-3">{parseFloat(pivot.sma_price).toFixed(2)}</td>
                         <td className="px-4 py-3">{pivot.timeframe}</td>
                         <td className="px-4 py-3">{pivot.expiry_at}</td>
+                        <td className="px-4 py-3">
+                          <label className="inline-flex items-center cursor-pointer">
+                           <input
+                              type="checkbox"
+                              checked={pivot.status === 'active'}
+                              onChange={() => handleToggleStatus(pivot)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-gray-300 peer-checked:bg-green-500 rounded-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all relative peer-checked:after:translate-x-4" />
+                          </label>
+                        </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap justify-center gap-2">
                             <button

@@ -76,7 +76,7 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
         setSuccessIndex(selected.id)
         refreshUserAlerts()
       })
-      .catch(() => toast.error('Failed to create indicator entry'))
+      .catch(() => toast.error('Failed to get sma price'))
       .finally(() => setLoading(false))
   }
 
@@ -156,7 +156,6 @@ export default function FloatingFooter({ selectedItems, selectedCount, onClear, 
                 setExpiryWeeks={setExpiryWeeks}
                 handleCreateIndicator={handleCreateIndicator}
                 successIndex={successIndex}
-                setSuccessIndex={setSuccessIndex}
               />
             </div>
           )}

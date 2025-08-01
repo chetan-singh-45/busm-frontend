@@ -41,7 +41,15 @@ const Home = () => {
 
   return (
     <>
-      <FrontendNavigation />
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-center">
+      <div className="bg-white p-10 rounded-xl shadow-md">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">🚧 Coming Soon</h1>
+        <p className="text-gray-600 text-sm">
+          We're working on this feature. Check back later!
+        </p>
+      </div>
+    </div>
+      {/* <FrontendNavigation />
       <Toaster position="top-right" />
 
       <div className="bg-gray-50 text-gray-900 min-h-screen py-1">
@@ -82,7 +90,7 @@ const Home = () => {
           isOpen={showLoginRegisterModal}
           onClose={() => setShowLoginRegisterModal(false)}
         />
-      )}
+      )} */}
     </>
   );
 };

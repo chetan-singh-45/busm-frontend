@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/auth'
 import { useAllIndicator } from '@/hooks/indicators'
 import PriceLine from '@/components/PriceLine'
 import { useStocks } from '@/hooks/stocks'
-import { Star, CandlestickChart, LineChart } from 'lucide-react'
+import { Star, CandlestickChart, LineChart, Bell } from 'lucide-react'
 import SetAlertModal from '@/components/SetAlertModal';
 import ChaseLoader from '@/components/ChaseLoader';
 
@@ -21,15 +21,16 @@ const OverviewChart = ({ symbol, defaultRange = '1D' }) => {
   const [loading, setLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [chartType, setChartType] = useState('line')
-  const { indicators, smaFetcher, createIndicatorStock } = useAllIndicator(symbol)
+  const { indicators, smaFetcher, createIndicatorStock } = useAllIndicator()
   const [modalData, setModalData] = useState(null)
   const [selectedIndicator, setSelectedIndicator] = useState(null)
   const { watchlist, handleHistoricalData, handleRemoveWatchlist, handleAddWatchlist } = useWatchlist()
   const [prediction, setPrediction] = useState()
-  const [timeframe, setTimeframe] = useState()
-  const [expiryWeeks, setExpiryWeeks] = useState('')
+  const [timeframe, setTimeframe] =  useState() 
+  const [expiryWeeks, setExpiryWeeks] = useState('1')
   const { stocks } = useStocks()
   const index = stocks?.find((s) => s?.symbol?.toUpperCase() === symbol.toUpperCase())
+  const stockName = index?.name
   const closingPrice = index?.stock_price?.price
 
   const chartRef = useRef(null)
@@ -194,9 +195,7 @@ if (!marketData) return <ChaseLoader message="Loading chart..." />;
           />
         </button>
         <button onClick={() => { setIsOpen(true); handleIndicatorData(indicators[0]) }} title="Set Alert">
-          <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 2a6 6 0 00-6 6v2.586l-.707.707A1 1 0 004 13h12a1 1 0 00.707-1.707L16 10.586V8a6 6 0 00-6-6zM10 18a2 2 0 002-2H8a2 2 0 002 2z" />
-          </svg>
+          <Bell className={`w-5 h-5 text-green-500`} />
         </button>
       </div>
 
@@ -255,8 +254,10 @@ if (!marketData) return <ChaseLoader message="Loading chart..." />;
       {/* Alert Modal */}
        <SetAlertModal
         isOpen={isOpen}
+        loading={loading}
         setIsOpen={setIsOpen}
         symbol={symbol}
+        stockName={stockName}
         indicators={indicators}
         selectedIndicator={selectedIndicator}
         setSelectedIndicator={setSelectedIndicator}

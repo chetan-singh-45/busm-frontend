@@ -4,8 +4,10 @@ import Link from 'next/link';
 
 const SetAlertModal = ({
   isOpen,
+  loading,
   setIsOpen,
   symbol = '',
+  stockName = '',
   indicators = [],
   selectedIndicator,
   setSelectedIndicator,
@@ -18,29 +20,20 @@ const SetAlertModal = ({
   handleCreateIndicator,
 }) => {
   return (
-    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={`Set Alert for ${symbol.toUpperCase()}`}>
-      <div className="flex justify-end">
-        <button
-          onClick={() => setIsOpen(false)}
-          className="px-4 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200 text-gray-700"
-        >
-          X
-        </button>
-      </div>
-
-      <div className="space-y-4 text-sm">
+    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={`Set Technical Alert for ${stockName}`}>
+      <div className="relative p-4 text-sm">
         {/* Indicator Dropdown */}
-        <div>
-          <label className="block mb-1 font-medium">Technical Indicator</label>
+        <div className="mb-4">
+          <label className="block mb-1 font-semibold text-gray-700">Configure Alert Options</label>
           <select
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded-full px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
             value={selectedIndicator?.id || ''}
             onChange={(e) => {
               const selected = indicators.find(i => i.id === parseInt(e.target.value));
               setSelectedIndicator(selected);
             }}
           >
-            <option value="">Select indicator</option>
+            <option value="">Choose a Technical Tool</option>
             {indicators.map((ind) => (
               <option key={ind.id} value={ind.id}>{ind.indicator_name}</option>
             ))}
@@ -48,79 +41,124 @@ const SetAlertModal = ({
         </div>
 
         {/* Prediction */}
-        <div>
-          <label className="block mb-1 font-medium">Prediction</label>
+        <div className="mb-4">
+          <label className="block mb-1 font-semibold text-gray-700">Choose Signal Direction</label>
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-1">
+            <label className="flex items-center gap-2">
               <input
                 type="radio"
                 name="prediction"
                 value="up"
                 checked={prediction === 'up'}
                 onChange={() => setPrediction('up')}
+                className="accent-blue-600"
               />
-              <span>⬆️ Crossing Up</span>
+              <span>Crossing Up</span>
             </label>
-            <label className="flex items-center gap-1">
+            <label className="flex items-center gap-2">
               <input
                 type="radio"
                 name="prediction"
                 value="down"
                 checked={prediction === 'down'}
                 onChange={() => setPrediction('down')}
+                className="accent-blue-600"
               />
-              <span>⬇️ Crossing Down</span>
+              <span>Crossing Down</span>
             </label>
           </div>
         </div>
 
-        {/* Timeframe */}
-        <div className="mt-4">
-          <label className="block mb-1 font-medium">Time Frame</label>
-          <select
-            name="timeframe"
-            className="w-full border rounded px-3 py-2"
-            value={timeframe}
-            onChange={(e) => setTimeframe(e.target.value)}
-            required
-          >
-            <option value="">Choose Time Frame</option>
-            <option value="daily">Daily</option>
-            <option value="hourly">Hourly</option>
-            <option value="15-min">15-min</option>
-          </select>
+        {/* Time Frame */}
+        <div className="mb-4">
+          <label className="block mb-1 font-semibold text-gray-700">Choose Time Frame</label>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="timeframe"
+                value="daily"
+                checked={timeframe === 'daily'}
+                onChange={() => setTimeframe('daily')}
+                className="accent-blue-600"
+              />
+              <span>Daily</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="timeframe"
+                value="hourly"
+                checked={timeframe === 'hourly'}
+                onChange={() => setTimeframe('hourly')}
+                className="accent-blue-600"
+              />
+              <span>Hourly</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="timeframe"
+                value="15-min"
+                checked={timeframe === '15-min'}
+                onChange={() => setTimeframe('15-min')}
+                className="accent-blue-600"
+              />
+              <span>15 minutes</span>
+            </label>
+          </div>
         </div>
 
-        {/* Expiry */}
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">Set Expiry (in weeks)</label>
+        {/* Expiry Input */}
+        <div className="mb-4">
+          <label className="block mb-1 font-semibold text-gray-700">Set Expiry (in weeks)</label>
           <input
             type="number"
-            name="expiry_weeks"
             min="1"
             max="52"
-            placeholder="e.g. 1 - 52"
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded-full px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
+            placeholder="1"
             value={expiryWeeks}
             onChange={(e) => setExpiryWeeks(e.target.value)}
           />
         </div>
 
-        {/* Footer Buttons */}
-        <div className="mt-6 flex justify-end gap-3">
-          <button className="px-4 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200 text-gray-700">
-            <Link href="/alert">Manage your alert</Link>
-          </button>
+        {/* Buttons */}
+        <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <button
-            onClick={() => handleCreateIndicator(prediction, timeframe, expiryWeeks)}
-            className="px-4 py-2 text-sm rounded bg-gray-800 text-white hover:bg-gray-700"
+            onClick={() => setIsOpen(false)}
+            className="px-4 py-2 rounded-full text-gray-700 bg-gray-200 hover:bg-gray-300"
           >
-            Save Alert
+            Cancel
           </button>
+
+          <div className="flex items-center gap-3">
+            <Link href="/alert">
+              <button className="px-4 py-2 text-sm rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700">
+                Manage your alert
+              </button>
+            </Link>
+            
+             <button
+              onClick={() => handleCreateIndicator(prediction, timeframe, expiryWeeks)}
+              disabled={loading}
+              className={`px-4 py-2 rounded-full text-white ${
+                loading ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+              }`}
+            >
+              {loading ? 'Saving...' : 'Save The Alert'}
+            </button>
+            {/* <button
+              onClick={() => handleCreateIndicator(prediction, timeframe, expiryWeeks)}
+              className="px-4 py-2 rounded-full text-white bg-green-600 hover:bg-green-700"
+            >
+              Save The Alert
+            </button> */}
+          </div>
         </div>
       </div>
     </Modal>
-  );
-};
+  )
+}
 
 export default SetAlertModal;

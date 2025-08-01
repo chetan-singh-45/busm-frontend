@@ -19,10 +19,7 @@ export default function UserSetAlertPopover({
   setExpiryWeeks,
   handleCreateIndicator,
   successIndex,
-  setSuccessIndex
-
 }) {
-
 
   const [isAdding, setIsAdding] = useState(false)
   const [emailNotify, setEmailNotify] = useState(false)
@@ -31,7 +28,6 @@ export default function UserSetAlertPopover({
   const handleSaveAlert = () => {
     const isMissingIndicator = !selectedIndicator;
     const isMissingEmail = !emailNotify;
-
     if (isMissingIndicator || isMissingEmail) {
       setShowValidation(true);
       if (isMissingIndicator) toast.error('Please select a technical tool');
@@ -45,7 +41,6 @@ export default function UserSetAlertPopover({
     setTimeout(() => {
       setIsAdding(false);
       handleCreateIndicator(prediction, timeframe, expiryWeeks);
-      setSuccessIndex(index?.id);
     }, 800);
   }
   
