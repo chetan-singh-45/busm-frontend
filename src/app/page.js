@@ -15,6 +15,7 @@ import FeatureSection from "@/components/FeatureSection";
 import DashboardSection from "@/components/BrandSection";
 import VideoSection from "@/components/VideoSection";
 import LoginRegisterModal from '@/components/LoginRegisterModal';
+import ComingSoon from '@/components/ComingSoon';
 
 import { useAuth } from "@/hooks/auth";
 import HomeCurvedSectionSkeleton from '@/components/skeletons/HomeCurvedSectionSkeleton';
@@ -41,18 +42,12 @@ const Home = () => {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-center">
-      <div className="bg-white p-10 rounded-xl shadow-md">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">🚧 Coming Soon</h1>
-        <p className="text-gray-600 text-sm">
-          We're working on this feature. Check back later!
-        </p>
-      </div>
-    </div>
-      {/* <FrontendNavigation />
+      <FrontendNavigation />
       <Toaster position="top-right" />
+       
+      <ComingSoon />
 
-      <div className="bg-gray-50 text-gray-900 min-h-screen py-1">
+      {/* <div className="bg-gray-50 text-gray-900 min-h-screen py-1">
         <div className="w-full">
           {showSkeleton ? (<HomeCurvedSectionSkeleton />) :
           (<HomeCurvedSection

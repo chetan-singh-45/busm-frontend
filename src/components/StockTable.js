@@ -63,7 +63,7 @@ export default function StockTable({
     setLoading(true)
     createIndicatorStock(payload)
       .then(() => { setIsOpen(false); toast.success('Alert saved successfully') })
-      .catch(() => toast.error('Failed to create indicator entry'))
+      .catch(() => toast.error('SMA not found'))
       .finally(() => setLoading(false))
   }
 

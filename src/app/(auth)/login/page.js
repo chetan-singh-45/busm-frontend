@@ -53,7 +53,7 @@ const Login = () => {
                 } else if (user.role == 2 && hasPending) {
                     router.push('/watchlist')
                 } else {
-                    router.push('/notifier')
+                    router.push('/dashboard')
 
                 }
             }, 1000)

@@ -7,6 +7,7 @@ import { useWatchlist } from '@/hooks/watchlist'
 import FloatingFooter from '@/components/FloatingFooter'
 import { useAuth } from '@/hooks/auth'
 import { Toaster, toast } from 'react-hot-toast'
+import ComingSoon from '@/components/ComingSoon';
 
 export default function Watchlist() {
   
@@ -85,14 +86,15 @@ export default function Watchlist() {
 
   return (
     <>
-      <HeadingSection title="Your Watchlist" />
+     <ComingSoon />
+      {/* <HeadingSection title="Your Watchlist" />
         <Toaster position="top-right" />
 
       <div className="p-4 sm:p-6 bg-white rounded-xl shadow">
-        <h2 className="text-lg font-semibold mb-4">Watchlist</h2>
+        <h2 className="text-lg font-semibold mb-4">Watchlist</h2> */}
 
         {/* Search */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+        {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
           <div className="relative w-full sm:max-w-sm">
             <input
               type="text"
@@ -103,10 +105,10 @@ export default function Watchlist() {
             />
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           </div>
-        </div>
+        </div> */}
 
         {/* Responsive Table */}
-        <div className="w-full overflow-x-auto sm:overflow-visible min-h-auto">
+        {/* <div className="w-full overflow-x-auto sm:overflow-visible min-h-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-gray-600 border-b">
               <tr>
@@ -181,7 +183,7 @@ export default function Watchlist() {
             }}
           />
         )}
-      </div>
+      </div> */}
     </>
   )
 }

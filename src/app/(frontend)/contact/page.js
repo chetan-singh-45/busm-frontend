@@ -1,10 +1,13 @@
 'use client'
+import ComingSoon from '@/components/ComingSoon'
 import ContactSection from '@/components/ContactSection'
 
 const Contact = () => {
   return (
   <>
-  <ContactSection />
+   <ComingSoon />
+  {/* <ContactSection />
+   */}
   </>
   )
 }

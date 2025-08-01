@@ -31,7 +31,7 @@ const Page = () => {
         if (user) {
             setIsRedirecting(true)
             setTimeout(() => {
-                router.push('/notifier')
+                router.push('/dashboard')
             }, 1000)
         }
     }, [user])

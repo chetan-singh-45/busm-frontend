@@ -6,6 +6,7 @@ import IndexesSidebar from '@/components/IndexesSidebar'
 import IndexesTable from '@/components/IndexesTable'
 import { Toaster } from 'react-hot-toast'
 import { useStocks } from '@/hooks/stocks'
+import ComingSoon from '@/components/ComingSoon'
 
 export default function Notifier() {
   const { stocks, isLoading, isError } = useStocks()
@@ -41,7 +42,8 @@ export default function Notifier() {
 
   return (
     <>
-      <HeadingSection title="Major World Market Indices" />
+    <ComingSoon />
+      {/* <HeadingSection title="Major World Market Indices" />
       <Toaster position="top-right" />
 
       <div className="flex flex-col sm:flex-row gap-6">
@@ -56,7 +58,7 @@ export default function Notifier() {
           isError={isError}
           onSelectIndex={handleIndexSelect}
         />
-      </div>
+      </div> */}
     </>
   )
 }

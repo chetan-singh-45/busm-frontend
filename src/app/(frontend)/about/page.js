@@ -1,22 +1,24 @@
 'use client'
 
+import ComingSoon from "@/components/ComingSoon";
 import CommanCurvedSection from "@/components/CommanCurvedSection"
 import TrustedCompanies from "@/components/TrustedCompanies";
 
 const About = () => {
   return (
     <>
-      <CommanCurvedSection
+     <ComingSoon />
+      {/* <CommanCurvedSection
         title="Welcome to TrendNotifier Your Dedicated Partner in Market Awareness."
         subtitle="We are not a trading platform and don't offer investment advice. We are an intelligent, high-speed alert system built to support traders and investors who rely on technical analysis."
-      />
+      /> */}
 
-      <TrustedCompanies />
+      {/* <TrustedCompanies />
 
       <section className="bg-white py-20 px-4 sm:px-8">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8"> */}
           {/* Mission Card */}
-          <div className="rounded-xl border border-blue-100 bg-gray-50 p-6 shadow-sm">
+          {/* <div className="rounded-xl border border-blue-100 bg-gray-50 p-6 shadow-sm">
             <h3 className="text-2xl font-semibold text-[#0a0a35] mb-4">Our Mission</h3>
             <p className="text-sm font-semibold mb-2 text-[#0a0a35]">
               At TrendNotifier, our mission is simple:
@@ -30,9 +32,9 @@ const About = () => {
               but by giving them timely information in the format they prefer.
             </p>
           </div>
-
+ */}
           {/* Vision Card */}
-          <div className="rounded-xl border border-blue-100 bg-gray-50 p-6 shadow-sm">
+          {/* <div className="rounded-xl border border-blue-100 bg-gray-50 p-6 shadow-sm">
             <h3 className="text-2xl font-semibold text-[#0a0a35] mb-4">Our Vision</h3>
             <p className="text-gray-700 mb-4">
               Our long-term vision is to become the go-to notification engine for traders across Europe who use technical analysis —
@@ -43,11 +45,11 @@ const About = () => {
             </p>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section className="bg-gray-100 px-4 py-20 sm:px-8 space-y-24">
+      {/* <section className="bg-gray-100 px-4 py-20 sm:px-8 space-y-24"> */}
         {/* Card 1 - Image Left */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-10">
+        {/* <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-10">
           <img
             src="/team.jpg"
             alt="Who We Are"
@@ -73,10 +75,10 @@ const About = () => {
               tool that speaks your language and meets your speed.
             </p>
           </div>
-        </div>
+        </div> */}
 
         {/* Card 2 - Image Right */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-10">
+        {/* <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-10">
           <div>
             <h3 className="text-3xl font-semibold text-[#0a0a35] mb-4">What We Do</h3>
             <p className="text-[#6b7280] mb-4">
@@ -103,9 +105,9 @@ const About = () => {
           <h2 className="text-3xl sm:text-4xl font-semibold text-[#0a0a35] mb-16">
             Why Traders Trust Us
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"> */}
             {/* Card 1 */}
-            <div className="bg-[#0a0a35] text-white p-6 rounded-3xl shadow-md text-left">
+            {/* <div className="bg-[#0a0a35] text-white p-6 rounded-3xl shadow-md text-left">
               <div className="mb-4">
                 <img src="/favicon.ico" alt="Speed icon" className="w-8 h-8" />
               </div>
@@ -113,10 +115,10 @@ const About = () => {
               <p className="text-sm text-gray-300">
                 Fast technical condition monitoring and near-instant notifications
               </p>
-            </div>
+            </div> */}
 
             {/* Card 2 */}
-            <div className="bg-[#0a0a35] text-white p-6 rounded-3xl shadow-md text-left">
+            {/* <div className="bg-[#0a0a35] text-white p-6 rounded-3xl shadow-md text-left">
               <div className="mb-4">
                 <img src="/favicon.ico" alt="Clarity icon" className="w-8 h-8" />
               </div>
@@ -124,10 +126,10 @@ const About = () => {
               <p className="text-sm text-gray-300">
                 Clean interface, focused tools, no distractions
               </p>
-            </div>
+            </div> */}
 
             {/* Card 3 */}
-            <div className="bg-[#0a0a35] text-white p-6 rounded-3xl shadow-md text-left">
+            {/* <div className="bg-[#0a0a35] text-white p-6 rounded-3xl shadow-md text-left">
               <div className="mb-4">
                 <img src="/favicon.ico" alt="Transparency icon" className="w-8 h-8" />
               </div>
@@ -135,10 +137,10 @@ const About = () => {
               <p className="text-sm text-gray-300">
                 No hidden advice, no product pushing — just information
               </p>
-            </div>
+            </div> */}
 
             {/* Card 4 */}
-            <div className="bg-[#0a0a35] text-white p-6 rounded-3xl shadow-md text-left">
+            {/* <div className="bg-[#0a0a35] text-white p-6 rounded-3xl shadow-md text-left">
               <div className="mb-4">
                 <img src="/favicon.ico" alt="Growth icon" className="w-8 h-8" />
               </div>
@@ -149,7 +151,7 @@ const About = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
     </>
 
