@@ -43,12 +43,12 @@ const AdminDashboard = () => {
   //User Behavior Insights
   const most_popular_index = stats?.top_index || 'No Data'
   const most_used_indicator = userStats?.most_active_indicator?.indicator_name || 'No Data'
-  const topCountry = stats?.topCountry.country_name || 'No Data';
+  const topCountry = stats?.topCountry?.country_name || 'No Data';
   const activeTimeSlot = stats?.topHour?.time_range || 'No Data'
   const topUsers = stats?.topUsers || []
 
   //User Growth & Retention
-  const formattedAvg = stats?.formattedAvg
+  const formattedAvg = stats?.formattedAvg || 0
 
   useEffect(() => {
       if (user && watchlist?.length >= 0) {
