@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/auth'
 import { usePathname } from 'next/navigation'
 import {
     Home, List, LineChart, Bell, Heart, Users, User,
-    BellRing, LogOut, Menu, X, ShieldCheck
+    BellRing, LogOut, Menu, X, ShieldCheck, Ticket
 } from 'lucide-react'
 import { getRecentNotifications } from '@/services/stats'
 import { useDashboard } from '@/hooks/dashboard'
@@ -79,7 +79,7 @@ const AdminNavigation = ({ user, children }) => {
                         </Link>
                         <Link href="/alert" className={linkClass('/alert')}>
                             <div className="flex items-center gap-2">
-                                <LineChart className="w-4 h-4" /> Setup Alert
+                                <LineChart className="w-4 h-4" /> Alert Center
                             </div>
                         </Link>
                         <Link href="/notifications" className={linkClass('/notifications')}>
@@ -204,6 +204,14 @@ const AdminNavigation = ({ user, children }) => {
                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500">
                                 <div className="flex items-center gap-2">
                                     <BellRing className="w-4 h-4" /> Alert Center
+                                </div>
+                            </Link>
+                            <Link
+                                href="/tickets"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Ticket className="w-4 h-4" /> Tickets
                                 </div>
                             </Link>
                             <DropdownButton onClick={logout}>

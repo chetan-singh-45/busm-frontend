@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/auth'
 import ResponsiveNavLink from '@/components/ResponsiveNavLink'
 import WatchlistPopover from '@/components/WatchlistPopover'
 import { useWatchlist } from '@/hooks/watchlist'
-import { Home, User, BellRing, ShieldCheck, LogOut, Menu, X } from 'lucide-react'
+import { Home, User, BellRing, ShieldCheck, LogOut, Menu, Ticket, X } from 'lucide-react'
 
 const FrontendNavigation = () => {
     const { user, logout } = useAuth()
@@ -119,6 +119,14 @@ const FrontendNavigation = () => {
                             >
                                 <div className="flex items-center gap-2">
                                     <BellRing className="w-4 h-4" /> Alert Center
+                                </div>
+                            </Link>
+                            <Link
+                                href="/tickets"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Ticket className="w-4 h-4" /> My Tickets
                                 </div>
                             </Link>
                             <DropdownButton onClick={logout}>

@@ -55,7 +55,12 @@ export const useAllIndicator = () => {
     }
   }
 
-const { data, error, mutate, isLoading } = useSWR('/api/indicators', fetcher)
+const { data, error, mutate, isLoading } = useSWR('/api/indicators', fetcher, {
+  revalidateOnFocus: false,      //  Don't refetch when switching tabs
+  revalidateOnReconnect: false,  //  Don't refetch on network reconnect
+  refreshInterval: 0,            //  No polling
+  dedupingInterval: 10000,       //  Optional: prevents repeat calls within 10s
+})
 
 return {
     indicators: data?.data,

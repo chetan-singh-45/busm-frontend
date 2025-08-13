@@ -17,3 +17,25 @@
     transform: scale(1);
   }
 }
+
+/* For Chrome, Edge, Safari */
+html::-webkit-scrollbar {
+  width: 6px; /* scrollbar thickness */
+  height: 6px; /* horizontal scrollbar thickness */
+}
+
+html::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* thumb color */
+  border-radius: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent; /* track background */
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: thin; /* makes scrollbar thin */
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* thumb color + track */
+}
+

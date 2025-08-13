@@ -51,24 +51,24 @@ const AdminDashboard = () => {
   const formattedAvg = stats?.formattedAvg || 0
 
   useEffect(() => {
-      if (user && watchlist?.length >= 0) {
-        const savedItems = JSON.parse(localStorage.getItem('pendingWatchlist') || '[]')
-        const filtered = savedItems.filter(item =>
-          !watchlist.some(w => w.stock_id === item.id)
-        )
+    if (user && watchlist?.length >= 0) {
+      const savedItems = JSON.parse(localStorage.getItem('pendingWatchlist') || '[]')
+      const filtered = savedItems.filter(item =>
+        !watchlist.some(w => w.stock_id === item.id)
+      )
 
-        if (filtered.length > 0) {
-          localStorage.removeItem('pendingWatchlist')
-          Promise.all(filtered.map(item => handleAddWatchlist({ stock_id: item.id })))
-            .then(() => {
-              toast.success('Index added to your watchlist.')
-            })
-            .catch(() => {
-              toast.error('Failed to sync some watchlist items.')
-            })
-        }
+      if (filtered.length > 0) {
+        localStorage.removeItem('pendingWatchlist')
+        Promise.all(filtered.map(item => handleAddWatchlist({ stock_id: item.id })))
+          .then(() => {
+            toast.success('Index added to your watchlist.')
+          })
+          .catch(() => {
+            toast.error('Failed to sync some watchlist items.')
+          })
       }
-    }, [user, watchlist])
+    }
+  }, [user, watchlist])
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -157,28 +157,33 @@ const AdminDashboard = () => {
         {/* Top Engaged Users Chart */}
         <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200 mb-8">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Top Engaged Users</h2>
-          <ResponsiveContainer width="80%" height={topUsers.length * 50}>
-            <BarChart
-              data={topUsers}
-              layout="vertical"
-              margin={{ top: 30, right: 20, left: 100, bottom: 20 }}
-              barSize={20}
-            >
-              {/* <CartesianGrid strokeDasharray="3 3" vertical={false} /> */}
-              <XAxis type="number" tick={{ fontSize: 12 }} />
-              <YAxis
-                dataKey="name"
-                type="category"
-                tick={{ fontSize: 13, fill: "#374151" }}
-                width={150}
-              />
-              <Tooltip
-                cursor={{ fill: '#f3f4f6' }}
-                contentStyle={{ fontSize: '14px', borderRadius: '8px' }}
-              />
-              <Bar dataKey="event_logs_count"  name="Total Events" fill="#10B981" radius={[0, 8, 8, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {topUsers.length === 0 ? (
+            <p className="text-gray-500">No data available.</p>
+          ) : (
+            <ResponsiveContainer width="80%" height={Math.max(topUsers.length * 50, 100)}>
+              {/* BarChart goes here */}
+              <BarChart
+                data={topUsers}
+                layout="vertical"
+                margin={{ top: 30, right: 20, left: 100, bottom: 20 }}
+                barSize={20}
+              >
+                {/* <CartesianGrid strokeDasharray="3 3" vertical={false} /> */}
+                <XAxis type="number" tick={{ fontSize: 12 }} />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  tick={{ fontSize: 13, fill: "#374151" }}
+                  width={150}
+                />
+                <Tooltip
+                  cursor={{ fill: '#f3f4f6' }}
+                  contentStyle={{ fontSize: '14px', borderRadius: '8px' }}
+                />
+                <Bar dataKey="event_logs_count" name="Total Events" fill="#10B981" radius={[0, 8, 8, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">

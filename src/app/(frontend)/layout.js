@@ -12,7 +12,7 @@ const FrontendLayout = ({ children }) => {
         <Suspense fallback={<FrontendLoading />}>
             <FrontendNavigation />
         </Suspense>
-            <main className="p-6">{children}</main>
+            <main className="p-2">{children}</main>
             <Footer />
         </>
     )

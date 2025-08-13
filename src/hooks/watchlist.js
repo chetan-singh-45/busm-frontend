@@ -10,7 +10,12 @@ export const useWatchlist = (filters = {}) => {
     return data
   }
 
-  const { data, error, mutate, isLoading } = useSWR(endpoint, fetcher)
+  const { data, error, mutate, isLoading } = useSWR(endpoint, fetcher, {
+    revalidateOnFocus: false,      // Don't refetch when switching tabs
+    revalidateOnReconnect: false,  // Don't refetch on network reconnect
+    refreshInterval: 0,            // No polling
+    dedupingInterval: 10000,       // Optional: prevents repeat calls within 10s
+  })
 
   const handleAddWatchlist = async (watchlist) => {
     try {

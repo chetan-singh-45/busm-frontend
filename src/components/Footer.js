@@ -1,8 +1,14 @@
-import { Mail, MapPin, Phone } from 'lucide-react'
+import { Mail, MapPin, Phone, HelpCircle } from 'lucide-react'
 import ApplicationLogo from '@/components/ApplicationLogo'
 import Link from 'next/link'
-
+import { useAuth } from '@/hooks/auth'
+import LoginRegisterModal from '@/components/LoginRegisterModal'
+import { useState } from 'react'
 const Footer = () => {
+
+  const { user } = useAuth();
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <footer className="w-full px-2 py-2">
       <div className="bg-[#0a0839] text-white rounded-[24px] shadow-xl px-6 sm:px-10 md:px-16 py-10 space-y-10">
@@ -80,8 +86,29 @@ const Footer = () => {
 
         <hr className="border-t border-gray-700" />
 
-        <div className="flex justify-between text-sm text-gray-500 pt-2">
+        <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500 pt-2 gap-2">
           <p>© Copyright 2025 TrendNotifier. All Rights Reserved</p>
+
+          {user ? (
+            <Link
+              href="/support"
+              className="flex items-center gap-2 rounded-full px-4 py-2 bg-green-500 text-white hover:bg-green-400 font-semibold transition-all duration-150"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Raise Ticket
+            </Link>
+          ) : (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex items-center gap-2 rounded-full px-4 py-2 bg-green-500 text-white hover:bg-green-400 font-semibold transition-all duration-150"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Raise Ticket
+            </button>
+          )}
+
+          {/* Modal */}
+          {!user && <LoginRegisterModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />}
         </div>
       </div>
     </footer>
