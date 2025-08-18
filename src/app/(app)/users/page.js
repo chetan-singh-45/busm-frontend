@@ -12,7 +12,8 @@ const Users = () => {
     isError,
     handleCreateUser,
     handleUpdateUser,
-    handleDeleteUser
+    handleDeleteUser,
+    handleLoginAs
   } = useAllUser()
 
   const [form, setForm] = useState({ id: '', name: '', email: '', password: '' })
@@ -97,6 +98,7 @@ const Users = () => {
                         <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
                         <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
                         <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Login As</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
@@ -120,6 +122,12 @@ const Users = () => {
                                 Delete
                               </button>
                             </div>
+                              <button
+                                onClick={() => handleLoginAs(user.id)}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm transition"
+                              >
+                                Login As
+                              </button>
                           </td>
                         </tr>
                       ))}

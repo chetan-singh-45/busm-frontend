@@ -1,33 +1,36 @@
+// hooks/tickets.js
 import useSWR from 'swr'
-import {getTickets, createTickets, showTickets, replyTickets,updateTicketStatus} from '@/services/tickets'
-import { useAuth } from '@/hooks/auth';
+import { getTickets, createTickets, showTickets, replyTickets, updateTicketStatus } from '@/services/tickets'
+import { useAuth } from '@/hooks/auth'
 
-export const useTickets = () => {
-  const { user } = useAuth();
+export const useTickets = (page = 1, search = '', status = '') => {
+  const { user } = useAuth()
 
   const fetcher = async () => {
-    const { data } = await getTickets()
+    const { data } = await getTickets({ page, search, status })
     return data
   }
-    
+
+  const { data, error, mutate, isLoading } = useSWR(
+    ['/api/tickets', page, search, status],
+    fetcher,
+    { revalidateOnFocus: false }
+  )
+
   const storeTickets = async (ticket) => {
-     try {
-         await createTickets(ticket)
-         mutate()
-     } catch (err) {
-         throw err.response?.data?.message || 'Create failed'
-     }
+    await createTickets(ticket)
+    mutate()
   }
 
   const getTicketWithReplies = async (id) => {
     const { data } = await showTickets(id)
-    return data 
+    return data
   }
-  
+
   const sendReply = async (id, reply) => {
-    await replyTickets(reply, id)
+    const updated = await replyTickets(reply, id)
     mutate()
-    return await getTicketWithReplies(id)
+    return updated
   }
 
   const changeStatus = async (id, status) => {
@@ -35,15 +38,9 @@ export const useTickets = () => {
     mutate()
   }
 
-const { data, error, mutate, isLoading } = useSWR('/api/tickets', fetcher, {
-  revalidateOnFocus: false,      //  Don't refetch when switching tabs
-  revalidateOnReconnect: false,  //  Don't refetch on network reconnect
-  refreshInterval: 0,            //  No polling
-  dedupingInterval: 10000,       //  Optional: prevents repeat calls within 10s
-})
-
-return {
-    tickets: data?.data,
+  return {
+    tickets: data?.data || [],
+    pagination: data?.data || {},    
     isLoading: isLoading && !data,
     isError: error,
     storeTickets,

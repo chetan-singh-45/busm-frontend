@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { getUsers, createUser, updateUser, deleteUser } from '@/services/users'
+import { getUsers, createUser, updateUser, deleteUser, loginAsUser } from '@/services/users'
 
 export const useAllUser = () => {
   const fetcher = async () => {
@@ -36,12 +36,23 @@ export const useAllUser = () => {
     }
   }
 
+   const handleLoginAs = async (id) => {
+    try {
+      const { data } = await loginAsUser(id)
+      mutate('/api/user')
+      window.location.href = data.redirect 
+    } catch (err) {
+      throw err.response?.data?.message || 'Login as failed'
+    }
+  }
   return {
     users: data?.data,
     isLoading: isLoading && !data,
     isError: error,
     handleCreateUser,
     handleUpdateUser,
-    handleDeleteUser
+    handleDeleteUser,
+    handleLoginAs
+
   }
 }
