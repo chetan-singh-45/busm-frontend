@@ -31,7 +31,8 @@ export default function TicketsPage() {
     }
   }, [replies])
 
-  const sortReplies = (list) => [...list].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+  const sortReplies = (list) =>
+    [...list].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
 
   const handleSelectTicket = async (ticket) => {
     setSelectedTicket(ticket)
@@ -51,20 +52,24 @@ export default function TicketsPage() {
       {/* Sidebar */}
       <aside className="w-full sm:w-1/3 lg:w-1/4 bg-white border-r flex flex-col">
         <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">All Tickets</h2>
+          <h2 className="text-lg font-semibold">All Tickets</h2>
         </div>
+
         {/* Filters */}
         <div className="p-4 border-b space-y-3">
-          {/* <input
+          {/* 🔍 Search Input */}
+          <input
             type="text"
             placeholder="Search tickets..."
             className="w-full border rounded px-3 py-2"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value)
-              setPage(1)
+              setPage(1) // reset to first page when searching
             }}
-          /> */}
+          />
+
+          {/* Status Filter */}
           <select
             value={status}
             onChange={(e) => {
@@ -90,7 +95,9 @@ export default function TicketsPage() {
             >
               Prev
             </button>
-            <span>Page {pagination.current_page} of {pagination.last_page}</span>
+            <span>
+              Page {pagination.current_page} of {pagination.last_page}
+            </span>
             <button
               disabled={page >= pagination.last_page}
               onClick={() => setPage(page + 1)}
@@ -107,10 +114,11 @@ export default function TicketsPage() {
             <li
               key={ticket.id}
               onClick={() => handleSelectTicket(ticket)}
-              className={`flex items-center p-3 rounded-lg cursor-pointer transition ${selectedTicket?.id === ticket.id
+              className={`flex items-center p-3 rounded-lg cursor-pointer transition ${
+                selectedTicket?.id === ticket.id
                   ? 'bg-green-500 text-white'
                   : 'hover:bg-gray-100'
-                }`}
+              }`}
             >
               <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-300 font-bold">
                 {ticket.name?.[0]?.toUpperCase()}
@@ -119,7 +127,11 @@ export default function TicketsPage() {
                 <p className="text-sm font-medium truncate">{ticket.name}</p>
                 <p className="text-xs truncate opacity-80">{ticket.query}</p>
               </div>
-              <span className={`text-xs px-2 py-1 rounded-full ${statusColors[ticket.status] || 'bg-gray-300 text-black'}`}>
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  statusColors[ticket.status] || 'bg-gray-300 text-black'
+                }`}
+              >
                 {ticket.status}
               </span>
             </li>
@@ -137,7 +149,9 @@ export default function TicketsPage() {
                 <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
                   {selectedTicket.name?.[0]?.toUpperCase()}
                 </div>
-                <h3 className="font-semibold text-gray-800">{selectedTicket.name}</h3>
+                <h3 className="font-semibold text-gray-800">
+                  {selectedTicket.name}
+                </h3>
                 <span className="ml-2 bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full">
                   #{selectedTicket.ticket_no}
                 </span>
@@ -149,16 +163,20 @@ export default function TicketsPage() {
                   onChange={async (e) => {
                     const next = e.target.value
                     await changeStatus(selectedTicket.id, next)
-                    setSelectedTicket(prev => ({ ...prev, status: next }))
+                    setSelectedTicket((prev) => ({ ...prev, status: next }))
                   }}
-                  className={`px-3 py-1 text-xs font-medium rounded-full capitalize cursor-pointer border-0 focus:ring-2 ${statusColors[selectedTicket?.status]}`}
+                  className={`px-3 py-1 text-xs font-medium rounded-full capitalize cursor-pointer border-0 focus:ring-2 ${
+                    statusColors[selectedTicket?.status]
+                  }`}
                 >
                   <option value="open">Open</option>
                   <option value="pending">Pending</option>
                   <option value="closed">Closed</option>
                 </select>
               ) : (
-                <span className={`${statusColors[selectedTicket?.status]} text-xs px-3 py-1 rounded-full capitalize`}>
+                <span
+                  className={`${statusColors[selectedTicket?.status]} text-xs px-3 py-1 rounded-full capitalize`}
+                >
                   {selectedTicket?.status}
                 </span>
               )}
@@ -166,12 +184,21 @@ export default function TicketsPage() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {replies.length === 0 && <p className="text-gray-400 text-center">No replies yet.</p>}
+              {replies.length === 0 && (
+                <p className="text-gray-400 text-center">No replies yet.</p>
+              )}
               {replies.map((reply) => {
                 const isMine = reply.reply_type == currentUserRole
                 return (
-                  <div key={reply.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-xs rounded-lg px-4 py-2 shadow ${isMine ? 'bg-green-100' : 'bg-white border'}`}>
+                  <div
+                    key={reply.id}
+                    className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs rounded-lg px-4 py-2 shadow ${
+                        isMine ? 'bg-green-100' : 'bg-white border'
+                      }`}
+                    >
                       <p className="text-sm">{reply.reply}</p>
                       <span className="block text-xs text-gray-500 mt-1">
                         {new Date(reply.created_at).toLocaleString()}
