@@ -19,11 +19,11 @@ const Users = () => {
   const [form, setForm] = useState({ id: '', name: '', email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [modalType, setModalType] = useState(null)
+  const [modalType, setModalType] = useState(null) 
 
   const { id, name, email, password } = form
 
-  const openModal = (type, user = {}) => {
+  const openModal = (type, user = {}) => { 
     setForm({
       id: user.id || '',
       name: user.name || '',

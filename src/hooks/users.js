@@ -1,5 +1,6 @@
 import useSWR from 'swr'
 import { getUsers, createUser, updateUser, deleteUser, loginAsUser } from '@/services/users'
+import axios from '@/lib/axios'
 
 export const useAllUser = () => {
   const fetcher = async () => {
@@ -38,10 +39,11 @@ export const useAllUser = () => {
 
    const handleLoginAs = async (id) => {
     try {
-      const { data } = await loginAsUser(id)
-      mutate('/api/user')
-      window.location.href = data.redirect 
+      await axios.get('/sanctum/csrf-cookie')
+      await loginAsUser(id)
+      window.location.href = '/dashboard'
     } catch (err) {
+      console.error('Login as failed:', err)
       throw err.response?.data?.message || 'Login as failed'
     }
   }
