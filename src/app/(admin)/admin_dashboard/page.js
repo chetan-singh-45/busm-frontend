@@ -39,6 +39,7 @@ const AdminDashboard = () => {
   const new_user_7d = stats?.newUsers_7d || 0;
   const countriesMonitored = stats?.totalUniqueCountries || 0;
   const indices_traked = stats?.indices_traked || 0
+  const onboard = stats?.onboarding_change_percent || 0
 
   //User Behavior Insights
   const most_popular_index = stats?.top_index || 'No Data'
@@ -125,6 +126,7 @@ const AdminDashboard = () => {
     { icon: <UserPlus className="w-6 h-6 text-green-500" />, title: "New Users (7d)", value: new_user_7d },
     { icon: <Globe className="w-6 h-6 text-green-500" />, title: "Countries Monitored", value: countriesMonitored },
     { icon: <TrendingUp className="w-6 h-6 text-green-500" />, title: "Indices Tracked", value: indices_traked },
+    { icon: <Clock className="w-6 h-6 text-green-500" />, title: "Onboarding", value: onboard },
   ]
 
   const behaviorInsights = [
